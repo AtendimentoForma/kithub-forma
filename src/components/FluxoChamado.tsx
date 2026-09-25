@@ -65,4 +65,41 @@ export function FluxoChamado({ chamado, perfil }: { chamado: Chamado; perfil: Pe
         </div>
       </div>
     );
+  } else if (isSac && st === "AGUARDANDO PAGAMENTO") {
+    acoes = (
+      <div className="space-y-2">
+        <h4 className="font-semibold">Etapa 4 — Status do pagamento: {chamado.statusPagamento ?? "PENDENTE"}</h4>
+        <div className="flex flex-wrap gap-2">
+          <button disabled={busy} className={primary} onClick={() => go({ status_pagamento: "RECEBIDO" }, "Pagamento recebido — envio autorizado.", "REENVIO AUTORIZADO")}>Pagamento recebido</button>
+          <button disabled={busy} className={outline} onClick={() => go({ status_pagamento: "PENDENTE" }, "Pagamento ainda pendente — cliente cobrado novamente.", null)}>Continua pendente</button>
+          <button disabled={busy} className={outline} onClick={() => go({ status_pagamento: "CANCELADO", motivo_cancelamento: "Pagamento cancelado" }, "Pagamento cancelado — reenvio não realizado.", "CONCLUÍDO")}>Pagamento cancelado</button>
+        </div>
+      </div>
+    );
+  } else if (isLoja && st === "REENVIO AUTORIZADO") {
+    acoes = (
+      <div className="space-y-2">
+        <h4 className="font-semibold">Reenvio autorizado — despachar pedido</h4>
+        <div className="flex gap-2">
+          <input className={input} maxLength={100} placeholder="Novo nº de rastreio Mandaê" value={rastreio} onChange={(e) => setRastreio(e.target.value)} />
+          <button disabled={busy} className={primary} onClick={() => {
+            if (!rastreio.trim()) { setErro("Informe o novo nº de rastreio."); return; }
+            run(() => despacharChamado(chamado.numero, rastreio.trim()));
+          }}>Pedido despachado</button>
+        </div>
+      </div>
+    );
+  } else if (st === "REENVIO AUTORIZADO") {
+    acoes = <p className="text-sm text-muted-foreground">Aguardando a Lojinha despachar o pedido.</p>;
   }
+
+  if (!acoes && chamado.requerReenvio == null && chamado.requerPagamento == null && !chamado.novoRastreio) return null;
+
+  return (
+    <div className="mt-6 space-y-3 rounded-lg border bg-muted/30 p-4">
+      {resumo}
+      {acoes}
+      {erro && <p className="text-sm text-destructive">{erro}</p>}
+    </div>
+  );
+}
