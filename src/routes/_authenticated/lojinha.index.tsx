@@ -35,26 +35,7 @@ function Dashboard() {
         ))}
       </div>
       <h2 className="mb-3 mt-8 font-semibold">Chamados recentes</h2>
-      <div className="rounded-xl border bg-background">
-        {list.length === 0 ? (
-          <p className="p-6 text-sm text-muted-foreground">Nenhum chamado ainda.</p>
-        ) : (
-          list.slice(0, 5).map((c) => (
-            <button
-              key={c.numero}
-              onClick={() => setAberto(c.numero)}
-              className="flex w-full items-center justify-between border-b p-4 text-left last:border-0 hover:bg-muted/40"
-            >
-              <div>
-                <span className="font-mono font-semibold">{formatNumero(c.numero)}</span>
-                <span className="ml-3">{c.paxNome}</span>
-              </div>
-              <StatusBadge status={c.status} />
-            </button>
-          ))
-        )}
-      </div>
-      {abertoChamado && <ChamadoDetalhe chamado={abertoChamado} onClose={() => setAberto(null)} />}
+      <ChamadosRecentes />
     </Shell>
   );
 }
