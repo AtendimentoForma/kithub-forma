@@ -3,7 +3,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { Shell } from "@/components/Shell";
 import { ChamadoDetalhe } from "@/components/ChamadoDetalhe";
-import { STATUSES, STATUS_LABEL, chamadosQuery, formatNumero, updateStatus, type Status } from "@/lib/chamados";
+import { STATUSES_SAC as STATUSES, STATUS_LABEL, chamadosQuery, formatNumero, updateStatus, type Status } from "@/lib/chamados";
 
 export const Route = createFileRoute("/_authenticated/sac/chamados")({
   validateSearch: (s: Record<string, unknown>): { status?: Status } =>
