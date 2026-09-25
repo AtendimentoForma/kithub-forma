@@ -56,7 +56,8 @@ export function ChamadoDetalhe({ chamado, onClose }: { chamado: Chamado; onClose
             ["Aberto em", new Date(chamado.criadoEm).toLocaleString("pt-BR")],
             ["Solicitante", chamado.solicitante],
             ["Passageiro", chamado.paxNome], ["CPF", chamado.cpf],
-            ["ID Pax", chamado.paxId], ["Responsável", chamado.responsavel],
+            ["ID Pax", chamado.paxId], ["ID Delivery", chamado.idDelivery ?? "—"],
+            ["Responsável", chamado.responsavel],
             ["Rastreio Mandaê", chamado.rastreio], ["Data do envio", chamado.dataEnvio],
           ] as const).map(([k, v]) => (
             <div key={k}><dt className="text-muted-foreground">{k}</dt><dd className="font-medium">{v}</dd></div>
