@@ -33,7 +33,7 @@ export function Shell({ title, children, perfil = "lojinha" }: { title: string; 
     <div className="min-h-screen bg-muted/40">
       <header className="border-b bg-background">
         <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-3 px-6 py-4">
-          <span className="font-bold tracking-tight">Reenvio de Kits Pax <span className="ml-2 text-xs font-normal text-muted-foreground">{rotulo}</span></span>
+          <span className="font-bold tracking-tight">KitHub <span className="ml-2 text-xs font-normal text-muted-foreground">{rotulo}</span></span>
           <nav className="flex flex-wrap items-center gap-4 text-sm">
             {perfil === "lojinha" && (
               <>
