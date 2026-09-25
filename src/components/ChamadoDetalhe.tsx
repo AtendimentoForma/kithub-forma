@@ -1,17 +1,29 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { StatusBadge } from "@/components/Shell";
 import { FluxoChamado } from "@/components/FluxoChamado";
-import { STATUSES, formatNumero, movimentacoesQuery, addMovimentacao, getMyRole, type Chamado, type Status } from "@/lib/chamados";
+import { STATUSES, formatNumero, movimentacoesQuery, addMovimentacao, getMyRole, marcarChamadoVisto, ultimasMovimentacoesQuery, leiturasQuery, type Chamado, type Status } from "@/lib/chamados";
 
 export function ChamadoDetalhe({ chamado, onClose }: { chamado: Chamado; onClose: () => void }) {
   const qc = useQueryClient();
   const { data: movs = [] } = useQuery(movimentacoesQuery(chamado.numero));
+  const { data: ultimas } = useQuery(ultimasMovimentacoesQuery);
+  const { data: leituras } = useQuery(leiturasQuery);
   const { data: perfil = null } = useQuery({ queryKey: ["my-role"], queryFn: getMyRole });
   const [texto, setTexto] = useState("");
   const [status, setStatus] = useState<Status>(chamado.status);
   const [erro, setErro] = useState("");
   const [enviando, setEnviando] = useState(false);
+
+  useEffect(() => {
+    const ultima = ultimas?.[chamado.numero];
+    if (!ultima || !leituras || ultima.autorId === leituras.usuarioId || (leituras.vistos[chamado.numero] && new Date(leituras.vistos[chamado.numero]).getTime() >= new Date(ultima.criadoEm).getTime())) return;
+    let active = true;
+    marcarChamadoVisto(chamado.numero, ultima.criadoEm)
+      .then(() => { if (active) void qc.invalidateQueries({ queryKey: ["chamado-leituras"] }); })
+      .catch((error) => console.error("Não foi possível marcar o chamado como visto.", error));
+    return () => { active = false; };
+  }, [chamado.numero, ultimas, leituras, qc]);
 
   async function enviar() {
     setErro("");
@@ -24,6 +36,7 @@ export function ChamadoDetalhe({ chamado, onClose }: { chamado: Chamado; onClose
       await Promise.all([
         qc.invalidateQueries({ queryKey: ["chamados"] }),
         qc.invalidateQueries({ queryKey: ["movimentacoes", chamado.numero] }),
+        qc.invalidateQueries({ queryKey: ["ultimas-movimentacoes"] }),
       ]);
     } catch (e) {
       setErro(e instanceof Error ? e.message : "Erro ao registrar movimentação.");

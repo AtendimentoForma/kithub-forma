@@ -27,6 +27,7 @@ export function FluxoChamado({ chamado, perfil }: { chamado: Chamado; perfil: Pe
       await fn();
       await qc.invalidateQueries({ queryKey: ["chamados"] });
       await qc.invalidateQueries({ queryKey: ["movimentacoes", chamado.numero] });
+      await qc.invalidateQueries({ queryKey: ["ultimas-movimentacoes"] });
     } catch (e) {
       setErro(e instanceof Error ? e.message : "Erro ao atualizar o chamado.");
     } finally { setBusy(false); }

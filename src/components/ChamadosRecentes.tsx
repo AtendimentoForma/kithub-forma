@@ -4,7 +4,7 @@ import { useMemo, useState } from "react";
 import { StatusBadge } from "@/components/Shell";
 import { ChamadoDetalhe } from "@/components/ChamadoDetalhe";
 import { Button } from "@/components/ui/button";
-import { chamadosQuery, formatNumero, leiturasQuery, marcarChamadoVisto, ultimasMovimentacoesQuery, type Chamado } from "@/lib/chamados";
+import { chamadosQuery, formatNumero, leiturasQuery, ultimasMovimentacoesQuery, type Chamado } from "@/lib/chamados";
 
 type Ordem = "num_desc" | "num_asc" | "tempo_maior" | "tempo_menor" | "status_asc" | "status_desc";
 
@@ -60,19 +60,6 @@ export function ChamadosRecentes() {
     setOrdem((o) => (o === "status_asc" ? "status_desc" : "status_asc"));
   }
 
-  async function abrir(c: Chamado) {
-    setAberto(c.numero);
-    const ultima = ultimas[c.numero];
-    if (ultima && leituras && ultima.autorId !== leituras.usuarioId && (!leituras.vistos[c.numero] || new Date(ultima.criadoEm).getTime() > new Date(leituras.vistos[c.numero]).getTime())) {
-      try {
-        await marcarChamadoVisto(c.numero, ultima.criadoEm);
-        await import("@/lib/chamados").then(() => {});
-      } catch (error) {
-        console.error("Não foi possível marcar o chamado como visto.", error);
-      }
-    }
-  }
-
   const thBtn = "inline-flex items-center gap-1 hover:text-foreground";
   const iconNum = ordem === "num_desc" ? <ArrowDown className="h-3.5 w-3.5" /> : ordem === "num_asc" ? <ArrowUp className="h-3.5 w-3.5" /> : <ArrowUpDown className="h-3.5 w-3.5 opacity-50" />;
   const iconTempo = ordem === "tempo_maior" ? <ArrowDown className="h-3.5 w-3.5" /> : ordem === "tempo_menor" ? <ArrowUp className="h-3.5 w-3.5" /> : <ArrowUpDown className="h-3.5 w-3.5 opacity-50" />;
@@ -80,12 +67,12 @@ export function ChamadosRecentes() {
 
   return (
     <>
-      <div className="rounded-xl border bg-background">
+      <div className="overflow-x-auto rounded-lg border bg-background">
         {list.length === 0 ? (
           <p className="p-6 text-sm text-muted-foreground">Nenhum chamado ainda.</p>
         ) : (
           <>
-            <div className="grid grid-cols-[minmax(0,1fr)_auto_auto] items-center gap-2 border-b bg-muted/50 px-4 py-2 text-xs font-medium text-muted-foreground sm:gap-5">
+            <div className="grid min-w-[560px] grid-cols-[minmax(0,1fr)_5rem_11rem] items-center gap-2 border-b bg-muted/50 px-4 py-2 text-xs font-medium text-muted-foreground sm:gap-5">
               <Button variant="ghost" size="sm" onClick={ciclarNumero} className={`${thBtn} h-7 justify-self-start px-0 text-xs`} title="Ordenar pelo número do chamado">
                 Nº {iconNum}
               </Button>
@@ -104,8 +91,8 @@ export function ChamadosRecentes() {
                 <Button
                   variant="ghost"
                   key={c.numero}
-                  onClick={() => void abrir(c)}
-                  className={`grid h-auto w-full grid-cols-[minmax(0,1fr)_auto_auto] items-center gap-2 rounded-none border-b px-4 py-4 text-left text-sm last:border-0 hover:bg-muted/40 sm:gap-5 ${naoVisto ? "bg-accent/60 font-bold" : "font-normal"}`}
+                  onClick={() => setAberto(c.numero)}
+                  className={`grid h-auto min-w-[560px] w-full grid-cols-[minmax(0,1fr)_5rem_11rem] items-center gap-2 rounded-none border-b px-4 py-4 text-left text-sm last:border-0 hover:bg-muted/40 sm:gap-5 ${naoVisto ? "bg-accent/60 font-bold" : "font-normal"}`}
                 >
                   <div className="flex min-w-0 items-center gap-2 overflow-hidden">
                     {naoVisto && <span className="h-2 w-2 shrink-0 rounded-full bg-primary" title="Nova movimentação" aria-label="Nova movimentação" />}
