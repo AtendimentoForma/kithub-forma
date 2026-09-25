@@ -20,6 +20,7 @@ export function NovoChamadoForm({ listaPath }: { listaPath: "/lojinha/chamados" 
   const navigate = useNavigate();
   const qc = useQueryClient();
   const [motivos, setMotivos] = useState<string[]>([]);
+  const [origens, setOrigens] = useState<string[]>([]);
   const [erro, setErro] = useState("");
   const [enviando, setEnviando] = useState(false);
   const [criado, setCriado] = useState<number | null>(null);
@@ -42,11 +43,16 @@ export function NovoChamadoForm({ listaPath }: { listaPath: "/lojinha/chamados" 
     setMotivos((p) => (p.includes(m) ? p.filter((x) => x !== m) : [...p, m]));
   }
 
+  function toggleOrigem(o: string) {
+    setOrigens((p) => (p.includes(o) ? p.filter((x) => x !== o) : [...p, o]));
+  }
+
   async function submit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
     const f = new FormData(e.currentTarget);
     const g = (k: string) => String(f.get(k) ?? "").trim();
     if (motivos.length === 0) return setErro("Selecione ao menos um motivo.");
+    if (origens.length === 0) return setErro("Marque ao menos uma opção: \"Cliente entrou em contato\" ou \"Identificado internamente\".");
     if (g("cpf").replace(/\D/g, "").length !== 11) return setErro("CPF deve ter 11 dígitos.");
     if (motivos.includes("Outro") && !g("motivoOutro")) return setErro("Descreva o motivo \"Outro\".");
     const nomesAnexos = anexos.map((x) => x.name);
@@ -56,7 +62,8 @@ export function NovoChamadoForm({ listaPath }: { listaPath: "/lojinha/chamados" 
       const c = await addChamado({
         paxNome: g("paxNome"), cpf: g("cpf"), paxId: g("paxId"), responsavel: g("responsavel"),
         rastreio: g("rastreio"), endereco: g("endereco"), dataEnvio: g("dataEnvio"),
-        motivos, motivoOutro: g("motivoOutro") || null, observacao: g("observacao") || null, anexos: nomesAnexos,
+        motivos, motivoOutro: g("motivoOutro") || null, origemSolicitacao: origens.join(", "),
+        observacao: g("observacao") || null, anexos: nomesAnexos,
       });
       await qc.invalidateQueries({ queryKey: ["chamados"] });
       setCriado(c.numero);
@@ -108,6 +115,16 @@ export function NovoChamadoForm({ listaPath }: { listaPath: "/lojinha/chamados" 
             ))}
           </div>
           {motivos.includes("Outro") && <div className="mt-4"><Field label="Descreva o motivo" name="motivoOutro" /></div>}
+          <div className="mt-4 border-t pt-4">
+            <span className="block text-sm font-medium">Origem da solicitação *</span>
+            <div className="mt-2 flex flex-wrap gap-4">
+              {["Cliente entrou em contato", "Identificado internamente"].map((o) => (
+                <label key={o} className="flex items-center gap-2 text-sm">
+                  <input type="checkbox" checked={origens.includes(o)} onChange={() => toggleOrigem(o)} className="h-4 w-4 accent-primary" /> {o}
+                </label>
+              ))}
+            </div>
+          </div>
         </section>
         <section className="rounded-xl border bg-background p-6">
           <h2 className="mb-4 font-semibold">Informações adicionais (opcional)</h2>
