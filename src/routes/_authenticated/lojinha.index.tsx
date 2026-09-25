@@ -1,7 +1,9 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Plus } from "lucide-react";
 import { Shell, StatusBadge } from "@/components/Shell";
+import { ChamadoDetalhe } from "@/components/ChamadoDetalhe";
 import { useQuery } from "@tanstack/react-query";
+import { useState } from "react";
 import { STATUSES, STATUS_LABEL, chamadosQuery, formatNumero } from "@/lib/chamados";
 
 export const Route = createFileRoute("/_authenticated/lojinha/")({
