@@ -44,9 +44,21 @@ export interface Chamado {
   motivoOutro?: string | null;
   observacao?: string | null;
   anexos: string[];
+  confDados: boolean;
+  confEnvio: boolean;
+  confMotivo: boolean;
+  requerReenvio: boolean | null;
+  motivoCancelamento: string | null;
+  requerPagamento: boolean | null;
+  valorFrete: number | null;
+  statusPagamento: StatusPagamento | null;
+  novoRastreio: string | null;
+  despachadoEm: string | null;
 }
 
-export type NovoChamado = Omit<Chamado, "numero" | "criadoEm" | "status" | "solicitante">;
+export type StatusPagamento = "PENDENTE" | "RECEBIDO" | "CANCELADO";
+
+export type NovoChamado = Pick<Chamado, "paxNome" | "cpf" | "paxId" | "responsavel" | "rastreio" | "endereco" | "dataEnvio" | "motivos" | "motivoOutro" | "observacao" | "anexos">;
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function fromRow(r: any): Chamado {
@@ -66,7 +78,36 @@ function fromRow(r: any): Chamado {
     motivoOutro: r.motivo_outro,
     observacao: r.observacao,
     anexos: r.anexos ?? [],
+    confDados: !!r.conf_dados,
+    confEnvio: !!r.conf_envio,
+    confMotivo: !!r.conf_motivo,
+    requerReenvio: r.requer_reenvio ?? null,
+    motivoCancelamento: r.motivo_cancelamento ?? null,
+    requerPagamento: r.requer_pagamento ?? null,
+    valorFrete: r.valor_frete != null ? Number(r.valor_frete) : null,
+    statusPagamento: r.status_pagamento ?? null,
+    novoRastreio: r.novo_rastreio ?? null,
+    despachadoEm: r.despachado_em ?? null,
   };
+}
+
+/** SAC/Admin: atualiza campos do chamado e registra a movimentação correspondente. */
+export async function atualizarFluxo(
+  numero: number,
+  patch: Record<string, unknown>,
+  texto: string | null,
+  statusNovo: Status | null,
+) {
+  if (Object.keys(patch).length) {
+    const { error } = await supabase.from("chamados").update(patch as never).eq("numero", numero);
+    if (error) throw error;
+  }
+  if (texto || statusNovo) await addMovimentacao(numero, texto, statusNovo);
+}
+
+export async function despacharChamado(numero: number, rastreio: string) {
+  const { error } = await supabase.rpc("despachar_chamado", { _numero: numero, _rastreio: rastreio });
+  if (error) throw error;
 }
 
 export const chamadosQuery = queryOptions({
