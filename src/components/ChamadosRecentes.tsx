@@ -100,8 +100,12 @@ export function ChamadosRecentes() {
                     <span className="font-mono font-semibold">{formatNumero(c.numero)}</span>
                     <span className="truncate">{c.paxNome}</span>
                   </div>
-                    <span className={`justify-self-center rounded-md px-2 py-0.5 text-xs font-semibold ${tempoClasse(esperaMs(c, ultimas))}`} title={`Última movimentação: ${new Date(desde).toLocaleString("pt-BR")}`}>
-                      {tempoEspera(desde)}
+                    <span className="justify-self-center">
+                      {c.status !== "CONCLUÍDO" && (
+                        <span className={`rounded-md px-2 py-0.5 text-xs font-semibold ${tempoClasse(esperaMs(c, ultimas))}`} title={`Última movimentação: ${new Date(desde).toLocaleString("pt-BR")}`}>
+                          {tempoEspera(desde)}
+                        </span>
+                      )}
                     </span>
                     <span className="justify-self-center"><StatusBadge status={c.status} /></span>
                 </Button>
