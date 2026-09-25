@@ -14,16 +14,117 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      chamados: {
+        Row: {
+          anexos: string[]
+          cpf: string
+          criado_em: string
+          data_envio: string
+          endereco: string
+          motivo_outro: string | null
+          motivos: string[]
+          numero: number
+          observacao: string | null
+          pax_id: string
+          pax_nome: string
+          rastreio: string
+          responsavel: string
+          solicitante: string
+          solicitante_id: string
+          status: string
+        }
+        Insert: {
+          anexos?: string[]
+          cpf: string
+          criado_em?: string
+          data_envio: string
+          endereco: string
+          motivo_outro?: string | null
+          motivos?: string[]
+          numero?: number
+          observacao?: string | null
+          pax_id: string
+          pax_nome: string
+          rastreio: string
+          responsavel: string
+          solicitante?: string
+          solicitante_id?: string
+          status?: string
+        }
+        Update: {
+          anexos?: string[]
+          cpf?: string
+          criado_em?: string
+          data_envio?: string
+          endereco?: string
+          motivo_outro?: string | null
+          motivos?: string[]
+          numero?: number
+          observacao?: string | null
+          pax_id?: string
+          pax_nome?: string
+          rastreio?: string
+          responsavel?: string
+          solicitante?: string
+          solicitante_id?: string
+          status?: string
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          created_at: string
+          email: string | null
+          id: string
+          nome: string
+        }
+        Insert: {
+          created_at?: string
+          email?: string | null
+          id: string
+          nome?: string
+        }
+        Update: {
+          created_at?: string
+          email?: string | null
+          id?: string
+          nome?: string
+        }
+        Relationships: []
+      }
+      user_roles: {
+        Row: {
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "lojinha" | "sac"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +251,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["lojinha", "sac"],
+    },
   },
 } as const
