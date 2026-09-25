@@ -147,18 +147,21 @@ export type Database = {
       }
       profiles: {
         Row: {
+          aprovado: boolean
           created_at: string
           email: string | null
           id: string
           nome: string
         }
         Insert: {
+          aprovado?: boolean
           created_at?: string
           email?: string | null
           id: string
           nome?: string
         }
         Update: {
+          aprovado?: boolean
           created_at?: string
           email?: string | null
           id?: string
@@ -189,6 +192,25 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      admin_definir_usuario: {
+        Args: {
+          _aprovado: boolean
+          _id: string
+          _papel: Database["public"]["Enums"]["app_role"]
+        }
+        Returns: undefined
+      }
+      admin_listar_usuarios: {
+        Args: never
+        Returns: {
+          aprovado: boolean
+          created_at: string
+          email: string
+          id: string
+          nome: string
+          papeis: string[]
+        }[]
+      }
       despachar_chamado: {
         Args: { _numero: number; _rastreio: string }
         Returns: undefined
@@ -200,6 +222,7 @@ export type Database = {
         }
         Returns: boolean
       }
+      meu_status_aprovacao: { Args: never; Returns: boolean }
     }
     Enums: {
       app_role: "lojinha" | "sac" | "admin"
