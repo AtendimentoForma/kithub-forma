@@ -1,11 +1,13 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { StatusBadge } from "@/components/Shell";
-import { STATUSES, formatNumero, movimentacoesQuery, addMovimentacao, type Chamado, type Status } from "@/lib/chamados";
+import { FluxoChamado } from "@/components/FluxoChamado";
+import { STATUSES, formatNumero, movimentacoesQuery, addMovimentacao, getMyRole, type Chamado, type Status } from "@/lib/chamados";
 
 export function ChamadoDetalhe({ chamado, onClose }: { chamado: Chamado; onClose: () => void }) {
   const qc = useQueryClient();
   const { data: movs = [] } = useQuery(movimentacoesQuery(chamado.numero));
+  const { data: perfil = null } = useQuery({ queryKey: ["my-role"], queryFn: getMyRole });
   const [texto, setTexto] = useState("");
   const [status, setStatus] = useState<Status>(chamado.status);
   const [erro, setErro] = useState("");
@@ -49,6 +51,8 @@ export function ChamadoDetalhe({ chamado, onClose }: { chamado: Chamado; onClose
           {chamado.observacao && <div className="col-span-2"><dt className="text-muted-foreground">Observação</dt><dd>{chamado.observacao}</dd></div>}
           {chamado.anexos.length > 0 && <div className="col-span-2"><dt className="text-muted-foreground">Anexos</dt><dd>{chamado.anexos.join(", ")}</dd></div>}
         </dl>
+
+        <FluxoChamado key={`${chamado.numero}-${chamado.status}`} chamado={chamado} perfil={perfil} />
 
         <h3 className="mt-6 mb-2 font-semibold">Movimentações</h3>
         <ol className="space-y-2 border-l pl-4 text-sm">

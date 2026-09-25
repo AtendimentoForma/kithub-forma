@@ -129,7 +129,7 @@ export function FluxoChamado({ chamado, perfil }: { chamado: Chamado; perfil: Pe
                 </div>
               </div>
             )}
-          </div>
+          </>
         )}
       </div>
     );
