@@ -2,7 +2,7 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState, type FormEvent } from "react";
 import { Store, Headset } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-import { getMyRole, type Perfil } from "@/lib/chamados";
+import { getMyRole, estouAprovado, type Perfil } from "@/lib/chamados";
 
 type PerfilLogin = "lojinha" | "sac";
 
@@ -65,6 +65,10 @@ function AuthPage() {
       if (modo === "entrar") {
         const { error } = await supabase.auth.signInWithPassword({ email, password: senha });
         if (error) throw new Error("E-mail ou senha inválidos.");
+        if (!(await estouAprovado())) {
+          await supabase.auth.signOut();
+          throw new Error("Seu acesso ainda está aguardando aprovação do administrador.");
+        }
         const role = await getMyRole();
         if (role !== perfil && role !== "admin") {
           await supabase.auth.signOut();
@@ -79,8 +83,9 @@ function AuthPage() {
           options: { emailRedirectTo: `${window.location.origin}/auth?perfil=${perfil}`, data: { nome, perfil } },
         });
         if (error) throw error;
-        if (data.session) await irParaPainel(perfil);
-        else { setAviso("Cadastro feito! Confirme pelo link enviado ao seu e-mail e depois entre."); setModo("entrar"); }
+        if (data.session) await supabase.auth.signOut();
+        setAviso("Cadastro feito! Confirme o link enviado ao seu e-mail e aguarde a aprovação do administrador para entrar.");
+        setModo("entrar");
       }
     } catch (err) {
       setErro(err instanceof Error ? err.message : "Algo deu errado.");
