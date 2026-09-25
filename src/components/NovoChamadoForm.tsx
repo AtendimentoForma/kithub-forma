@@ -56,7 +56,7 @@ export function NovoChamadoForm({ listaPath }: { listaPath: "/lojinha/chamados" 
       const c = await addChamado({
         paxNome: g("paxNome"), cpf: g("cpf"), paxId: g("paxId"), responsavel: g("responsavel"),
         rastreio: g("rastreio"), endereco: g("endereco"), dataEnvio: g("dataEnvio"),
-        motivos, motivoOutro: g("motivoOutro") || null, observacao: g("observacao") || null, anexos,
+        motivos, motivoOutro: g("motivoOutro") || null, observacao: g("observacao") || null, anexos: nomesAnexos,
       });
       await qc.invalidateQueries({ queryKey: ["chamados"] });
       setCriado(c.numero);
