@@ -10,79 +10,71 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as SacRouteImport } from './routes/sac'
-import { Route as LojinhaIndexRouteImport } from './routes/lojinha.index'
-import { Route as LojinhaChamadosRouteImport } from './routes/lojinha.chamados'
-import { Route as LojinhaNovoRouteImport } from './routes/lojinha.novo'
+import { Route as AuthenticatedLojinhaIndexRouteImport } from './routes/_authenticated/lojinha.index'
+import { Route as AuthenticatedLojinhaChamadosRouteImport } from './routes/_authenticated/lojinha.chamados'
+import { Route as AuthenticatedLojinhaNovoRouteImport } from './routes/_authenticated/lojinha.novo'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const SacRoute = SacRouteImport.update({
-  id: '/sac',
-  path: '/sac',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const LojinhaIndexRoute = LojinhaIndexRouteImport.update({
-  id: '/lojinha/',
-  path: '/lojinha/',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const LojinhaChamadosRoute = LojinhaChamadosRouteImport.update({
-  id: '/lojinha/chamados',
-  path: '/lojinha/chamados',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const LojinhaNovoRoute = LojinhaNovoRouteImport.update({
-  id: '/lojinha/novo',
-  path: '/lojinha/novo',
-  getParentRoute: () => rootRouteImport,
-} as any)
+const AuthenticatedLojinhaIndexRoute =
+  AuthenticatedLojinhaIndexRouteImport.update({
+    id: '/_authenticated/lojinha/',
+    path: '/lojinha/',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const AuthenticatedLojinhaChamadosRoute =
+  AuthenticatedLojinhaChamadosRouteImport.update({
+    id: '/_authenticated/lojinha/chamados',
+    path: '/lojinha/chamados',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const AuthenticatedLojinhaNovoRoute =
+  AuthenticatedLojinhaNovoRouteImport.update({
+    id: '/_authenticated/lojinha/novo',
+    path: '/lojinha/novo',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/sac': typeof SacRoute
-  '/lojinha/chamados': typeof LojinhaChamadosRoute
-  '/lojinha/novo': typeof LojinhaNovoRoute
-  '/lojinha/': typeof LojinhaIndexRoute
+  '/lojinha/chamados': typeof AuthenticatedLojinhaChamadosRoute
+  '/lojinha/novo': typeof AuthenticatedLojinhaNovoRoute
+  '/lojinha/': typeof AuthenticatedLojinhaIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/sac': typeof SacRoute
-  '/lojinha/chamados': typeof LojinhaChamadosRoute
-  '/lojinha/novo': typeof LojinhaNovoRoute
-  '/lojinha': typeof LojinhaIndexRoute
+  '/lojinha/chamados': typeof AuthenticatedLojinhaChamadosRoute
+  '/lojinha/novo': typeof AuthenticatedLojinhaNovoRoute
+  '/lojinha': typeof AuthenticatedLojinhaIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
-  '/sac': typeof SacRoute
-  '/lojinha/chamados': typeof LojinhaChamadosRoute
-  '/lojinha/novo': typeof LojinhaNovoRoute
-  '/lojinha/': typeof LojinhaIndexRoute
+  '/_authenticated/lojinha/chamados': typeof AuthenticatedLojinhaChamadosRoute
+  '/_authenticated/lojinha/novo': typeof AuthenticatedLojinhaNovoRoute
+  '/_authenticated/lojinha/': typeof AuthenticatedLojinhaIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/sac' | '/lojinha/chamados' | '/lojinha/novo' | '/lojinha/'
+  fullPaths: '/' | '/lojinha/chamados' | '/lojinha/novo' | '/lojinha/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/sac' | '/lojinha/chamados' | '/lojinha/novo' | '/lojinha'
+  to: '/' | '/lojinha/chamados' | '/lojinha/novo' | '/lojinha'
   id:
     | '__root__'
     | '/'
-    | '/sac'
-    | '/lojinha/chamados'
-    | '/lojinha/novo'
-    | '/lojinha/'
+    | '/_authenticated/lojinha/chamados'
+    | '/_authenticated/lojinha/novo'
+    | '/_authenticated/lojinha/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  SacRoute: typeof SacRoute
-  LojinhaChamadosRoute: typeof LojinhaChamadosRoute
-  LojinhaNovoRoute: typeof LojinhaNovoRoute
-  LojinhaIndexRoute: typeof LojinhaIndexRoute
+  AuthenticatedLojinhaChamadosRoute: typeof AuthenticatedLojinhaChamadosRoute
+  AuthenticatedLojinhaNovoRoute: typeof AuthenticatedLojinhaNovoRoute
+  AuthenticatedLojinhaIndexRoute: typeof AuthenticatedLojinhaIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -94,32 +86,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/sac': {
-      id: '/sac'
-      path: '/sac'
-      fullPath: '/sac'
-      preLoaderRoute: typeof SacRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/lojinha/': {
-      id: '/lojinha/'
+    '/_authenticated/lojinha/': {
+      id: '/_authenticated/lojinha/'
       path: '/lojinha'
       fullPath: '/lojinha/'
-      preLoaderRoute: typeof LojinhaIndexRouteImport
+      preLoaderRoute: typeof AuthenticatedLojinhaIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/lojinha/chamados': {
-      id: '/lojinha/chamados'
+    '/_authenticated/lojinha/chamados': {
+      id: '/_authenticated/lojinha/chamados'
       path: '/lojinha/chamados'
       fullPath: '/lojinha/chamados'
-      preLoaderRoute: typeof LojinhaChamadosRouteImport
+      preLoaderRoute: typeof AuthenticatedLojinhaChamadosRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/lojinha/novo': {
-      id: '/lojinha/novo'
+    '/_authenticated/lojinha/novo': {
+      id: '/_authenticated/lojinha/novo'
       path: '/lojinha/novo'
       fullPath: '/lojinha/novo'
-      preLoaderRoute: typeof LojinhaNovoRouteImport
+      preLoaderRoute: typeof AuthenticatedLojinhaNovoRouteImport
       parentRoute: typeof rootRouteImport
     }
   }
@@ -127,10 +112,9 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  SacRoute: SacRoute,
-  LojinhaChamadosRoute: LojinhaChamadosRoute,
-  LojinhaNovoRoute: LojinhaNovoRoute,
-  LojinhaIndexRoute: LojinhaIndexRoute,
+  AuthenticatedLojinhaChamadosRoute: AuthenticatedLojinhaChamadosRoute,
+  AuthenticatedLojinhaNovoRoute: AuthenticatedLojinhaNovoRoute,
+  AuthenticatedLojinhaIndexRoute: AuthenticatedLojinhaIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

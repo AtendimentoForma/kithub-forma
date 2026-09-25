@@ -1,7 +1,8 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { Shell, StatusBadge } from "@/components/Shell";
-import { STATUSES, STATUS_LABEL, formatNumero, type Status, type Chamado } from "@/lib/chamados";
+import { useQuery } from "@tanstack/react-query";
+import { STATUSES, STATUS_LABEL, chamadosQuery, formatNumero, type Status, type Chamado } from "@/lib/chamados";
 
 export const Route = createFileRoute("/_authenticated/lojinha/chamados")({
   validateSearch: (s: Record<string, unknown>): { status?: Status } =>
@@ -19,7 +20,7 @@ export const Route = createFileRoute("/_authenticated/lojinha/chamados")({
 
 function Lista() {
   const { status } = Route.useSearch();
-  const list = chamadosQuery();
+  const { data: list = [] } = useQuery(chamadosQuery);
   const [aberto, setAberto] = useState<Chamado | null>(null);
   const filtrados = status ? list.filter((c) => c.status === status) : list;
   const pill = (active: boolean) =>
