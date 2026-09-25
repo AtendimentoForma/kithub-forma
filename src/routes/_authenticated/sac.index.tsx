@@ -19,6 +19,7 @@ function Dashboard() {
   const { data: list = [] } = useQuery(chamadosQuery);
   return (
     <Shell title="Dashboard do SAC" perfil="sac">
+      <Link to="/sac/novo" className="mb-6 inline-block rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90">+ Novo chamado</Link>
       <div className="grid gap-4 sm:grid-cols-3 lg:grid-cols-6">
         {STATUSES.map((s) => (
           <Link key={s} to="/sac/chamados" search={{ status: s }} className="rounded-xl border bg-background p-4 hover:border-primary">
