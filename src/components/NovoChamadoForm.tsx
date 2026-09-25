@@ -1,6 +1,7 @@
 import { useNavigate } from "@tanstack/react-router";
 import { useQueryClient } from "@tanstack/react-query";
-import { useState, type FormEvent } from "react";
+import { useRef, useState, type FormEvent } from "react";
+import { Paperclip, X } from "lucide-react";
 import { Shell } from "@/components/Shell";
 import { MOTIVOS, addChamado, formatNumero } from "@/lib/chamados";
 
