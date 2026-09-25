@@ -61,57 +61,87 @@ export type Database = {
       chamados: {
         Row: {
           anexos: string[]
+          conf_dados: boolean
+          conf_envio: boolean
+          conf_motivo: boolean
           cpf: string
           criado_em: string
           data_envio: string
+          despachado_em: string | null
           endereco: string
+          motivo_cancelamento: string | null
           motivo_outro: string | null
           motivos: string[]
+          novo_rastreio: string | null
           numero: number
           observacao: string | null
           pax_id: string
           pax_nome: string
           rastreio: string
+          requer_pagamento: boolean | null
+          requer_reenvio: boolean | null
           responsavel: string
           solicitante: string
           solicitante_id: string
           status: string
+          status_pagamento: string | null
+          valor_frete: number | null
         }
         Insert: {
           anexos?: string[]
+          conf_dados?: boolean
+          conf_envio?: boolean
+          conf_motivo?: boolean
           cpf: string
           criado_em?: string
           data_envio: string
+          despachado_em?: string | null
           endereco: string
+          motivo_cancelamento?: string | null
           motivo_outro?: string | null
           motivos?: string[]
+          novo_rastreio?: string | null
           numero?: number
           observacao?: string | null
           pax_id: string
           pax_nome: string
           rastreio: string
+          requer_pagamento?: boolean | null
+          requer_reenvio?: boolean | null
           responsavel: string
           solicitante?: string
           solicitante_id?: string
           status?: string
+          status_pagamento?: string | null
+          valor_frete?: number | null
         }
         Update: {
           anexos?: string[]
+          conf_dados?: boolean
+          conf_envio?: boolean
+          conf_motivo?: boolean
           cpf?: string
           criado_em?: string
           data_envio?: string
+          despachado_em?: string | null
           endereco?: string
+          motivo_cancelamento?: string | null
           motivo_outro?: string | null
           motivos?: string[]
+          novo_rastreio?: string | null
           numero?: number
           observacao?: string | null
           pax_id?: string
           pax_nome?: string
           rastreio?: string
+          requer_pagamento?: boolean | null
+          requer_reenvio?: boolean | null
           responsavel?: string
           solicitante?: string
           solicitante_id?: string
           status?: string
+          status_pagamento?: string | null
+          valor_frete?: number | null
         }
         Relationships: []
       }
@@ -159,6 +189,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      despachar_chamado: {
+        Args: { _numero: number; _rastreio: string }
+        Returns: undefined
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
