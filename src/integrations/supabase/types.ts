@@ -14,6 +14,50 @@ export type Database = {
   }
   public: {
     Tables: {
+      chamado_movimentacoes: {
+        Row: {
+          autor_id: string
+          autor_nome: string
+          chamado_numero: number
+          criado_em: string
+          id: string
+          perfil: string
+          status_anterior: string | null
+          status_novo: string | null
+          texto: string | null
+        }
+        Insert: {
+          autor_id?: string
+          autor_nome?: string
+          chamado_numero: number
+          criado_em?: string
+          id?: string
+          perfil?: string
+          status_anterior?: string | null
+          status_novo?: string | null
+          texto?: string | null
+        }
+        Update: {
+          autor_id?: string
+          autor_nome?: string
+          chamado_numero?: number
+          criado_em?: string
+          id?: string
+          perfil?: string
+          status_anterior?: string | null
+          status_novo?: string | null
+          texto?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "chamado_movimentacoes_chamado_numero_fkey"
+            columns: ["chamado_numero"]
+            isOneToOne: false
+            referencedRelation: "chamados"
+            referencedColumns: ["numero"]
+          },
+        ]
+      }
       chamados: {
         Row: {
           anexos: string[]
