@@ -14,6 +14,39 @@ export type Database = {
   }
   public: {
     Tables: {
+      chamado_leituras: {
+        Row: {
+          chamado_numero: number
+          usuario_id: string
+          visto_em: string
+        }
+        Insert: {
+          chamado_numero: number
+          usuario_id: string
+          visto_em: string
+        }
+        Update: {
+          chamado_numero?: number
+          usuario_id?: string
+          visto_em?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "chamado_leituras_chamado_numero_fkey"
+            columns: ["chamado_numero"]
+            isOneToOne: false
+            referencedRelation: "chamados"
+            referencedColumns: ["numero"]
+          },
+          {
+            foreignKeyName: "chamado_leituras_usuario_id_fkey"
+            columns: ["usuario_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       chamado_movimentacoes: {
         Row: {
           autor_id: string
