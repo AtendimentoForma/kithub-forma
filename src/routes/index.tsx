@@ -20,18 +20,18 @@ function Index() {
         <h1 className="text-3xl font-bold tracking-tight">Reenvio de Kits Pax</h1>
         <p className="mt-2 text-muted-foreground">Sistema de chamados para reenvio de kits de passageiros</p>
         <div className="mt-8 grid gap-4 sm:grid-cols-2">
-          <div className="rounded-xl border bg-background p-8">
+          <Link to="/auth" search={{ perfil: "lojinha" }} className="rounded-xl border bg-background p-8 transition hover:border-primary hover:shadow-sm">
             <Store className="mx-auto h-10 w-10 text-primary" />
             <div className="mt-4 text-lg font-semibold">Lojinha</div>
             <p className="mt-1 text-sm text-muted-foreground">Abrir e acompanhar chamados de reenvio</p>
-          </div>
-          <div className="rounded-xl border bg-background p-8">
+          </Link>
+          <Link to="/auth" search={{ perfil: "sac" }} className="rounded-xl border bg-background p-8 transition hover:border-primary hover:shadow-sm">
             <Headset className="mx-auto h-10 w-10 text-primary" />
             <div className="mt-4 text-lg font-semibold">SAC</div>
             <p className="mt-1 text-sm text-muted-foreground">Análise e tratativa dos chamados</p>
-          </div>
+          </Link>
         </div>
-        <Link to="/auth" className="mt-8 inline-block rounded-md bg-primary px-8 py-2.5 text-sm font-medium text-primary-foreground hover:bg-primary/90">Entrar</Link>
+        <p className="mt-6 text-sm text-muted-foreground">Escolha seu perfil para entrar com e-mail e senha</p>
       </div>
     </div>
   );

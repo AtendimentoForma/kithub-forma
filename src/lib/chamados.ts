@@ -136,13 +136,14 @@ export async function addMovimentacao(numero: number, texto: string | null, stat
   if (error) throw error;
 }
 
-export type Perfil = "lojinha" | "sac";
+export type Perfil = "lojinha" | "sac" | "admin";
 
 export async function getMyRole(): Promise<Perfil | null> {
   const { data: u } = await supabase.auth.getUser();
   if (!u.user) return null;
   const { data } = await supabase.from("user_roles").select("role").eq("user_id", u.user.id);
   const roles = (data ?? []).map((r) => r.role);
+  if (roles.includes("admin")) return "admin";
   if (roles.includes("lojinha")) return "lojinha";
   if (roles.includes("sac")) return "sac";
   return null;
