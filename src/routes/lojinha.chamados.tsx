@@ -5,7 +5,7 @@ import { STATUSES, STATUS_LABEL, useChamados, formatNumero, type Status, type Ch
 
 export const Route = createFileRoute("/lojinha/chamados")({
   validateSearch: (s: Record<string, unknown>): { status?: Status } =>
-    STATUSES.includes(s.status as Status) ? { status: s.status as Status } : {},
+    STATUSES.includes(s["status"] as Status) ? { status: s["status"] as Status } : {},
   head: () => ({
     meta: [
       { title: "Chamados — Reenvio de Kits Pax" },

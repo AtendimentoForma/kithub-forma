@@ -40,8 +40,8 @@ export interface Chamado {
   endereco: string;
   dataEnvio: string;
   motivos: string[];
-  motivoOutro?: string;
-  observacao?: string;
+  motivoOutro?: string | undefined;
+  observacao?: string | undefined;
   anexos: string[];
 }
 
