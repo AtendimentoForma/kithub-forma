@@ -108,6 +108,7 @@ export type Database = {
           novo_rastreio: string | null
           numero: number
           observacao: string | null
+          origem_solicitacao: string
           pax_id: string
           pax_nome: string
           rastreio: string
@@ -136,6 +137,7 @@ export type Database = {
           novo_rastreio?: string | null
           numero?: number
           observacao?: string | null
+          origem_solicitacao?: string
           pax_id: string
           pax_nome: string
           rastreio: string
@@ -164,6 +166,7 @@ export type Database = {
           novo_rastreio?: string | null
           numero?: number
           observacao?: string | null
+          origem_solicitacao?: string
           pax_id?: string
           pax_nome?: string
           rastreio?: string

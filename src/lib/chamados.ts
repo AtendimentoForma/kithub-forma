@@ -42,6 +42,7 @@ export interface Chamado {
   dataEnvio: string;
   motivos: string[];
   motivoOutro?: string | null;
+  origemSolicitacao: string;
   observacao?: string | null;
   anexos: string[];
   confDados: boolean;
@@ -58,7 +59,7 @@ export interface Chamado {
 
 export type StatusPagamento = "PENDENTE" | "RECEBIDO" | "CANCELADO";
 
-export type NovoChamado = Pick<Chamado, "paxNome" | "cpf" | "paxId" | "responsavel" | "rastreio" | "endereco" | "dataEnvio" | "motivos" | "motivoOutro" | "observacao" | "anexos">;
+export type NovoChamado = Pick<Chamado, "paxNome" | "cpf" | "paxId" | "responsavel" | "rastreio" | "endereco" | "dataEnvio" | "motivos" | "motivoOutro" | "origemSolicitacao" | "observacao" | "anexos">;
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function fromRow(r: any): Chamado {
@@ -76,6 +77,7 @@ function fromRow(r: any): Chamado {
     dataEnvio: r.data_envio,
     motivos: r.motivos ?? [],
     motivoOutro: r.motivo_outro,
+    origemSolicitacao: r.origem_solicitacao ?? "",
     observacao: r.observacao,
     anexos: r.anexos ?? [],
     confDados: !!r.conf_dados,
@@ -179,6 +181,7 @@ export async function addChamado(c: NovoChamado): Promise<Chamado> {
       data_envio: c.dataEnvio,
       motivos: c.motivos,
       motivo_outro: c.motivoOutro ?? null,
+      origem_solicitacao: c.origemSolicitacao,
       observacao: c.observacao ?? null,
       anexos: c.anexos,
     })
