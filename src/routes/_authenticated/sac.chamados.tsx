@@ -34,6 +34,11 @@ function Lista() {
 
   async function mudar(numero: number, novoStatus: Status) {
     setErro("");
+    if (["CONCLUÍDO", "REENVIO AUTORIZADO", "AGUARDANDO CLIENTE", "ANÁLISE LIDERANÇA"].includes(novoStatus)) {
+      setErro(`Para marcar como "${novoStatus}", abra o chamado e escreva a observação.`);
+      setAberto(numero);
+      return;
+    }
     try {
       await updateStatus(numero, novoStatus);
       await qc.invalidateQueries({ queryKey: ["chamados"] });
