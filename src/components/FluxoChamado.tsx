@@ -14,14 +14,8 @@ export function FluxoChamado({ chamado, perfil }: { chamado: Chamado; perfil: Pe
   const qc = useQueryClient();
   const [erro, setErro] = useState("");
   const [busy, setBusy] = useState(false);
-  const [motivoCanc, setMotivoCanc] = useState("");
   const [valor, setValor] = useState(chamado.valorFrete?.toString() ?? "");
   const [rastreio, setRastreio] = useState("");
-  const [editando, setEditando] = useState(false);
-  const [dados, setDados] = useState({
-    pax_nome: chamado.paxNome, cpf: chamado.cpf, pax_id: chamado.paxId,
-    responsavel: chamado.responsavel, endereco: chamado.endereco,
-  });
 
   const isSac = perfil === "sac" || perfil === "admin";
   const isLoja = perfil === "lojinha" || perfil === "admin";
