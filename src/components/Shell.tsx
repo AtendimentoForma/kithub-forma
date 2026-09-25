@@ -1,7 +1,8 @@
 import { Link, useNavigate } from "@tanstack/react-router";
-import { useQueryClient } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import type { ReactNode } from "react";
 import type { Status } from "@/lib/chamados";
+import { getMyRole } from "@/lib/chamados";
 import { supabase } from "@/integrations/supabase/client";
 
 const linkCls = "text-muted-foreground hover:text-foreground";
@@ -23,7 +24,7 @@ export function Shell({ title, children, perfil = "lojinha" }: { title: string; 
       <header className="border-b bg-background">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
           <span className="font-bold tracking-tight">Reenvio de Kits Pax <span className="ml-2 text-xs font-normal text-muted-foreground">{perfil === "sac" ? "SAC" : "Lojinha"}</span></span>
-          <nav className="flex gap-4 text-sm">
+          <nav className="flex items-center gap-4 text-sm">
             {perfil === "lojinha" ? (
               <>
                 <Link to="/lojinha" className={linkCls} activeOptions={{ exact: true }} activeProps={active}>Dashboard</Link>
@@ -32,6 +33,11 @@ export function Shell({ title, children, perfil = "lojinha" }: { title: string; 
               </>
             ) : (
               <Link to="/sac" className={linkCls} activeProps={active}>Chamados</Link>
+            )}
+            {isAdmin && (
+              <Link to={perfil === "lojinha" ? "/sac" : "/lojinha"} className="rounded-md border px-2.5 py-1 text-xs text-muted-foreground hover:text-foreground">
+                Ir para {perfil === "lojinha" ? "SAC" : "Lojinha"}
+              </Link>
             )}
             <button onClick={sair} className={linkCls}>Sair</button>
           </nav>
