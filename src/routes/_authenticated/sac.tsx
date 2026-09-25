@@ -2,6 +2,7 @@ import { createFileRoute, redirect } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { Shell } from "@/components/Shell";
+import { ChamadoDetalhe } from "@/components/ChamadoDetalhe";
 import { STATUSES, STATUS_LABEL, chamadosQuery, formatNumero, getMyRole, updateStatus, type Status } from "@/lib/chamados";
 
 export const Route = createFileRoute("/_authenticated/sac")({
@@ -25,6 +26,8 @@ function Sac() {
   const { data: list = [], isLoading } = useQuery(chamadosQuery);
   const [filtro, setFiltro] = useState<Status | "">("");
   const [erro, setErro] = useState("");
+  const [aberto, setAberto] = useState<number | null>(null);
+  const abertoChamado = list.find((c) => c.numero === aberto);
   const filtrados = filtro ? list.filter((c) => c.status === filtro) : list;
 
   async function mudar(numero: number, status: Status) {
@@ -53,13 +56,13 @@ function Sac() {
           </thead>
           <tbody>
             {filtrados.map((c) => (
-              <tr key={c.numero} className="border-b last:border-0">
+              <tr key={c.numero} onClick={() => setAberto(c.numero)} className="cursor-pointer border-b last:border-0 hover:bg-muted/40">
                 <td className="p-3 font-mono font-semibold">{formatNumero(c.numero)}</td>
                 <td className="p-3">{c.paxNome}</td>
                 <td className="p-3">{c.motivos.join(", ")}</td>
                 <td className="p-3">{c.solicitante}</td>
                 <td className="p-3">{new Date(c.criadoEm).toLocaleString("pt-BR")}</td>
-                <td className="p-3">
+                <td className="p-3" onClick={(e) => e.stopPropagation()}>
                   <select value={c.status} onChange={(e) => mudar(c.numero, e.target.value as Status)} className="rounded-md border bg-background px-2 py-1 text-xs">
                     {STATUSES.map((s) => <option key={s} value={s}>{s}</option>)}
                   </select>
@@ -70,6 +73,7 @@ function Sac() {
           </tbody>
         </table>
       </div>
+      {abertoChamado && <ChamadoDetalhe chamado={abertoChamado} onClose={() => setAberto(null)} />}
     </Shell>
   );
 }
