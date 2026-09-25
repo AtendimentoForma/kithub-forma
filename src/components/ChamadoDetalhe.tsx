@@ -15,6 +15,7 @@ export function ChamadoDetalhe({ chamado, onClose }: { chamado: Chamado; onClose
 
   async function enviar() {
     setErro("");
+    if (status === "CONCLUÍDO" && !texto.trim()) { setErro("Para concluir o chamado, escreva uma movimentação explicando o motivo."); return; }
     if (!texto.trim() && status === chamado.status) { setErro("Escreva uma mensagem ou altere o status."); return; }
     setEnviando(true);
     try {
