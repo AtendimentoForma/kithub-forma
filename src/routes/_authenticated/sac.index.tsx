@@ -11,6 +11,8 @@ export const Route = createFileRoute("/_authenticated/sac/")({
       { name: "description", content: "Visão geral dos chamados de reenvio para o SAC." },
       { property: "og:title", content: "Dashboard SAC" },
       { property: "og:description", content: "Visão geral dos chamados de reenvio para o SAC." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
     ],
   }),
   component: Dashboard,

@@ -14,6 +14,8 @@ export const Route = createFileRoute("/_authenticated/sac/chamados")({
       { name: "description", content: "Listagem e movimentação dos chamados de reenvio pelo SAC." },
       { property: "og:title", content: "Chamados — SAC" },
       { property: "og:description", content: "Listagem e movimentação dos chamados de reenvio pelo SAC." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
     ],
   }),
   component: Lista,
