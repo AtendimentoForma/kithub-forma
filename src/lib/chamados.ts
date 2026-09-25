@@ -182,12 +182,32 @@ export type Perfil = "lojinha" | "sac" | "admin";
 export async function getMyRole(): Promise<Perfil | null> {
   const { data: u } = await supabase.auth.getUser();
   if (!u.user) return null;
+  const { data: aprovado } = await supabase.rpc("meu_status_aprovacao");
+  if (!aprovado) return null;
   const { data } = await supabase.from("user_roles").select("role").eq("user_id", u.user.id);
   const roles = (data ?? []).map((r) => r.role);
   if (roles.includes("admin")) return "admin";
   if (roles.includes("lojinha")) return "lojinha";
   if (roles.includes("sac")) return "sac";
   return null;
+}
+
+export async function estouAprovado(): Promise<boolean> {
+  const { data } = await supabase.rpc("meu_status_aprovacao");
+  return !!data;
+}
+
+export type UsuarioAdmin = { id: string; nome: string; email: string | null; created_at: string; aprovado: boolean; papeis: string[] };
+
+export async function listarUsuarios(): Promise<UsuarioAdmin[]> {
+  const { data, error } = await supabase.rpc("admin_listar_usuarios");
+  if (error) throw error;
+  return (data ?? []) as UsuarioAdmin[];
+}
+
+export async function definirUsuario(id: string, aprovado: boolean, papel: Perfil) {
+  const { error } = await supabase.rpc("admin_definir_usuario", { _id: id, _aprovado: aprovado, _papel: papel });
+  if (error) throw error;
 }
 
 export function formatNumero(n: number) {

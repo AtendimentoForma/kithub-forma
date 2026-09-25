@@ -36,6 +36,13 @@
       "when": 1790357359011,
       "tag": "0004_fluxo_analise_pagamento",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1790358074822,
+      "tag": "0005_aprovacao_usuarios",
+      "breakpoints": true
     }
   ]
 }
