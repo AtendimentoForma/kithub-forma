@@ -2,7 +2,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { StatusBadge } from "@/components/Shell";
 import { FluxoChamado } from "@/components/FluxoChamado";
-import { STATUSES, formatNumero, movimentacoesQuery, addMovimentacao, getMyRole, marcarChamadoVisto, ultimasMovimentacoesQuery, leiturasQuery, type Chamado, type Status } from "@/lib/chamados";
+import { STATUSES, formatNumero, movimentacoesQuery, addMovimentacao, getMyRole, marcarChamadoVisto, ultimasMovimentacoesQuery, leiturasQuery, mensagemDeErro, type Chamado, type Status } from "@/lib/chamados";
 
 export function ChamadoDetalhe({ chamado, onClose }: { chamado: Chamado; onClose: () => void }) {
   const qc = useQueryClient();
@@ -40,7 +40,7 @@ export function ChamadoDetalhe({ chamado, onClose }: { chamado: Chamado; onClose
         qc.invalidateQueries({ queryKey: ["ultimas-movimentacoes"] }),
       ]);
     } catch (e) {
-      setErro(e instanceof Error ? e.message : "Erro ao registrar movimentação.");
+      setErro(mensagemDeErro(e, "Erro ao registrar movimentação."));
     } finally { setEnviando(false); }
   }
 
