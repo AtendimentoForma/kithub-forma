@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { Shell, StatusBadge } from "@/components/Shell";
+import { ChamadoDetalhe } from "@/components/ChamadoDetalhe";
 import { useQuery } from "@tanstack/react-query";
 import { STATUSES, STATUS_LABEL, chamadosQuery, formatNumero, type Status, type Chamado } from "@/lib/chamados";
 
@@ -62,32 +63,7 @@ function Lista() {
         </table>
       </div>
 
-      {aberto && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-foreground/40 p-4" onClick={() => setAberto(null)}>
-          <div className="max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-xl bg-background p-6" onClick={(e) => e.stopPropagation()}>
-            <div className="flex items-center justify-between">
-              <h2 className="text-xl font-bold">Chamado {formatNumero(aberto.numero)}</h2>
-              <StatusBadge status={aberto.status} />
-            </div>
-            <dl className="mt-4 grid grid-cols-2 gap-3 text-sm">
-              {([
-                ["Aberto em", new Date(aberto.criadoEm).toLocaleString("pt-BR")],
-                ["Solicitante", aberto.solicitante],
-                ["Passageiro", aberto.paxNome], ["CPF", aberto.cpf],
-                ["ID Pax", aberto.paxId], ["Responsável", aberto.responsavel],
-                ["Rastreio Mandaê", aberto.rastreio], ["Data do envio", aberto.dataEnvio],
-              ] as const).map(([k, v]) => (
-                <div key={k}><dt className="text-muted-foreground">{k}</dt><dd className="font-medium">{v}</dd></div>
-              ))}
-              <div className="col-span-2"><dt className="text-muted-foreground">Endereço</dt><dd className="font-medium">{aberto.endereco}</dd></div>
-              <div className="col-span-2"><dt className="text-muted-foreground">Motivo</dt><dd className="font-medium">{aberto.motivos.join(", ")}{aberto.motivoOutro ? ` — ${aberto.motivoOutro}` : ""}</dd></div>
-              {aberto.observacao && <div className="col-span-2"><dt className="text-muted-foreground">Observação</dt><dd>{aberto.observacao}</dd></div>}
-              {aberto.anexos.length > 0 && <div className="col-span-2"><dt className="text-muted-foreground">Anexos</dt><dd>{aberto.anexos.join(", ")}</dd></div>}
-            </dl>
-            <button onClick={() => setAberto(null)} className="mt-6 w-full rounded-md border px-4 py-2 text-sm hover:bg-accent">Fechar</button>
-          </div>
-        </div>
-      )}
+      {aberto && <ChamadoDetalhe chamado={list.find((c) => c.numero === aberto.numero) ?? aberto} onClose={() => setAberto(null)} />}
     </Shell>
   );
 }

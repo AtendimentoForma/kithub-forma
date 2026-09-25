@@ -107,7 +107,32 @@ export async function addChamado(c: NovoChamado): Promise<Chamado> {
 }
 
 export async function updateStatus(numero: number, status: Status) {
-  const { error } = await supabase.from("chamados").update({ status }).eq("numero", numero);
+  await addMovimentacao(numero, null, status);
+}
+
+export const movimentacoesQuery = (numero: number) =>
+  queryOptions({
+    queryKey: ["movimentacoes", numero],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("chamado_movimentacoes")
+        .select("*")
+        .eq("chamado_numero", numero)
+        .order("criado_em", { ascending: true });
+      if (error) throw error;
+      return data ?? [];
+    },
+  });
+
+export async function addMovimentacao(numero: number, texto: string | null, statusNovo: Status | null) {
+  const { data: u } = await supabase.auth.getUser();
+  if (!u.user) throw new Error("Sessão expirada. Entre novamente.");
+  const { error } = await supabase.from("chamado_movimentacoes").insert({
+    chamado_numero: numero,
+    autor_id: u.user.id,
+    texto,
+    status_novo: statusNovo,
+  });
   if (error) throw error;
 }
 
