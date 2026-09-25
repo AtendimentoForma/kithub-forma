@@ -51,6 +51,7 @@ export function NovoChamadoForm({ listaPath }: { listaPath: "/lojinha/chamados" 
     e.preventDefault();
     const f = new FormData(e.currentTarget);
     const g = (k: string) => String(f.get(k) ?? "").trim();
+    if (!g("idDelivery")) return setErro("Preencha o ID Delivery.");
     if (motivos.length === 0) return setErro("Selecione ao menos um motivo.");
     if (origens.length === 0) return setErro("Marque ao menos uma opção: \"Cliente entrou em contato\" ou \"Identificado internamente\".");
     if (g("cpf").replace(/\D/g, "").length !== 11) return setErro("CPF deve ter 11 dígitos.");
@@ -60,7 +61,7 @@ export function NovoChamadoForm({ listaPath }: { listaPath: "/lojinha/chamados" 
     setEnviando(true);
     try {
       const c = await addChamado({
-        paxNome: g("paxNome"), cpf: g("cpf"), paxId: g("paxId"), idDelivery: g("idDelivery") || null, responsavel: g("responsavel"),
+        paxNome: g("paxNome"), cpf: g("cpf"), paxId: g("paxId"), idDelivery: g("idDelivery"), responsavel: g("responsavel"),
         rastreio: g("rastreio"), endereco: g("endereco"), dataEnvio: g("dataEnvio"),
         motivos, motivoOutro: g("motivoOutro") || null, origemSolicitacao: origens.join(", "),
         observacao: g("observacao") || null, anexos: nomesAnexos,
@@ -104,7 +105,7 @@ export function NovoChamadoForm({ listaPath }: { listaPath: "/lojinha/chamados" 
             <Field label="Nome" name="paxNome" />
             <Field label="CPF" name="cpf" placeholder="000.000.000-00" />
             <Field label="ID do Pax" name="paxId" />
-            <Field label="ID Delivery" name="idDelivery" required={false} />
+            <Field label="ID Delivery" name="idDelivery" />
             <Field label="Nome do responsável" name="responsavel" />
           </div>
         </section>
