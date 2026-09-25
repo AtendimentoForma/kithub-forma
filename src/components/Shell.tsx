@@ -1,18 +1,37 @@
-import { Link } from "@tanstack/react-router";
+import { Link, useNavigate } from "@tanstack/react-router";
+import { useQueryClient } from "@tanstack/react-query";
 import type { ReactNode } from "react";
 import type { Status } from "@/lib/chamados";
+import { supabase } from "@/integrations/supabase/client";
 
-export function Shell({ title, children }: { title: string; children: ReactNode }) {
+const linkCls = "text-muted-foreground hover:text-foreground";
+const active = { className: "text-foreground font-semibold" };
+
+export function Shell({ title, children, perfil = "lojinha" }: { title: string; children: ReactNode; perfil?: "lojinha" | "sac" }) {
+  const navigate = useNavigate();
+  const qc = useQueryClient();
+  async function sair() {
+    await qc.cancelQueries();
+    qc.clear();
+    await supabase.auth.signOut();
+    navigate({ to: "/auth", replace: true });
+  }
   return (
     <div className="min-h-screen bg-muted/40">
       <header className="border-b bg-background">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
-          <Link to="/" className="font-bold tracking-tight">Reenvio de Kits Pax</Link>
+          <span className="font-bold tracking-tight">Reenvio de Kits Pax <span className="ml-2 text-xs font-normal text-muted-foreground">{perfil === "sac" ? "SAC" : "Lojinha"}</span></span>
           <nav className="flex gap-4 text-sm">
-            <Link to="/lojinha" className="text-muted-foreground hover:text-foreground" activeOptions={{ exact: true }} activeProps={{ className: "text-foreground font-semibold" }}>Dashboard</Link>
-            <Link to="/lojinha/chamados" className="text-muted-foreground hover:text-foreground" activeProps={{ className: "text-foreground font-semibold" }}>Chamados</Link>
-            <Link to="/lojinha/novo" className="text-muted-foreground hover:text-foreground" activeProps={{ className: "text-foreground font-semibold" }}>Novo chamado</Link>
-            <Link to="/" className="text-muted-foreground hover:text-foreground">Sair</Link>
+            {perfil === "lojinha" ? (
+              <>
+                <Link to="/lojinha" className={linkCls} activeOptions={{ exact: true }} activeProps={active}>Dashboard</Link>
+                <Link to="/lojinha/chamados" className={linkCls} activeProps={active}>Chamados</Link>
+                <Link to="/lojinha/novo" className={linkCls} activeProps={active}>Novo chamado</Link>
+              </>
+            ) : (
+              <Link to="/sac" className={linkCls} activeProps={active}>Chamados</Link>
+            )}
+            <button onClick={sair} className={linkCls}>Sair</button>
           </nav>
         </div>
       </header>

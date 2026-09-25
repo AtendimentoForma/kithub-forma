@@ -1,9 +1,9 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Plus } from "lucide-react";
 import { Shell, StatusBadge } from "@/components/Shell";
-import { STATUSES, STATUS_LABEL, useChamados, formatNumero } from "@/lib/chamados";
+import { STATUSES, STATUS_LABEL, formatNumero } from "@/lib/chamados";
 
-export const Route = createFileRoute("/lojinha/")({
+export const Route = createFileRoute("/_authenticated/lojinha/")({
   head: () => ({
     meta: [
       { title: "Dashboard Lojinha — Reenvio de Kits Pax" },
@@ -16,7 +16,7 @@ export const Route = createFileRoute("/lojinha/")({
 });
 
 function Dashboard() {
-  const list = useChamados();
+  const list = chamadosQuery();
   return (
     <Shell title="Dashboard da Lojinha">
       <div className="mb-6 flex justify-end">

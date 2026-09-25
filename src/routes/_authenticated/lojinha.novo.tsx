@@ -3,7 +3,7 @@ import { useState, type FormEvent } from "react";
 import { Shell } from "@/components/Shell";
 import { MOTIVOS, addChamado, formatNumero, USUARIO_LOJINHA } from "@/lib/chamados";
 
-export const Route = createFileRoute("/lojinha/novo")({
+export const Route = createFileRoute("/_authenticated/lojinha/novo")({
   head: () => ({
     meta: [
       { title: "Novo chamado — Reenvio de Kits Pax" },
