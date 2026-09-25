@@ -49,7 +49,7 @@ export function NovoChamadoForm({ listaPath }: { listaPath: "/lojinha/chamados" 
     if (motivos.length === 0) return setErro("Selecione ao menos um motivo.");
     if (g("cpf").replace(/\D/g, "").length !== 11) return setErro("CPF deve ter 11 dígitos.");
     if (motivos.includes("Outro") && !g("motivoOutro")) return setErro("Descreva o motivo \"Outro\".");
-    const anexos = (f.getAll("anexos") as File[]).filter((x) => x.size > 0).map((x) => x.name);
+    const nomesAnexos = anexos.map((x) => x.name);
     setErro("");
     setEnviando(true);
     try {
