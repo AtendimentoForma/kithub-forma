@@ -79,7 +79,7 @@ export function ChamadosRecentes() {
               <Button variant="ghost" size="sm" onClick={ciclarTempo} className={`${thBtn} h-7 px-0 text-xs`} title="Ordenar pelo tempo desde a última movimentação">
                 Tempo {iconTempo}
               </Button>
-              <Button variant="ghost" size="sm" onClick={ciclarStatus} className={`${thBtn} h-7 px-0 text-xs`} title="Ordenar pelo status">
+              <Button variant="ghost" size="sm" onClick={ciclarStatus} className={`${thBtn} h-7 justify-self-center px-0 text-xs`} title="Ordenar pelo status">
                 Status {iconStatus}
               </Button>
             </div>
@@ -103,7 +103,7 @@ export function ChamadosRecentes() {
                     <span className={`justify-self-center rounded-md px-2 py-0.5 text-xs font-semibold ${tempoClasse(esperaMs(c, ultimas))}`} title={`Última movimentação: ${new Date(desde).toLocaleString("pt-BR")}`}>
                       {tempoEspera(desde)}
                     </span>
-                    <span className="justify-self-end"><StatusBadge status={c.status} /></span>
+                    <span className="justify-self-center"><StatusBadge status={c.status} /></span>
                 </Button>
               );
             })}
