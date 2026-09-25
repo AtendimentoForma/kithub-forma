@@ -1,6 +1,7 @@
 import { useNavigate } from "@tanstack/react-router";
 import { useQueryClient } from "@tanstack/react-query";
-import { useState, type FormEvent } from "react";
+import { useRef, useState, type FormEvent } from "react";
+import { Paperclip, X } from "lucide-react";
 import { Shell } from "@/components/Shell";
 import { MOTIVOS, addChamado, formatNumero } from "@/lib/chamados";
 
@@ -22,6 +23,20 @@ export function NovoChamadoForm({ listaPath }: { listaPath: "/lojinha/chamados" 
   const [erro, setErro] = useState("");
   const [enviando, setEnviando] = useState(false);
   const [criado, setCriado] = useState<number | null>(null);
+  const [anexos, setAnexos] = useState<File[]>([]);
+  const anexosRef = useRef<HTMLInputElement>(null);
+
+  function atualizarAnexos(lista: FileList | null) {
+    setAnexos(lista ? Array.from(lista) : []);
+  }
+
+  function removerAnexo(i: number) {
+    const restantes = anexos.filter((_, idx) => idx !== i);
+    setAnexos(restantes);
+    const dt = new DataTransfer();
+    restantes.forEach((f) => dt.items.add(f));
+    if (anexosRef.current) anexosRef.current.files = dt.files;
+  }
 
   function toggle(m: string) {
     setMotivos((p) => (p.includes(m) ? p.filter((x) => x !== m) : [...p, m]));
@@ -34,14 +49,14 @@ export function NovoChamadoForm({ listaPath }: { listaPath: "/lojinha/chamados" 
     if (motivos.length === 0) return setErro("Selecione ao menos um motivo.");
     if (g("cpf").replace(/\D/g, "").length !== 11) return setErro("CPF deve ter 11 dígitos.");
     if (motivos.includes("Outro") && !g("motivoOutro")) return setErro("Descreva o motivo \"Outro\".");
-    const anexos = (f.getAll("anexos") as File[]).filter((x) => x.size > 0).map((x) => x.name);
+    const nomesAnexos = anexos.map((x) => x.name);
     setErro("");
     setEnviando(true);
     try {
       const c = await addChamado({
         paxNome: g("paxNome"), cpf: g("cpf"), paxId: g("paxId"), responsavel: g("responsavel"),
         rastreio: g("rastreio"), endereco: g("endereco"), dataEnvio: g("dataEnvio"),
-        motivos, motivoOutro: g("motivoOutro") || null, observacao: g("observacao") || null, anexos,
+        motivos, motivoOutro: g("motivoOutro") || null, observacao: g("observacao") || null, anexos: nomesAnexos,
       });
       await qc.invalidateQueries({ queryKey: ["chamados"] });
       setCriado(c.numero);
@@ -99,9 +114,47 @@ export function NovoChamadoForm({ listaPath }: { listaPath: "/lojinha/chamados" 
           <label className="block text-sm font-medium">Observação / descrição
             <textarea name="observacao" rows={4} maxLength={1000} className={input} />
           </label>
-          <label className="mt-4 block text-sm font-medium">Anexar fotos / documentos
-            <input name="anexos" type="file" multiple accept="image/*,.pdf" className="mt-1 block text-sm" />
-          </label>
+          <div className="mt-4">
+            <span className="block text-sm font-medium">Anexar fotos / documentos</span>
+            <label
+              htmlFor="anexos-input"
+              className="mt-2 inline-flex cursor-pointer items-center gap-2 rounded-md border border-dashed border-border bg-muted/40 px-4 py-2.5 text-sm font-medium text-foreground transition-colors hover:border-primary hover:bg-accent/50"
+            >
+              <Paperclip className="h-4 w-4 text-primary" />
+              {anexos.length === 0 ? "Escolher arquivos" : "Adicionar mais arquivos"}
+            </label>
+            <input
+              ref={anexosRef}
+              id="anexos-input"
+              name="anexos"
+              type="file"
+              multiple
+              accept="image/*,.pdf"
+              onChange={(e) => atualizarAnexos(e.target.files)}
+              className="hidden"
+            />
+            {anexos.length > 0 && (
+              <ul className="mt-3 space-y-1.5">
+                {anexos.map((f, i) => (
+                  <li key={`${f.name}-${i}`} className="flex items-center justify-between gap-2 rounded-md border bg-background px-3 py-1.5 text-sm">
+                    <span className="flex items-center gap-2 truncate text-muted-foreground">
+                      <Paperclip className="h-3.5 w-3.5 shrink-0" />
+                      <span className="truncate">{f.name}</span>
+                      <span className="shrink-0 text-xs">({(f.size / 1024).toFixed(0)} KB)</span>
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => removerAnexo(i)}
+                      aria-label={`Remover ${f.name}`}
+                      className="rounded p-1 text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
+                    >
+                      <X className="h-4 w-4" />
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
         </section>
         {erro && <p className="text-sm font-medium text-destructive">{erro}</p>}
         <button type="submit" disabled={enviando} className="rounded-md bg-primary px-6 py-2.5 text-sm font-medium text-primary-foreground hover:bg-primary/90 disabled:opacity-60">{enviando ? "Enviando..." : "Enviar chamado"}</button>
