@@ -1,10 +1,19 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState, type FormEvent } from "react";
 import { Store, Headset } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { getMyRole, type Perfil } from "@/lib/chamados";
 
+type PerfilLogin = "lojinha" | "sac";
+
+const PERFIL_INFO: Record<PerfilLogin, { label: string; Icon: typeof Store }> = {
+  lojinha: { label: "Lojinha", Icon: Store },
+  sac: { label: "SAC", Icon: Headset },
+};
+
 export const Route = createFileRoute("/auth")({
+  validateSearch: (s: Record<string, unknown>): { perfil?: PerfilLogin } =>
+    s["perfil"] === "lojinha" || s["perfil"] === "sac" ? { perfil: s["perfil"] } : {},
   head: () => ({
     meta: [
       { title: "Entrar — Reenvio de Kits Pax" },
@@ -22,25 +31,32 @@ const input = "mt-1 w-full rounded-md border border-input bg-background px-3 py-
 
 function AuthPage() {
   const navigate = useNavigate();
+  const { perfil } = Route.useSearch();
   const [modo, setModo] = useState<"entrar" | "cadastrar">("entrar");
-  const [perfil, setPerfil] = useState<Perfil>("lojinha");
   const [erro, setErro] = useState("");
   const [aviso, setAviso] = useState("");
   const [carregando, setCarregando] = useState(false);
 
-  async function irParaPainel() {
-    const role = await getMyRole();
+  async function irParaPainel(role: Perfil | null) {
     if (role === "sac") navigate({ to: "/sac" });
-    else if (role === "lojinha") navigate({ to: "/lojinha" });
+    else if (role === "lojinha" || role === "admin") navigate({ to: "/lojinha" });
   }
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data }) => { if (data.session) irParaPainel(); });
+    if (!perfil) navigate({ to: "/", replace: true });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [perfil]);
+
+  useEffect(() => {
+    supabase.auth.getSession().then(async ({ data }) => {
+      if (data.session) irParaPainel(await getMyRole());
+    });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   async function submit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
+    if (!perfil) return;
     const f = new FormData(e.currentTarget);
     const email = String(f.get("email") ?? "").trim();
     const senha = String(f.get("senha") ?? "");
@@ -49,16 +65,21 @@ function AuthPage() {
       if (modo === "entrar") {
         const { error } = await supabase.auth.signInWithPassword({ email, password: senha });
         if (error) throw new Error("E-mail ou senha inválidos.");
-        await irParaPainel();
+        const role = await getMyRole();
+        if (role !== perfil && role !== "admin") {
+          await supabase.auth.signOut();
+          throw new Error(`Este acesso não pertence ao perfil ${PERFIL_INFO[perfil].label}.`);
+        }
+        await irParaPainel(role);
       } else {
         const nome = String(f.get("nome") ?? "").trim();
         if (senha.length < 6) throw new Error("A senha deve ter ao menos 6 caracteres.");
         const { data, error } = await supabase.auth.signUp({
           email, password: senha,
-          options: { emailRedirectTo: window.location.origin + "/auth", data: { nome, perfil } },
+          options: { emailRedirectTo: `${window.location.origin}/auth?perfil=${perfil}`, data: { nome, perfil } },
         });
         if (error) throw error;
-        if (data.session) await irParaPainel();
+        if (data.session) await irParaPainel(perfil);
         else { setAviso("Cadastro feito! Confirme pelo link enviado ao seu e-mail e depois entre."); setModo("entrar"); }
       }
     } catch (err) {
@@ -68,26 +89,22 @@ function AuthPage() {
     }
   }
 
+  if (!perfil) return null;
+  const { label, Icon } = PERFIL_INFO[perfil];
+
   return (
     <div className="flex min-h-screen items-center justify-center bg-muted/40 px-4">
       <div className="w-full max-w-md">
         <div className="text-center">
           <h1 className="text-3xl font-bold tracking-tight">Reenvio de Kits Pax</h1>
-          <p className="mt-2 text-muted-foreground">{modo === "entrar" ? "Entre com seu e-mail e senha" : "Crie seu acesso"}</p>
+          <div className="mt-4 inline-flex items-center gap-2 rounded-full border bg-background px-4 py-1.5 text-sm font-medium">
+            <Icon className="h-4 w-4 text-primary" />
+            {modo === "entrar" ? `Entrar como ${label}` : `Cadastrar ${label}`}
+          </div>
         </div>
-        <form onSubmit={submit} className="mt-8 space-y-4 rounded-xl border bg-background p-6">
+        <form onSubmit={submit} className="mt-6 space-y-4 rounded-xl border bg-background p-6">
           {modo === "cadastrar" && (
-            <>
-              <div className="grid grid-cols-2 gap-3">
-                {([["lojinha", "Lojinha", Store], ["sac", "SAC", Headset]] as const).map(([v, l, Icon]) => (
-                  <button type="button" key={v} onClick={() => setPerfil(v)}
-                    className={`rounded-lg border p-3 text-sm font-medium ${perfil === v ? "border-primary bg-primary/5" : "hover:bg-accent"}`}>
-                    <Icon className="mx-auto mb-1 h-6 w-6 text-primary" />{l}
-                  </button>
-                ))}
-              </div>
-              <label className="block text-sm font-medium">Nome<input name="nome" required maxLength={100} className={input} /></label>
-            </>
+            <label className="block text-sm font-medium">Nome<input name="nome" required maxLength={100} className={input} /></label>
           )}
           <label className="block text-sm font-medium">E-mail<input name="email" type="email" required className={input} /></label>
           <label className="block text-sm font-medium">Senha<input name="senha" type="password" required minLength={6} className={input} /></label>
@@ -99,6 +116,7 @@ function AuthPage() {
           <button type="button" onClick={() => { setModo(modo === "entrar" ? "cadastrar" : "entrar"); setErro(""); }} className="w-full text-sm text-muted-foreground hover:text-foreground">
             {modo === "entrar" ? "Não tem acesso? Cadastre-se" : "Já tem acesso? Entrar"}
           </button>
+          <Link to="/" className="block w-full text-center text-sm text-muted-foreground hover:text-foreground">Trocar perfil</Link>
         </form>
       </div>
     </div>

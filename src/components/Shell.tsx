@@ -10,11 +10,13 @@ const active = { className: "text-foreground font-semibold" };
 export function Shell({ title, children, perfil = "lojinha" }: { title: string; children: ReactNode; perfil?: "lojinha" | "sac" }) {
   const navigate = useNavigate();
   const qc = useQueryClient();
+  const { data: role } = useQuery({ queryKey: ["my-role"], queryFn: getMyRole });
+  const isAdmin = role === "admin";
   async function sair() {
     await qc.cancelQueries();
     qc.clear();
     await supabase.auth.signOut();
-    navigate({ to: "/auth", replace: true });
+    navigate({ to: "/", replace: true });
   }
   return (
     <div className="min-h-screen bg-muted/40">

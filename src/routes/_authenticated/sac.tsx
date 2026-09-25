@@ -8,7 +8,7 @@ import { STATUSES, STATUS_LABEL, chamadosQuery, formatNumero, getMyRole, updateS
 export const Route = createFileRoute("/_authenticated/sac")({
   beforeLoad: async () => {
     const role = await getMyRole();
-    if (role !== "sac") throw redirect({ to: role === "lojinha" ? "/lojinha" : "/auth" });
+    if (role !== "sac" && role !== "admin") throw redirect({ to: role === "lojinha" ? "/lojinha" : "/" });
   },
   head: () => ({
     meta: [
