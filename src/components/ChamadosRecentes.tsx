@@ -86,7 +86,8 @@ export function ChamadosRecentes() {
             {ordenados.map((c) => {
               const ultima = ultimas[c.numero];
               const desde = ultima?.criadoEm ?? c.criadoEm;
-              const naoVisto = Boolean(ultima && leituras && ultima.autorId !== leituras.usuarioId && (!leituras.vistos[c.numero] || new Date(ultima.criadoEm).getTime() > new Date(leituras.vistos[c.numero]).getTime()));
+              const vistoEm = leituras?.vistos[c.numero];
+              const naoVisto = Boolean(ultima && leituras && ultima.autorId !== leituras.usuarioId && (!vistoEm || new Date(ultima.criadoEm).getTime() > new Date(vistoEm).getTime()));
               return (
                 <Button
                   variant="ghost"

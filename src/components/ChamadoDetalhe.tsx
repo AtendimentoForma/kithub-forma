@@ -17,7 +17,8 @@ export function ChamadoDetalhe({ chamado, onClose }: { chamado: Chamado; onClose
 
   useEffect(() => {
     const ultima = ultimas?.[chamado.numero];
-    if (!ultima || !leituras || ultima.autorId === leituras.usuarioId || (leituras.vistos[chamado.numero] && new Date(leituras.vistos[chamado.numero]).getTime() >= new Date(ultima.criadoEm).getTime())) return;
+    const vistoEm = leituras?.vistos[chamado.numero];
+    if (!ultima || !leituras || ultima.autorId === leituras.usuarioId || (vistoEm && new Date(vistoEm).getTime() >= new Date(ultima.criadoEm).getTime())) return;
     let active = true;
     marcarChamadoVisto(chamado.numero, ultima.criadoEm)
       .then(() => { if (active) void qc.invalidateQueries({ queryKey: ["chamado-leituras"] }); })
