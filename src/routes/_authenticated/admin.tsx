@@ -11,7 +11,7 @@ export const Route = createFileRoute("/_authenticated/admin")({
   },
   head: () => ({
     meta: [
-      { title: "Usuários e papéis — Reenvio de Kits Pax" },
+      { title: "Usuários e papéis — KitHub" },
       { name: "description", content: "Aprovação de usuários e definição de papéis pelo administrador." },
       { property: "og:title", content: "Usuários e papéis" },
       { property: "og:description", content: "Aprovação de usuários e definição de papéis." },

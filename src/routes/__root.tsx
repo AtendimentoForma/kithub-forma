@@ -78,9 +78,9 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Reenvio de Kits Pax" },
+      { title: "KitHub" },
       { name: "description", content: "Sistema de chamados para reenvio de kits de passageiros." },
-      { property: "og:title", content: "Reenvio de Kits Pax" },
+      { property: "og:title", content: "KitHub" },
       { property: "og:description", content: "Sistema de chamados para reenvio de kits de passageiros." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },

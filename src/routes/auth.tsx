@@ -16,9 +16,9 @@ export const Route = createFileRoute("/auth")({
     s["perfil"] === "lojinha" || s["perfil"] === "sac" ? { perfil: s["perfil"] } : {},
   head: () => ({
     meta: [
-      { title: "Entrar — Reenvio de Kits Pax" },
+      { title: "Entrar — KitHub" },
       { name: "description", content: "Acesse o sistema de chamados de reenvio de kits com seu e-mail e senha." },
-      { property: "og:title", content: "Entrar — Reenvio de Kits Pax" },
+      { property: "og:title", content: "Entrar — KitHub" },
       { property: "og:description", content: "Acesse o sistema de chamados de reenvio de kits." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
@@ -101,7 +101,7 @@ function AuthPage() {
     <div className="flex min-h-screen items-center justify-center bg-muted/40 px-4">
       <div className="w-full max-w-md">
         <div className="text-center">
-          <h1 className="text-3xl font-bold tracking-tight">Reenvio de Kits Pax</h1>
+          <h1 className="text-3xl font-bold tracking-tight">KitHub</h1>
           <div className="mt-4 inline-flex items-center gap-2 rounded-full border bg-background px-4 py-1.5 text-sm font-medium">
             <Icon className="h-4 w-4 text-primary" />
             {modo === "entrar" ? `Entrar como ${label}` : `Cadastrar ${label}`}

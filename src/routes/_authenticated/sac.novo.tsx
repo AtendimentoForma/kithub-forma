@@ -4,7 +4,7 @@ import { NovoChamadoForm } from "@/components/NovoChamadoForm";
 export const Route = createFileRoute("/_authenticated/sac/novo")({
   head: () => ({
     meta: [
-      { title: "Novo chamado — SAC — Reenvio de Kits Pax" },
+      { title: "Novo chamado — SAC — KitHub" },
       { name: "description", content: "Abertura de chamado de reenvio de kit de passageiro pelo SAC." },
       { property: "og:title", content: "Novo chamado — SAC" },
       { property: "og:description", content: "Abertura de chamado de reenvio de kit de passageiro pelo SAC." },

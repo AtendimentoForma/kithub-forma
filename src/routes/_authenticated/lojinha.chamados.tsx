@@ -10,7 +10,7 @@ export const Route = createFileRoute("/_authenticated/lojinha/chamados")({
     (STATUSES as readonly string[]).includes(s["status"] as Status) ? { status: s["status"] as Status } : {},
   head: () => ({
     meta: [
-      { title: "Chamados — Reenvio de Kits Pax" },
+      { title: "Chamados — KitHub" },
       { name: "description", content: "Listagem e acompanhamento dos chamados de reenvio." },
       { property: "og:title", content: "Chamados da Lojinha" },
       { property: "og:description", content: "Listagem e acompanhamento dos chamados de reenvio." },

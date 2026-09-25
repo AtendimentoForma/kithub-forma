@@ -10,7 +10,7 @@ export const Route = createFileRoute("/_authenticated/sac/chamados")({
     STATUSES.includes(s["status"] as Status) ? { status: s["status"] as Status } : {},
   head: () => ({
     meta: [
-      { title: "Chamados — SAC — Reenvio de Kits Pax" },
+      { title: "Chamados — SAC — KitHub" },
       { name: "description", content: "Listagem e movimentação dos chamados de reenvio pelo SAC." },
       { property: "og:title", content: "Chamados — SAC" },
       { property: "og:description", content: "Listagem e movimentação dos chamados de reenvio pelo SAC." },

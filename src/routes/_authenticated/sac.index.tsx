@@ -7,7 +7,7 @@ import { STATUSES_SAC as STATUSES, STATUS_LABEL, chamadosQuery } from "@/lib/cha
 export const Route = createFileRoute("/_authenticated/sac/")({
   head: () => ({
     meta: [
-      { title: "Dashboard SAC — Reenvio de Kits Pax" },
+      { title: "Dashboard SAC — KitHub" },
       { name: "description", content: "Visão geral dos chamados de reenvio para o SAC." },
       { property: "og:title", content: "Dashboard SAC" },
       { property: "og:description", content: "Visão geral dos chamados de reenvio para o SAC." },

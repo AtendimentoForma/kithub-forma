@@ -4,9 +4,9 @@ import { Store, Headset } from "lucide-react";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Reenvio de Kits Pax — Acesso" },
+      { title: "KitHub — Acesso" },
       { name: "description", content: "Sistema de chamados para reenvio de kits de passageiros." },
-      { property: "og:title", content: "Reenvio de Kits Pax" },
+      { property: "og:title", content: "KitHub" },
       { property: "og:description", content: "Sistema de chamados para reenvio de kits de passageiros." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
@@ -19,7 +19,7 @@ function Index() {
   return (
     <div className="flex min-h-screen items-center justify-center bg-muted/40 px-4">
       <div className="w-full max-w-2xl text-center">
-        <h1 className="text-3xl font-bold tracking-tight">Reenvio de Kits Pax</h1>
+        <h1 className="text-3xl font-bold tracking-tight">KitHub</h1>
         <p className="mt-2 text-muted-foreground">Sistema de chamados para reenvio de kits de passageiros</p>
         <div className="mt-8 grid gap-4 sm:grid-cols-2">
           <Link to="/auth" search={{ perfil: "lojinha" }} className="rounded-xl border bg-background p-8 transition hover:border-primary hover:shadow-sm">

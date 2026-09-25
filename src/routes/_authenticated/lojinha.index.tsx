@@ -8,7 +8,7 @@ import { STATUSES, STATUS_LABEL, chamadosQuery } from "@/lib/chamados";
 export const Route = createFileRoute("/_authenticated/lojinha/")({
   head: () => ({
     meta: [
-      { title: "Dashboard Lojinha — Reenvio de Kits Pax" },
+      { title: "Dashboard Lojinha — KitHub" },
       { name: "description", content: "Visão geral dos chamados de reenvio da Lojinha." },
       { property: "og:title", content: "Dashboard Lojinha" },
       { property: "og:description", content: "Visão geral dos chamados de reenvio da Lojinha." },
