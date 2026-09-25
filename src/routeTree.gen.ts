@@ -17,6 +17,8 @@ import { Route as AuthenticatedSacRouteImport } from './routes/_authenticated/sa
 import { Route as AuthenticatedLojinhaIndexRouteImport } from './routes/_authenticated/lojinha.index'
 import { Route as AuthenticatedLojinhaChamadosRouteImport } from './routes/_authenticated/lojinha.chamados'
 import { Route as AuthenticatedLojinhaNovoRouteImport } from './routes/_authenticated/lojinha.novo'
+import { Route as AuthenticatedSacIndexRouteImport } from './routes/_authenticated/sac.index'
+import { Route as AuthenticatedSacChamadosRouteImport } from './routes/_authenticated/sac.chamados'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -60,23 +62,37 @@ const AuthenticatedLojinhaNovoRoute =
     path: '/novo',
     getParentRoute: () => AuthenticatedLojinhaRoute,
   } as any)
+const AuthenticatedSacIndexRoute = AuthenticatedSacIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AuthenticatedSacRoute,
+} as any)
+const AuthenticatedSacChamadosRoute =
+  AuthenticatedSacChamadosRouteImport.update({
+    id: '/chamados',
+    path: '/chamados',
+    getParentRoute: () => AuthenticatedSacRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/lojinha': typeof AuthenticatedLojinhaRouteWithChildren
-  '/sac': typeof AuthenticatedSacRoute
+  '/sac': typeof AuthenticatedSacRouteWithChildren
   '/lojinha/chamados': typeof AuthenticatedLojinhaChamadosRoute
   '/lojinha/novo': typeof AuthenticatedLojinhaNovoRoute
+  '/sac/chamados': typeof AuthenticatedSacChamadosRoute
   '/lojinha/': typeof AuthenticatedLojinhaIndexRoute
+  '/sac/': typeof AuthenticatedSacIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
-  '/sac': typeof AuthenticatedSacRoute
   '/lojinha/chamados': typeof AuthenticatedLojinhaChamadosRoute
   '/lojinha/novo': typeof AuthenticatedLojinhaNovoRoute
+  '/sac/chamados': typeof AuthenticatedSacChamadosRoute
   '/lojinha': typeof AuthenticatedLojinhaIndexRoute
+  '/sac': typeof AuthenticatedSacIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -84,10 +100,12 @@ export interface FileRoutesById {
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/auth': typeof AuthRoute
   '/_authenticated/lojinha': typeof AuthenticatedLojinhaRouteWithChildren
-  '/_authenticated/sac': typeof AuthenticatedSacRoute
+  '/_authenticated/sac': typeof AuthenticatedSacRouteWithChildren
   '/_authenticated/lojinha/chamados': typeof AuthenticatedLojinhaChamadosRoute
   '/_authenticated/lojinha/novo': typeof AuthenticatedLojinhaNovoRoute
+  '/_authenticated/sac/chamados': typeof AuthenticatedSacChamadosRoute
   '/_authenticated/lojinha/': typeof AuthenticatedLojinhaIndexRoute
+  '/_authenticated/sac/': typeof AuthenticatedSacIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -98,10 +116,18 @@ export interface FileRouteTypes {
     | '/sac'
     | '/lojinha/chamados'
     | '/lojinha/novo'
+    | '/sac/chamados'
     | '/lojinha/'
+    | '/sac/'
   fileRoutesByTo: FileRoutesByTo
   to:
-    '/' | '/auth' | '/sac' | '/lojinha/chamados' | '/lojinha/novo' | '/lojinha'
+    | '/'
+    | '/auth'
+    | '/lojinha/chamados'
+    | '/lojinha/novo'
+    | '/sac/chamados'
+    | '/lojinha'
+    | '/sac'
   id:
     | '__root__'
     | '/'
@@ -111,7 +137,9 @@ export interface FileRouteTypes {
     | '/_authenticated/sac'
     | '/_authenticated/lojinha/chamados'
     | '/_authenticated/lojinha/novo'
+    | '/_authenticated/sac/chamados'
     | '/_authenticated/lojinha/'
+    | '/_authenticated/sac/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -178,6 +206,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedLojinhaNovoRouteImport
       parentRoute: typeof AuthenticatedLojinhaRoute
     }
+    '/_authenticated/sac/': {
+      id: '/_authenticated/sac/'
+      path: '/'
+      fullPath: '/sac/'
+      preLoaderRoute: typeof AuthenticatedSacIndexRouteImport
+      parentRoute: typeof AuthenticatedSacRoute
+    }
+    '/_authenticated/sac/chamados': {
+      id: '/_authenticated/sac/chamados'
+      path: '/chamados'
+      fullPath: '/sac/chamados'
+      preLoaderRoute: typeof AuthenticatedSacChamadosRouteImport
+      parentRoute: typeof AuthenticatedSacRoute
+    }
   }
 }
 
@@ -196,14 +238,27 @@ const AuthenticatedLojinhaRouteChildren: AuthenticatedLojinhaRouteChildren = {
 const AuthenticatedLojinhaRouteWithChildren =
   AuthenticatedLojinhaRoute._addFileChildren(AuthenticatedLojinhaRouteChildren)
 
+interface AuthenticatedSacRouteChildren {
+  AuthenticatedSacChamadosRoute: typeof AuthenticatedSacChamadosRoute
+  AuthenticatedSacIndexRoute: typeof AuthenticatedSacIndexRoute
+}
+
+const AuthenticatedSacRouteChildren: AuthenticatedSacRouteChildren = {
+  AuthenticatedSacChamadosRoute: AuthenticatedSacChamadosRoute,
+  AuthenticatedSacIndexRoute: AuthenticatedSacIndexRoute,
+}
+
+const AuthenticatedSacRouteWithChildren =
+  AuthenticatedSacRoute._addFileChildren(AuthenticatedSacRouteChildren)
+
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedLojinhaRoute: typeof AuthenticatedLojinhaRouteWithChildren
-  AuthenticatedSacRoute: typeof AuthenticatedSacRoute
+  AuthenticatedSacRoute: typeof AuthenticatedSacRouteWithChildren
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedLojinhaRoute: AuthenticatedLojinhaRouteWithChildren,
-  AuthenticatedSacRoute: AuthenticatedSacRoute,
+  AuthenticatedSacRoute: AuthenticatedSacRouteWithChildren,
 }
 
 const AuthenticatedRouteRouteWithChildren =
