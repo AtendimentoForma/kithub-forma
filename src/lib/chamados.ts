@@ -99,7 +99,7 @@ export async function atualizarFluxo(
   statusNovo: Status | null,
 ) {
   if (Object.keys(patch).length) {
-    const { error } = await supabase.from("chamados").update(patch).eq("numero", numero);
+    const { error } = await supabase.from("chamados").update(patch as never).eq("numero", numero);
     if (error) throw error;
   }
   if (texto || statusNovo) await addMovimentacao(numero, texto, statusNovo);
