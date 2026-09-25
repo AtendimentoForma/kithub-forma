@@ -102,6 +102,7 @@ export type Database = {
           data_envio: string
           despachado_em: string | null
           endereco: string
+          id_delivery: string | null
           motivo_cancelamento: string | null
           motivo_outro: string | null
           motivos: string[]
@@ -131,6 +132,7 @@ export type Database = {
           data_envio: string
           despachado_em?: string | null
           endereco: string
+          id_delivery?: string | null
           motivo_cancelamento?: string | null
           motivo_outro?: string | null
           motivos?: string[]
@@ -160,6 +162,7 @@ export type Database = {
           data_envio?: string
           despachado_em?: string | null
           endereco?: string
+          id_delivery?: string | null
           motivo_cancelamento?: string | null
           motivo_outro?: string | null
           motivos?: string[]

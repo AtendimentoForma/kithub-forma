@@ -60,7 +60,7 @@ export function NovoChamadoForm({ listaPath }: { listaPath: "/lojinha/chamados" 
     setEnviando(true);
     try {
       const c = await addChamado({
-        paxNome: g("paxNome"), cpf: g("cpf"), paxId: g("paxId"), responsavel: g("responsavel"),
+        paxNome: g("paxNome"), cpf: g("cpf"), paxId: g("paxId"), idDelivery: g("idDelivery") || null, responsavel: g("responsavel"),
         rastreio: g("rastreio"), endereco: g("endereco"), dataEnvio: g("dataEnvio"),
         motivos, motivoOutro: g("motivoOutro") || null, origemSolicitacao: origens.join(", "),
         observacao: g("observacao") || null, anexos: nomesAnexos,
@@ -89,11 +89,22 @@ export function NovoChamadoForm({ listaPath }: { listaPath: "/lojinha/chamados" 
     <Shell title="Novo chamado de reenvio">
       <form onSubmit={submit} className="space-y-6">
         <section className="rounded-xl border bg-background p-6">
+          <h2 className="mb-4 font-semibold">Origem da solicitação *</h2>
+          <div className="flex flex-wrap gap-4">
+            {["Cliente entrou em contato", "Identificado internamente"].map((o) => (
+              <label key={o} className="flex items-center gap-2 text-sm">
+                <input type="checkbox" checked={origens.includes(o)} onChange={() => toggleOrigem(o)} className="h-4 w-4 accent-primary" /> {o}
+              </label>
+            ))}
+          </div>
+        </section>
+        <section className="rounded-xl border bg-background p-6">
           <h2 className="mb-4 font-semibold">Dados do passageiro</h2>
           <div className="grid gap-4 sm:grid-cols-2">
             <Field label="Nome" name="paxNome" />
             <Field label="CPF" name="cpf" placeholder="000.000.000-00" />
             <Field label="ID do Pax" name="paxId" />
+            <Field label="ID Delivery" name="idDelivery" required={false} />
             <Field label="Nome do responsável" name="responsavel" />
           </div>
         </section>
@@ -115,16 +126,6 @@ export function NovoChamadoForm({ listaPath }: { listaPath: "/lojinha/chamados" 
             ))}
           </div>
           {motivos.includes("Outro") && <div className="mt-4"><Field label="Descreva o motivo" name="motivoOutro" /></div>}
-          <div className="mt-4 border-t pt-4">
-            <span className="block text-sm font-medium">Origem da solicitação *</span>
-            <div className="mt-2 flex flex-wrap gap-4">
-              {["Cliente entrou em contato", "Identificado internamente"].map((o) => (
-                <label key={o} className="flex items-center gap-2 text-sm">
-                  <input type="checkbox" checked={origens.includes(o)} onChange={() => toggleOrigem(o)} className="h-4 w-4 accent-primary" /> {o}
-                </label>
-              ))}
-            </div>
-          </div>
         </section>
         <section className="rounded-xl border bg-background p-6">
           <h2 className="mb-4 font-semibold">Informações adicionais (opcional)</h2>

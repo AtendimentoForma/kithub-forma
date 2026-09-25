@@ -57,6 +57,13 @@
       "when": 1790363649012,
       "tag": "0007_origem_solicitacao",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1790364070096,
+      "tag": "0008_add_id_delivery",
+      "breakpoints": true
     }
   ]
 }

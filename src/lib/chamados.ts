@@ -36,6 +36,7 @@ export interface Chamado {
   paxNome: string;
   cpf: string;
   paxId: string;
+  idDelivery: string | null;
   responsavel: string;
   rastreio: string;
   endereco: string;
@@ -59,7 +60,7 @@ export interface Chamado {
 
 export type StatusPagamento = "PENDENTE" | "RECEBIDO" | "CANCELADO";
 
-export type NovoChamado = Pick<Chamado, "paxNome" | "cpf" | "paxId" | "responsavel" | "rastreio" | "endereco" | "dataEnvio" | "motivos" | "motivoOutro" | "origemSolicitacao" | "observacao" | "anexos">;
+export type NovoChamado = Pick<Chamado, "paxNome" | "cpf" | "paxId" | "idDelivery" | "responsavel" | "rastreio" | "endereco" | "dataEnvio" | "motivos" | "motivoOutro" | "origemSolicitacao" | "observacao" | "anexos">;
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function fromRow(r: any): Chamado {
@@ -71,6 +72,7 @@ function fromRow(r: any): Chamado {
     paxNome: r.pax_nome,
     cpf: r.cpf,
     paxId: r.pax_id,
+    idDelivery: r.id_delivery ?? null,
     responsavel: r.responsavel,
     rastreio: r.rastreio,
     endereco: r.endereco,
@@ -175,6 +177,7 @@ export async function addChamado(c: NovoChamado): Promise<Chamado> {
       pax_nome: c.paxNome,
       cpf: c.cpf,
       pax_id: c.paxId,
+      id_delivery: c.idDelivery ?? null,
       responsavel: c.responsavel,
       rastreio: c.rastreio,
       endereco: c.endereco,
