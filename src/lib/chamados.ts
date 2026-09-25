@@ -62,6 +62,15 @@ export type StatusPagamento = "PENDENTE" | "RECEBIDO" | "CANCELADO";
 
 export type NovoChamado = Pick<Chamado, "paxNome" | "cpf" | "paxId" | "idDelivery" | "responsavel" | "rastreio" | "endereco" | "dataEnvio" | "motivos" | "motivoOutro" | "origemSolicitacao" | "observacao" | "anexos">;
 
+export function mensagemDeErro(error: unknown, fallback: string) {
+  if (error instanceof Error && error.message) return error.message;
+  if (typeof error === "object" && error !== null && "message" in error) {
+    const message = (error as { message?: unknown }).message;
+    if (typeof message === "string" && message.trim()) return message;
+  }
+  return fallback;
+}
+
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function fromRow(r: any): Chamado {
   return {
@@ -168,6 +177,16 @@ export async function addChamado(c: NovoChamado): Promise<Chamado> {
   const { data: u } = await supabase.auth.getUser();
   const user = u.user;
   if (!user) throw new Error("Sessão expirada. Entre novamente.");
+  const paxId = c.paxId.trim();
+  const { data: chamadosAbertos, error: consultaError } = await supabase
+    .from("chamados")
+    .select("numero, pax_id")
+    .neq("status", "CONCLUÍDO");
+  if (consultaError) throw new Error(mensagemDeErro(consultaError, "Não foi possível verificar o ID do Pax."));
+  const duplicado = (chamadosAbertos ?? []).find((item) => item.pax_id.trim().toLocaleLowerCase("pt-BR") === paxId.toLocaleLowerCase("pt-BR"));
+  if (duplicado) {
+    throw new Error(`Já existe o chamado ${formatNumero(duplicado.numero)} em aberto para o ID do Pax ${paxId}. Conclua-o antes de abrir outro.`);
+  }
   const { data: perfil } = await supabase.from("profiles").select("nome").eq("id", user.id).maybeSingle();
   const { data, error } = await supabase
     .from("chamados")
@@ -176,7 +195,7 @@ export async function addChamado(c: NovoChamado): Promise<Chamado> {
       solicitante: perfil?.nome || user.email || "Lojinha",
       pax_nome: c.paxNome,
       cpf: c.cpf,
-      pax_id: c.paxId,
+      pax_id: paxId,
       id_delivery: c.idDelivery ?? null,
       responsavel: c.responsavel,
       rastreio: c.rastreio,
@@ -190,7 +209,7 @@ export async function addChamado(c: NovoChamado): Promise<Chamado> {
     })
     .select()
     .single();
-  if (error) throw error;
+  if (error) throw new Error(mensagemDeErro(error, "Não foi possível enviar o chamado."));
   return fromRow(data);
 }
 

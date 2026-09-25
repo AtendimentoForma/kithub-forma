@@ -3,7 +3,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useRef, useState, type FormEvent } from "react";
 import { Paperclip, X } from "lucide-react";
 import { Shell } from "@/components/Shell";
-import { MOTIVOS, addChamado, formatNumero } from "@/lib/chamados";
+import { MOTIVOS, addChamado, formatNumero, mensagemDeErro } from "@/lib/chamados";
 
 const input = "mt-1 w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring";
 
@@ -69,7 +69,7 @@ export function NovoChamadoForm({ listaPath }: { listaPath: "/lojinha/chamados" 
       await qc.invalidateQueries({ queryKey: ["chamados"] });
       setCriado(c.numero);
     } catch (err) {
-      setErro(err instanceof Error ? err.message : "Não foi possível enviar o chamado.");
+      setErro(mensagemDeErro(err, "Não foi possível enviar o chamado."));
     } finally {
       setEnviando(false);
     }
