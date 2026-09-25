@@ -42,6 +42,8 @@ export interface Chamado {
   cpf: string;
   paxId: string;
   idDelivery: string | null;
+  destino: string | null;
+  ano: string | null;
   responsavel: string;
   rastreio: string;
   endereco: string;
@@ -63,9 +65,11 @@ export interface Chamado {
   despachadoEm: string | null;
 }
 
+export const DESTINOS = ["Floripa", "Porto Seguro", "Club Med Rio", "Club Med São Paulo", "Forfun", "Caete", "Atibaia", "Malai Manso", "Le Canton", "Novotel", "Vila Gale Angra", "Beach Park", "Fazzenda Park", "Pratagy", "Caldas da Imperatriz", "Camp Cerrado", "Camp SP", "Camp Sul", "Alexânia"] as const;
+
 export type StatusPagamento = "PENDENTE" | "RECEBIDO" | "CANCELADO";
 
-export type NovoChamado = Pick<Chamado, "paxNome" | "cpf" | "paxId" | "idDelivery" | "responsavel" | "rastreio" | "endereco" | "dataEnvio" | "motivos" | "motivoOutro" | "origemSolicitacao" | "observacao" | "anexos">;
+export type NovoChamado = Pick<Chamado, "paxNome" | "cpf" | "paxId" | "idDelivery" | "destino" | "ano" | "responsavel" | "rastreio" | "endereco" | "dataEnvio" | "motivos" | "motivoOutro" | "origemSolicitacao" | "observacao" | "anexos">;
 
 export function mensagemDeErro(error: unknown, fallback: string) {
   if (error instanceof Error && error.message) return error.message;
@@ -87,6 +91,8 @@ function fromRow(r: any): Chamado {
     cpf: r.cpf,
     paxId: r.pax_id,
     idDelivery: r.id_delivery ?? null,
+    destino: r.destino ?? null,
+    ano: r.ano ?? null,
     responsavel: r.responsavel,
     rastreio: r.rastreio,
     endereco: r.endereco,
@@ -202,6 +208,8 @@ export async function addChamado(c: NovoChamado): Promise<Chamado> {
       cpf: c.cpf,
       pax_id: paxId,
       id_delivery: c.idDelivery ?? null,
+      destino: c.destino ?? null,
+      ano: c.ano ?? null,
       responsavel: c.responsavel,
       rastreio: c.rastreio,
       endereco: c.endereco,
