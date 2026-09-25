@@ -1,9 +1,10 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { useQueryClient } from "@tanstack/react-query";
 import { useState, type FormEvent } from "react";
 import { Shell } from "@/components/Shell";
-import { MOTIVOS, addChamado, formatNumero, USUARIO_LOJINHA } from "@/lib/chamados";
+import { MOTIVOS, addChamado, formatNumero } from "@/lib/chamados";
 
-export const Route = createFileRoute("/lojinha/novo")({
+export const Route = createFileRoute("/_authenticated/lojinha/novo")({
   head: () => ({
     meta: [
       { title: "Novo chamado — Reenvio de Kits Pax" },
@@ -28,15 +29,17 @@ function Field({ label, name, type = "text", required = true, placeholder }: { l
 
 function Novo() {
   const navigate = useNavigate();
+  const qc = useQueryClient();
   const [motivos, setMotivos] = useState<string[]>([]);
   const [erro, setErro] = useState("");
+  const [enviando, setEnviando] = useState(false);
   const [criado, setCriado] = useState<number | null>(null);
 
   function toggle(m: string) {
     setMotivos((p) => (p.includes(m) ? p.filter((x) => x !== m) : [...p, m]));
   }
 
-  function submit(e: FormEvent<HTMLFormElement>) {
+  async function submit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
     const f = new FormData(e.currentTarget);
     const g = (k: string) => String(f.get(k) ?? "").trim();
@@ -44,13 +47,21 @@ function Novo() {
     if (g("cpf").replace(/\D/g, "").length !== 11) return setErro("CPF deve ter 11 dígitos.");
     if (motivos.includes("Outro") && !g("motivoOutro")) return setErro("Descreva o motivo \"Outro\".");
     const anexos = (f.getAll("anexos") as File[]).filter((x) => x.size > 0).map((x) => x.name);
-    const c = addChamado({
-      solicitante: USUARIO_LOJINHA,
-      paxNome: g("paxNome"), cpf: g("cpf"), paxId: g("paxId"), responsavel: g("responsavel"),
-      rastreio: g("rastreio"), endereco: g("endereco"), dataEnvio: g("dataEnvio"),
-      motivos, motivoOutro: g("motivoOutro") || undefined, observacao: g("observacao") || undefined, anexos,
-    });
-    setCriado(c.numero);
+    setErro("");
+    setEnviando(true);
+    try {
+      const c = await addChamado({
+        paxNome: g("paxNome"), cpf: g("cpf"), paxId: g("paxId"), responsavel: g("responsavel"),
+        rastreio: g("rastreio"), endereco: g("endereco"), dataEnvio: g("dataEnvio"),
+        motivos, motivoOutro: g("motivoOutro") || null, observacao: g("observacao") || null, anexos,
+      });
+      await qc.invalidateQueries({ queryKey: ["chamados"] });
+      setCriado(c.numero);
+    } catch (err) {
+      setErro(err instanceof Error ? err.message : "Não foi possível enviar o chamado.");
+    } finally {
+      setEnviando(false);
+    }
   }
 
   if (criado !== null)
@@ -105,7 +116,7 @@ function Novo() {
           </label>
         </section>
         {erro && <p className="text-sm font-medium text-destructive">{erro}</p>}
-        <button type="submit" className="rounded-md bg-primary px-6 py-2.5 text-sm font-medium text-primary-foreground hover:bg-primary/90">Enviar chamado</button>
+        <button type="submit" disabled={enviando} className="rounded-md bg-primary px-6 py-2.5 text-sm font-medium text-primary-foreground hover:bg-primary/90 disabled:opacity-60">{enviando ? "Enviando..." : "Enviar chamado"}</button>
       </form>
     </Shell>
   );
