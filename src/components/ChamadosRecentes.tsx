@@ -30,7 +30,7 @@ function tempoClasse(ms: number) {
 }
 
 export function ChamadosRecentes() {
-  const { data: list = [] } = useQuery(chamadosQuery);
+  const { data: list = [] } = useQuery({ ...chamadosQuery, refetchInterval: 15000 });
   const { data: ultimas = {} } = useQuery(ultimasMovimentacoesQuery);
   const { data: leituras } = useQuery(leiturasQuery);
   const [aberto, setAberto] = useState<number | null>(null);
