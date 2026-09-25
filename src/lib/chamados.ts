@@ -119,6 +119,23 @@ export const chamadosQuery = queryOptions({
   },
 });
 
+/** Mapa numero -> data/hora da última movimentação (ou abertura, se não houver). */
+export const ultimasMovimentacoesQuery = queryOptions({
+  queryKey: ["ultimas-movimentacoes"],
+  queryFn: async () => {
+    const { data, error } = await supabase
+      .from("chamado_movimentacoes")
+      .select("chamado_numero, criado_em")
+      .order("criado_em", { ascending: false });
+    if (error) throw error;
+    const mapa: Record<number, string> = {};
+    for (const m of data ?? []) {
+      if (mapa[m.chamado_numero] == null) mapa[m.chamado_numero] = m.criado_em;
+    }
+    return mapa;
+  },
+});
+
 export async function addChamado(c: NovoChamado): Promise<Chamado> {
   const { data: u } = await supabase.auth.getUser();
   const user = u.user;

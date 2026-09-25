@@ -1,10 +1,9 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Plus } from "lucide-react";
-import { Shell, StatusBadge } from "@/components/Shell";
-import { ChamadoDetalhe } from "@/components/ChamadoDetalhe";
+import { Shell } from "@/components/Shell";
+import { ChamadosRecentes } from "@/components/ChamadosRecentes";
 import { useQuery } from "@tanstack/react-query";
-import { useState } from "react";
-import { STATUSES, STATUS_LABEL, chamadosQuery, formatNumero } from "@/lib/chamados";
+import { STATUSES, STATUS_LABEL, chamadosQuery } from "@/lib/chamados";
 
 export const Route = createFileRoute("/_authenticated/lojinha/")({
   head: () => ({
@@ -20,8 +19,6 @@ export const Route = createFileRoute("/_authenticated/lojinha/")({
 
 function Dashboard() {
   const { data: list = [] } = useQuery(chamadosQuery);
-  const [aberto, setAberto] = useState<number | null>(null);
-  const abertoChamado = list.find((c) => c.numero === aberto);
   return (
     <Shell title="Dashboard da Lojinha">
       <div className="mb-6 flex justify-end">
@@ -38,26 +35,7 @@ function Dashboard() {
         ))}
       </div>
       <h2 className="mb-3 mt-8 font-semibold">Chamados recentes</h2>
-      <div className="rounded-xl border bg-background">
-        {list.length === 0 ? (
-          <p className="p-6 text-sm text-muted-foreground">Nenhum chamado ainda.</p>
-        ) : (
-          list.slice(0, 5).map((c) => (
-            <button
-              key={c.numero}
-              onClick={() => setAberto(c.numero)}
-              className="flex w-full items-center justify-between border-b p-4 text-left last:border-0 hover:bg-muted/40"
-            >
-              <div>
-                <span className="font-mono font-semibold">{formatNumero(c.numero)}</span>
-                <span className="ml-3">{c.paxNome}</span>
-              </div>
-              <StatusBadge status={c.status} />
-            </button>
-          ))
-        )}
-      </div>
-      {abertoChamado && <ChamadoDetalhe chamado={abertoChamado} onClose={() => setAberto(null)} />}
+      <ChamadosRecentes />
     </Shell>
   );
 }
