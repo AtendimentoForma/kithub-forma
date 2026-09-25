@@ -23,6 +23,20 @@ export function NovoChamadoForm({ listaPath }: { listaPath: "/lojinha/chamados" 
   const [erro, setErro] = useState("");
   const [enviando, setEnviando] = useState(false);
   const [criado, setCriado] = useState<number | null>(null);
+  const [anexos, setAnexos] = useState<File[]>([]);
+  const anexosRef = useRef<HTMLInputElement>(null);
+
+  function atualizarAnexos(lista: FileList | null) {
+    setAnexos(lista ? Array.from(lista) : []);
+  }
+
+  function removerAnexo(i: number) {
+    const restantes = anexos.filter((_, idx) => idx !== i);
+    setAnexos(restantes);
+    const dt = new DataTransfer();
+    restantes.forEach((f) => dt.items.add(f));
+    if (anexosRef.current) anexosRef.current.files = dt.files;
+  }
 
   function toggle(m: string) {
     setMotivos((p) => (p.includes(m) ? p.filter((x) => x !== m) : [...p, m]));
