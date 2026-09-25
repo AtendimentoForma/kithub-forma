@@ -1,10 +1,9 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Plus } from "lucide-react";
-import { Shell, StatusBadge } from "@/components/Shell";
-import { ChamadoDetalhe } from "@/components/ChamadoDetalhe";
+import { Shell } from "@/components/Shell";
+import { ChamadosRecentes } from "@/components/ChamadosRecentes";
 import { useQuery } from "@tanstack/react-query";
-import { useState } from "react";
-import { STATUSES, STATUS_LABEL, chamadosQuery, formatNumero } from "@/lib/chamados";
+import { STATUSES, STATUS_LABEL, chamadosQuery } from "@/lib/chamados";
 
 export const Route = createFileRoute("/_authenticated/lojinha/")({
   head: () => ({
@@ -20,8 +19,6 @@ export const Route = createFileRoute("/_authenticated/lojinha/")({
 
 function Dashboard() {
   const { data: list = [] } = useQuery(chamadosQuery);
-  const [aberto, setAberto] = useState<number | null>(null);
-  const abertoChamado = list.find((c) => c.numero === aberto);
   return (
     <Shell title="Dashboard da Lojinha">
       <div className="mb-6 flex justify-end">

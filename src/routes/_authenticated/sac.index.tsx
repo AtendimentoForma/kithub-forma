@@ -1,9 +1,8 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { Shell, StatusBadge } from "@/components/Shell";
-import { ChamadoDetalhe } from "@/components/ChamadoDetalhe";
+import { Shell } from "@/components/Shell";
+import { ChamadosRecentes } from "@/components/ChamadosRecentes";
 import { useQuery } from "@tanstack/react-query";
-import { useState } from "react";
-import { STATUSES, STATUS_LABEL, chamadosQuery, formatNumero } from "@/lib/chamados";
+import { STATUSES, STATUS_LABEL, chamadosQuery } from "@/lib/chamados";
 
 export const Route = createFileRoute("/_authenticated/sac/")({
   head: () => ({
@@ -19,8 +18,6 @@ export const Route = createFileRoute("/_authenticated/sac/")({
 
 function Dashboard() {
   const { data: list = [] } = useQuery(chamadosQuery);
-  const [aberto, setAberto] = useState<number | null>(null);
-  const abertoChamado = list.find((c) => c.numero === aberto);
   return (
     <Shell title="Dashboard do SAC" perfil="sac">
       <Link to="/sac/novo" className="mb-6 inline-block rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90">+ Novo chamado</Link>
