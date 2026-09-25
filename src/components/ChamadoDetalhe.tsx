@@ -58,6 +58,7 @@ export function ChamadoDetalhe({ chamado, onClose }: { chamado: Chamado; onClose
             ["Passageiro", chamado.paxNome], ["CPF", chamado.cpf],
             ["ID Pax", chamado.paxId], ["ID Delivery", chamado.idDelivery ?? "—"],
             ["Responsável", chamado.responsavel],
+            ["Destino", chamado.destino ?? "—"], ["Ano", chamado.ano ?? "—"],
             ["Rastreio Mandaê", chamado.rastreio], ["Data do envio", chamado.dataEnvio],
           ] as const).map(([k, v]) => (
             <div key={k}><dt className="text-muted-foreground">{k}</dt><dd className="font-medium">{v}</dd></div>

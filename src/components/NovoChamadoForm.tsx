@@ -3,7 +3,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useRef, useState, type FormEvent } from "react";
 import { Paperclip, X } from "lucide-react";
 import { Shell } from "@/components/Shell";
-import { MOTIVOS, addChamado, formatNumero, mensagemDeErro } from "@/lib/chamados";
+import { DESTINOS, MOTIVOS, addChamado, formatNumero, mensagemDeErro } from "@/lib/chamados";
 
 const input = "mt-1 w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring";
 
@@ -61,7 +61,7 @@ export function NovoChamadoForm({ listaPath }: { listaPath: "/lojinha/chamados" 
     setEnviando(true);
     try {
       const c = await addChamado({
-        paxNome: g("paxNome"), cpf: g("cpf"), paxId: g("paxId"), idDelivery: g("idDelivery"), responsavel: g("responsavel"),
+        paxNome: g("paxNome"), cpf: g("cpf"), paxId: g("paxId"), idDelivery: g("idDelivery"), destino: g("destino") || null, ano: g("ano") || null, responsavel: g("responsavel"),
         rastreio: g("rastreio"), endereco: g("endereco"), dataEnvio: g("dataEnvio"),
         motivos, motivoOutro: g("motivoOutro") || null, origemSolicitacao: origens.join(", "),
         observacao: g("observacao") || null, anexos: nomesAnexos,
@@ -107,6 +107,18 @@ export function NovoChamadoForm({ listaPath }: { listaPath: "/lojinha/chamados" 
             <Field label="ID do Pax" name="paxId" />
             <Field label="ID Delivery" name="idDelivery" />
             <Field label="Nome do responsável" name="responsavel" />
+          </div>
+        </section>
+        <section className="rounded-xl border bg-background p-6">
+          <h2 className="mb-4 font-semibold">Viagem</h2>
+          <div className="grid gap-4 sm:grid-cols-2">
+            <label className="block text-sm font-medium">Destino *
+              <select name="destino" required defaultValue="" className={input}>
+                <option value="" disabled>Selecione o destino</option>
+                {DESTINOS.map((d) => <option key={d} value={d}>{d}</option>)}
+              </select>
+            </label>
+            <Field label="Ano" name="ano" />
           </div>
         </section>
         <section className="rounded-xl border bg-background p-6">
