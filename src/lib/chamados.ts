@@ -9,7 +9,11 @@ export const STATUSES = [
   "REENVIO AUTORIZADO",
   "CONCLUÍDO",
 ] as const;
-export type Status = (typeof STATUSES)[number];
+
+/** Status exclusivo do SAC (a Lojinha não vê nem seleciona). */
+export const STATUS_LIDERANCA = "ANÁLISE LIDERANÇA" as const;
+export const STATUSES_SAC = [...STATUSES.slice(0, 5), STATUS_LIDERANCA, "CONCLUÍDO"] as const;
+export type Status = (typeof STATUSES_SAC)[number];
 
 export const STATUS_LABEL: Record<Status, string> = {
   "NOVO CHAMADO": "Novos chamados",
@@ -17,6 +21,7 @@ export const STATUS_LABEL: Record<Status, string> = {
   "AGUARDANDO CLIENTE": "Aguardando cliente",
   "AGUARDANDO PAGAMENTO": "Aguardando pagamento",
   "REENVIO AUTORIZADO": "Reenvio autorizado",
+  "ANÁLISE LIDERANÇA": "Análise Liderança",
   "CONCLUÍDO": "Concluídos",
 };
 
