@@ -12,6 +12,8 @@ export const Route = createFileRoute("/_authenticated/lojinha/")({
       { name: "description", content: "Visão geral dos chamados de reenvio da Lojinha." },
       { property: "og:title", content: "Dashboard Lojinha" },
       { property: "og:description", content: "Visão geral dos chamados de reenvio da Lojinha." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
     ],
   }),
   component: Dashboard,

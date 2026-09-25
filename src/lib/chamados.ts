@@ -119,22 +119,46 @@ export const chamadosQuery = queryOptions({
   },
 });
 
-/** Mapa numero -> data/hora da última movimentação (ou abertura, se não houver). */
+/** Última movimentação de cada chamado para tempo de espera e notificações. */
 export const ultimasMovimentacoesQuery = queryOptions({
   queryKey: ["ultimas-movimentacoes"],
   queryFn: async () => {
     const { data, error } = await supabase
       .from("chamado_movimentacoes")
-      .select("chamado_numero, criado_em")
+      .select("chamado_numero, criado_em, autor_id")
       .order("criado_em", { ascending: false });
     if (error) throw error;
-    const mapa: Record<number, string> = {};
+    const mapa: Record<number, { criadoEm: string; autorId: string }> = {};
     for (const m of data ?? []) {
-      if (mapa[m.chamado_numero] == null) mapa[m.chamado_numero] = m.criado_em;
+      if (mapa[m.chamado_numero] == null) mapa[m.chamado_numero] = { criadoEm: m.criado_em, autorId: m.autor_id };
     }
     return mapa;
   },
+  refetchInterval: 15000,
 });
+
+export const leiturasQuery = queryOptions({
+  queryKey: ["chamado-leituras"],
+  queryFn: async () => {
+    const { data: { user }, error: authError } = await supabase.auth.getUser();
+    if (authError || !user) throw new Error("Sessão expirada. Entre novamente.");
+    const { data, error } = await supabase.from("chamado_leituras").select("chamado_numero, visto_em").eq("usuario_id", user.id);
+    if (error) throw error;
+    return { usuarioId: user.id, vistos: Object.fromEntries((data ?? []).map((item) => [item.chamado_numero, item.visto_em])) as Record<number, string> };
+  },
+  refetchInterval: 15000,
+});
+
+export async function marcarChamadoVisto(numero: number, vistoEm: string) {
+  const { data: { user }, error: authError } = await supabase.auth.getUser();
+  if (authError || !user) throw new Error("Sessão expirada. Entre novamente.");
+  const { error } = await supabase.from("chamado_leituras").upsert({
+    usuario_id: user.id,
+    chamado_numero: numero,
+    visto_em: vistoEm,
+  }, { onConflict: "usuario_id,chamado_numero" });
+  if (error) throw error;
+}
 
 export async function addChamado(c: NovoChamado): Promise<Chamado> {
   const { data: u } = await supabase.auth.getUser();

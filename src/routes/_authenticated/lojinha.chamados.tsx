@@ -14,6 +14,8 @@ export const Route = createFileRoute("/_authenticated/lojinha/chamados")({
       { name: "description", content: "Listagem e acompanhamento dos chamados de reenvio." },
       { property: "og:title", content: "Chamados da Lojinha" },
       { property: "og:description", content: "Listagem e acompanhamento dos chamados de reenvio." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
     ],
   }),
   component: Lista,

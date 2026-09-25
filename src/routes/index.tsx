@@ -8,6 +8,8 @@ export const Route = createFileRoute("/")({
       { name: "description", content: "Sistema de chamados para reenvio de kits de passageiros." },
       { property: "og:title", content: "Reenvio de Kits Pax" },
       { property: "og:description", content: "Sistema de chamados para reenvio de kits de passageiros." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
     ],
   }),
   component: Index,
