@@ -72,7 +72,7 @@ export function ChamadosRecentes() {
           <p className="p-6 text-sm text-muted-foreground">Nenhum chamado ainda.</p>
         ) : (
           <>
-            <div className="grid min-w-[560px] grid-cols-[minmax(0,1fr)_5rem_11rem] items-center gap-2 border-b bg-muted/50 px-4 py-2 text-xs font-medium text-muted-foreground sm:gap-5">
+            <div className="grid min-w-[720px] grid-cols-[minmax(0,1fr)_5rem_11rem_9rem] items-center gap-2 border-b bg-muted/50 px-4 py-2 text-xs font-medium text-muted-foreground sm:gap-5">
               <Button variant="ghost" size="sm" onClick={ciclarNumero} className={`${thBtn} h-7 justify-self-start px-0 text-xs`} title="Ordenar pelo número do chamado">
                 Nº {iconNum}
               </Button>
@@ -82,6 +82,7 @@ export function ChamadosRecentes() {
               <Button variant="ghost" size="sm" onClick={ciclarStatus} className={`${thBtn} h-7 justify-self-center px-0 text-xs`} title="Ordenar pelo status">
                 Status {iconStatus}
               </Button>
+              <span className="justify-self-center">Destino</span>
             </div>
             {ordenados.map((c) => {
               const ultima = ultimas[c.numero];
@@ -93,7 +94,7 @@ export function ChamadosRecentes() {
                   variant="ghost"
                   key={c.numero}
                   onClick={() => setAberto(c.numero)}
-                  className={`grid h-auto min-w-[560px] w-full grid-cols-[minmax(0,1fr)_5rem_11rem] items-center gap-2 rounded-none border-b px-4 py-4 text-left text-sm last:border-0 hover:bg-muted/40 sm:gap-5 ${naoVisto ? "bg-accent/60 font-bold" : "font-normal"}`}
+                  className={`grid h-auto min-w-[720px] w-full grid-cols-[minmax(0,1fr)_5rem_11rem_9rem] items-center gap-2 rounded-none border-b px-4 py-4 text-left text-sm last:border-0 hover:bg-muted/40 sm:gap-5 ${naoVisto ? "bg-accent/60 font-bold" : "font-normal"}`}
                 >
                   <div className="flex min-w-0 items-center gap-2 overflow-hidden">
                     {naoVisto && <span className="h-2 w-2 shrink-0 rounded-full bg-primary" title="Nova movimentação" aria-label="Nova movimentação" />}
@@ -108,6 +109,7 @@ export function ChamadosRecentes() {
                       )}
                     </span>
                     <span className="justify-self-center"><StatusBadge status={c.status} /></span>
+                    <span className="justify-self-center truncate text-xs">{c.destino ?? "—"}</span>
                 </Button>
               );
             })}

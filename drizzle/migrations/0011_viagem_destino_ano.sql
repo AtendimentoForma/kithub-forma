@@ -1,0 +1,1 @@
+ALTER TABLE public.chamados ADD COLUMN destino text, ADD COLUMN ano text;

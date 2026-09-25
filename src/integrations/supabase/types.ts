@@ -94,6 +94,7 @@ export type Database = {
       chamados: {
         Row: {
           anexos: string[]
+          ano: string | null
           conf_dados: boolean
           conf_envio: boolean
           conf_motivo: boolean
@@ -101,6 +102,7 @@ export type Database = {
           criado_em: string
           data_envio: string
           despachado_em: string | null
+          destino: string | null
           endereco: string
           id_delivery: string | null
           motivo_cancelamento: string | null
@@ -124,6 +126,7 @@ export type Database = {
         }
         Insert: {
           anexos?: string[]
+          ano?: string | null
           conf_dados?: boolean
           conf_envio?: boolean
           conf_motivo?: boolean
@@ -131,6 +134,7 @@ export type Database = {
           criado_em?: string
           data_envio: string
           despachado_em?: string | null
+          destino?: string | null
           endereco: string
           id_delivery?: string | null
           motivo_cancelamento?: string | null
@@ -154,6 +158,7 @@ export type Database = {
         }
         Update: {
           anexos?: string[]
+          ano?: string | null
           conf_dados?: boolean
           conf_envio?: boolean
           conf_motivo?: boolean
@@ -161,6 +166,7 @@ export type Database = {
           criado_em?: string
           data_envio?: string
           despachado_em?: string | null
+          destino?: string | null
           endereco?: string
           id_delivery?: string | null
           motivo_cancelamento?: string | null
