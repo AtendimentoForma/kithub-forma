@@ -1,0 +1,2 @@
+CREATE POLICY "Admin exclui chamados" ON public.chamados FOR DELETE TO authenticated USING (public.has_role(auth.uid(), 'admin'));
+CREATE POLICY "Admin exclui movimentacoes" ON public.chamado_movimentacoes FOR DELETE TO authenticated USING (public.has_role(auth.uid(), 'admin'));

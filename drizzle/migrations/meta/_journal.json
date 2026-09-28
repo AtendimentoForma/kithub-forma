@@ -85,6 +85,20 @@
       "when": 1790368450572,
       "tag": "0011_viagem_destino_ano",
       "breakpoints": true
+    },
+    {
+      "idx": 12,
+      "version": "7",
+      "when": 1790638587333,
+      "tag": "0012_admin_delete_chamados",
+      "breakpoints": true
+    },
+    {
+      "idx": 13,
+      "version": "7",
+      "when": 1790638605038,
+      "tag": "0013_admin_delete_leituras",
+      "breakpoints": true
     }
   ]
 }
