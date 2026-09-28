@@ -134,6 +134,16 @@ export async function despacharChamado(numero: number, rastreio: string) {
   if (error) throw error;
 }
 
+/** Admin: exclui o chamado e suas movimentações/leituras. */
+export async function excluirChamado(numero: number) {
+  const { error: e1 } = await supabase.from("chamado_movimentacoes").delete().eq("chamado_numero", numero);
+  if (e1) throw e1;
+  const { error: e2 } = await supabase.from("chamado_leituras").delete().eq("chamado_numero", numero);
+  if (e2) throw e2;
+  const { error: e3 } = await supabase.from("chamados").delete().eq("numero", numero);
+  if (e3) throw e3;
+}
+
 export const chamadosQuery = queryOptions({
   queryKey: ["chamados"],
   queryFn: async () => {
