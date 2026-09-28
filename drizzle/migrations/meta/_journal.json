@@ -92,6 +92,13 @@
       "when": 1790638587333,
       "tag": "0012_admin_delete_chamados",
       "breakpoints": true
+    },
+    {
+      "idx": 13,
+      "version": "7",
+      "when": 1790638605038,
+      "tag": "0013_admin_delete_leituras",
+      "breakpoints": true
     }
   ]
 }

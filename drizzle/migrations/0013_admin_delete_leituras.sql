@@ -1,0 +1,1 @@
+CREATE POLICY "Admin exclui leituras" ON public.chamado_leituras FOR DELETE TO authenticated USING (public.has_role(auth.uid(), 'admin'));
