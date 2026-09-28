@@ -100,6 +100,30 @@ export function ChamadoDetalhe({ chamado, onClose }: { chamado: Chamado; onClose
         </div>
 
         <button onClick={onClose} className="mt-4 w-full rounded-md border px-4 py-2 text-sm hover:bg-accent">Fechar</button>
+
+        {perfil === "admin" && (
+          <button
+            disabled={enviando}
+            onClick={async () => {
+              if (!window.confirm(`Excluir o chamado ${formatNumero(chamado.numero)}? Essa ação não pode ser desfeita.`)) return;
+              setEnviando(true); setErro("");
+              try {
+                await excluirChamado(chamado.numero);
+                await Promise.all([
+                  qc.invalidateQueries({ queryKey: ["chamados"] }),
+                  qc.invalidateQueries({ queryKey: ["ultimas-movimentacoes"] }),
+                ]);
+                onClose();
+              } catch (e) {
+                setErro(mensagemDeErro(e, "Erro ao excluir o chamado."));
+                setEnviando(false);
+              }
+            }}
+            className="mt-2 w-full rounded-md border border-destructive px-4 py-2 text-sm font-medium text-destructive hover:bg-destructive/10 disabled:opacity-50"
+          >
+            Excluir chamado
+          </button>
+        )}
       </div>
     </div>
   );
