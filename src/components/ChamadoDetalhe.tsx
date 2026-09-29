@@ -2,7 +2,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { StatusBadge } from "@/components/Shell";
 import { FluxoChamado } from "@/components/FluxoChamado";
-import { STATUSES, STATUSES_SAC, STATUS_LIDERANCA, formatNumero, movimentacoesQuery, addMovimentacao, getMyRole, marcarChamadoVisto, ultimasMovimentacoesQuery, leiturasQuery, mensagemDeErro, excluirChamado, minhasPermissoesQuery, podeEditar, type Chamado, type Status } from "@/lib/chamados";
+import { STATUS_LIDERANCA, statusSelecionaveis, formatNumero, movimentacoesQuery, addMovimentacao, getMyRole, marcarChamadoVisto, ultimasMovimentacoesQuery, leiturasQuery, mensagemDeErro, minhasPermissoesQuery, podeEditar, type Chamado, type Status } from "@/lib/chamados";
 
 export function ChamadoDetalhe({ chamado, onClose }: { chamado: Chamado; onClose: () => void }) {
   const qc = useQueryClient();
@@ -92,8 +92,8 @@ export function ChamadoDetalhe({ chamado, onClose }: { chamado: Chamado; onClose
           <div className="flex flex-wrap items-center gap-2">
             <label className="text-sm text-muted-foreground">Status:</label>
             <select value={status} onChange={(e) => setStatus(e.target.value as Status)} className="rounded-md border bg-background px-2 py-1 text-sm">
-              {(perfil === "sac" || perfil === "admin" ? STATUSES_SAC : STATUSES).map((s) => <option key={s} value={s}>{s}</option>)}
-              {perfil === "lojinha" && chamado.status === STATUS_LIDERANCA && <option value={STATUS_LIDERANCA} disabled>{STATUS_LIDERANCA}</option>}
+              {statusSelecionaveis(perfil).map((s) => <option key={s} value={s}>{s}</option>)}
+              {!statusSelecionaveis(perfil).includes(chamado.status) && <option value={chamado.status} disabled>{chamado.status}</option>}
             </select>
             <button disabled={enviando} onClick={enviar} className="ml-auto rounded-md bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground disabled:opacity-50">
               {enviando ? "Enviando..." : "Registrar movimentação"}
@@ -106,30 +106,6 @@ export function ChamadoDetalhe({ chamado, onClose }: { chamado: Chamado; onClose
         )}
 
         <button onClick={onClose} className="mt-4 w-full rounded-md border px-4 py-2 text-sm hover:bg-accent">Fechar</button>
-
-        {perfil === "admin" && (
-          <button
-            disabled={enviando}
-            onClick={async () => {
-              if (!window.confirm(`Excluir o chamado ${formatNumero(chamado.numero)}? Essa ação não pode ser desfeita.`)) return;
-              setEnviando(true); setErro("");
-              try {
-                await excluirChamado(chamado.numero);
-                await Promise.all([
-                  qc.invalidateQueries({ queryKey: ["chamados"] }),
-                  qc.invalidateQueries({ queryKey: ["ultimas-movimentacoes"] }),
-                ]);
-                onClose();
-              } catch (e) {
-                setErro(mensagemDeErro(e, "Erro ao excluir o chamado."));
-                setEnviando(false);
-              }
-            }}
-            className="mt-2 w-full rounded-md border border-destructive px-4 py-2 text-sm font-medium text-destructive hover:bg-destructive/10 disabled:opacity-50"
-          >
-            Excluir chamado
-          </button>
-        )}
       </div>
     </div>
   );

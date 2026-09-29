@@ -73,7 +73,7 @@ function Lista() {
                 <td className="p-3">{new Date(c.criadoEm).toLocaleString("pt-BR")}</td>
                 <td className="p-3" onClick={(e) => e.stopPropagation()}>
                   <select value={c.status} onChange={(e) => mudar(c.numero, e.target.value as Status)} className="rounded-md border bg-background px-2 py-1 text-xs">
-                    {STATUSES.map((s) => <option key={s} value={s}>{s}</option>)}
+                    {STATUSES.map((s) => <option key={s} value={s} disabled={s === "PRIORIDADE FINALIZADA"}>{s}</option>)}
                   </select>
                 </td>
               </tr>

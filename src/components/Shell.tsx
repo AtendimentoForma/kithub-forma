@@ -5,6 +5,7 @@ import { ArrowLeft } from "lucide-react";
 import type { Status } from "@/lib/chamados";
 import { getMyRole } from "@/lib/chamados";
 import { supabase } from "@/integrations/supabase/client";
+import { AlertaPrioridade } from "@/components/AlertaPrioridade";
 
 const linkCls = "text-muted-foreground hover:text-foreground";
 const active = { className: "text-foreground font-semibold" };
@@ -31,6 +32,7 @@ export function Shell({ title, children, perfil = "lojinha" }: { title: string; 
   const rotulo = perfil === "sac" ? "SAC" : perfil === "admin" ? "Administrador" : "Lojinha";
   return (
     <div className="min-h-screen bg-muted/40">
+      <AlertaPrioridade />
       <header className="border-b bg-background">
         <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-3 px-6 py-4">
           <span className="font-bold tracking-tight">KitHub <span className="ml-2 text-xs font-normal text-muted-foreground">{rotulo}</span></span>
