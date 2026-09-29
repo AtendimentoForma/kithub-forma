@@ -65,9 +65,6 @@ function Linha({ u }: { u: UsuarioAdmin }) {
   const [salvando, setSalvando] = useState(false);
   const [erro, setErro] = useState("");
 
-  function alternar(p: Permissao) {
-    setPermissoes((atual) => (atual.includes(p) ? atual.filter((x) => x !== p) : [...atual, p]));
-  }
 
   async function salvar(aprovado: boolean) {
     setSalvando(true); setErro("");
