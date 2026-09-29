@@ -20,13 +20,13 @@ export function ChamadoDetalhe({ chamado, onClose }: { chamado: Chamado; onClose
   useEffect(() => {
     const ultima = ultimas?.[chamado.numero];
     const vistoEm = leituras?.vistos[chamado.numero];
-    if (!ultima || !leituras || ultima.autorId === leituras.usuarioId || (vistoEm && new Date(vistoEm).getTime() >= new Date(ultima.criadoEm).getTime())) return;
+    if (chamado.status === "CONCLUÍDO" || !ultima || !leituras || ultima.autorId === leituras.usuarioId || (vistoEm && new Date(vistoEm).getTime() >= new Date(ultima.criadoEm).getTime())) return;
     let active = true;
     marcarChamadoVisto(chamado.numero, ultima.criadoEm)
       .then(() => { if (active) void qc.invalidateQueries({ queryKey: ["chamado-leituras"] }); })
       .catch((error) => console.error("Não foi possível marcar o chamado como visto.", error));
     return () => { active = false; };
-  }, [chamado.numero, ultimas, leituras, qc]);
+  }, [chamado.numero, chamado.status, ultimas, leituras, qc]);
 
   async function enviar() {
     setErro("");

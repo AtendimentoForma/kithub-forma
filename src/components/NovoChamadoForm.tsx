@@ -1,9 +1,10 @@
 import { useNavigate } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useRef, useState, type FormEvent } from "react";
-import { Paperclip, X } from "lucide-react";
+import { ChevronUp, Paperclip, X } from "lucide-react";
 import { Shell } from "@/components/Shell";
-import { DESTINOS, MOTIVOS, addChamado, formatNumero, mensagemDeErro, getMyRole, minhasPermissoesQuery, podeEditar } from "@/lib/chamados";
+import { Button } from "@/components/ui/button";
+import { DESTINOS, MOTIVOS, addChamado, addMovimentacao, formatNumero, mensagemDeErro, getMyRole, minhasPermissoesQuery, podeEditar, statusSelecionaveis, type Status } from "@/lib/chamados";
 
 const input = "mt-1 w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring";
 
@@ -24,11 +25,15 @@ export function NovoChamadoForm({ listaPath }: { listaPath: "/lojinha/chamados" 
   const [erro, setErro] = useState("");
   const [enviando, setEnviando] = useState(false);
   const [criado, setCriado] = useState<number | null>(null);
+  const [status, setStatus] = useState<Status>("NOVO CHAMADO");
+  const [statusCriado, setStatusCriado] = useState<Status>("NOVO CHAMADO");
+  const [menuAberto, setMenuAberto] = useState(false);
   const [anexos, setAnexos] = useState<File[]>([]);
   const anexosRef = useRef<HTMLInputElement>(null);
   const { data: perfil = null } = useQuery({ queryKey: ["my-role"], queryFn: getMyRole });
   const { data: permissoes } = useQuery(minhasPermissoesQuery);
   const podeCriar = podeEditar(perfil, permissoes, "chamados") || podeEditar(perfil, permissoes, "reenvios");
+  const statusDisponiveis = statusSelecionaveis(listaPath === "/sac/chamados" ? "sac" : "lojinha");
 
   function atualizarAnexos(lista: FileList | null) {
     setAnexos(lista ? Array.from(lista) : []);
@@ -59,9 +64,11 @@ export function NovoChamadoForm({ listaPath }: { listaPath: "/lojinha/chamados" 
     if (origens.length === 0) return setErro("Marque ao menos uma opção: \"Cliente entrou em contato\" ou \"Identificado internamente\".");
     if (g("cpf").replace(/\D/g, "").length !== 11) return setErro("CPF deve ter 11 dígitos.");
     if (motivos.includes("Outro") && !g("motivoOutro")) return setErro("Descreva o motivo \"Outro\".");
+    if (["CONCLUÍDO", "REENVIO AUTORIZADO", "AGUARDANDO CLIENTE", "ANÁLISE LIDERANÇA"].includes(status) && !g("observacao")) return setErro(`Para enviar como "${status}", preencha a observação.`);
     const nomesAnexos = anexos.map((x) => x.name);
     setErro("");
     setEnviando(true);
+    let novoNumero: number | null = null;
     try {
       const c = await addChamado({
         paxNome: g("paxNome"), cpf: g("cpf"), paxId: g("paxId"), idDelivery: g("idDelivery"), destino: g("destino") || null, ano: g("ano") || null, responsavel: g("responsavel"),
@@ -69,11 +76,23 @@ export function NovoChamadoForm({ listaPath }: { listaPath: "/lojinha/chamados" 
         motivos, motivoOutro: g("motivoOutro") || null, origemSolicitacao: origens.join(", "),
         observacao: g("observacao") || null, anexos: nomesAnexos,
       });
-      await qc.invalidateQueries({ queryKey: ["chamados"] });
+      novoNumero = c.numero;
       setCriado(c.numero);
+      if (status !== "NOVO CHAMADO") {
+        await addMovimentacao(c.numero, g("observacao") || null, status);
+        setStatusCriado(status);
+      }
     } catch (err) {
-      setErro(mensagemDeErro(err, "Não foi possível enviar o chamado."));
+      setErro(novoNumero !== null
+        ? `O chamado ${formatNumero(novoNumero)} foi criado como NOVO CHAMADO, mas não foi possível alterar o status: ${mensagemDeErro(err, "Tente alterar o status na lista de chamados.")}`
+        : mensagemDeErro(err, "Não foi possível enviar o chamado."));
     } finally {
+      if (novoNumero !== null) {
+        await Promise.all([
+          qc.invalidateQueries({ queryKey: ["chamados"] }),
+          qc.invalidateQueries({ queryKey: ["ultimas-movimentacoes"] }),
+        ]);
+      }
       setEnviando(false);
     }
   }
@@ -83,8 +102,9 @@ export function NovoChamadoForm({ listaPath }: { listaPath: "/lojinha/chamados" 
       <Shell title="Chamado criado">
         <div className="rounded-xl border bg-background p-8 text-center">
           <div className="font-mono text-3xl font-bold">{formatNumero(criado)}</div>
-          <p className="mt-2 text-muted-foreground">Status inicial: NOVO CHAMADO</p>
-          <button onClick={() => navigate({ to: listaPath })} className="mt-6 rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground">Ver chamados</button>
+          <p className="mt-2 text-muted-foreground">Status: {statusCriado}</p>
+          {erro && <p role="alert" className="mt-3 text-sm text-destructive">{erro}</p>}
+          <Button onClick={() => navigate({ to: listaPath })} className="mt-6">Ver chamados</Button>
         </div>
       </Shell>
     );
@@ -200,7 +220,23 @@ export function NovoChamadoForm({ listaPath }: { listaPath: "/lojinha/chamados" 
           </div>
         </section>
         {erro && <p className="text-sm font-medium text-destructive">{erro}</p>}
-        <button type="submit" disabled={enviando} className="rounded-md bg-primary px-6 py-2.5 text-sm font-medium text-primary-foreground hover:bg-primary/90 disabled:opacity-60">{enviando ? "Enviando..." : "Enviar chamado"}</button>
+        <div className="relative inline-flex max-w-full items-stretch">
+          <Button type="submit" disabled={enviando} className="h-auto min-h-10 max-w-[calc(100vw-7rem)] rounded-r-none px-5 py-2.5 text-left whitespace-normal">
+            {enviando ? "Enviando..." : `Enviar como ${status}`}
+          </Button>
+          <Button type="button" disabled={enviando} aria-label="Escolher status do chamado" aria-expanded={menuAberto} onClick={() => setMenuAberto((aberto) => !aberto)} className="h-auto min-h-10 rounded-l-none border-l border-primary-foreground/30 px-3" title="Escolher status do chamado">
+            <ChevronUp className="h-4 w-4" />
+          </Button>
+          {menuAberto && (
+            <div role="group" aria-label="Status de envio" className="absolute bottom-full right-0 z-20 mb-2 max-h-72 w-max max-w-[min(22rem,calc(100vw-3rem))] overflow-y-auto rounded-md border bg-popover p-1 shadow-lg">
+              {statusDisponiveis.map((opcao) => (
+                <Button key={opcao} type="button" variant="ghost" aria-pressed={status === opcao} onClick={() => { setStatus(opcao); setMenuAberto(false); setErro(""); }} className="h-auto min-h-9 w-full justify-start whitespace-normal text-left text-xs">
+                  {opcao}
+                </Button>
+              ))}
+            </div>
+          )}
+        </div>
       </form>
     </Shell>
   );
