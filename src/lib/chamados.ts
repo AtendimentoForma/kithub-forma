@@ -286,16 +286,39 @@ export async function estouAprovado(): Promise<boolean> {
   return !!data;
 }
 
-export type UsuarioAdmin = { id: string; nome: string; email: string | null; created_at: string; aprovado: boolean; papeis: string[] };
+export type Permissao = "consulta" | "chamados" | "reenvios" | "pagamentos";
+
+export const PERMISSOES: { v: Permissao; l: string; d: string }[] = [
+  { v: "consulta", l: "Consulta", d: "Somente visualiza o sistema, sem editar" },
+  { v: "chamados", l: "Chamados", d: "Cria e edita chamados" },
+  { v: "reenvios", l: "Reenvios", d: "Cria, edita e realiza reenvios" },
+  { v: "pagamentos", l: "Pagamentos", d: "Cria e edita pagamentos" },
+];
+
+export const minhasPermissoesQuery = queryOptions({
+  queryKey: ["minhas-permissoes"],
+  queryFn: async (): Promise<Permissao[]> => {
+    const { data, error } = await supabase.rpc("minhas_permissoes");
+    if (error) throw error;
+    return ((data ?? []) as string[]).filter((p): p is Permissao => ["consulta", "chamados", "reenvios", "pagamentos"].includes(p));
+  },
+});
+
+export function podeEditar(perfil: Perfil | null, permissoes: Permissao[] | undefined, tipo: Exclude<Permissao, "consulta">) {
+  if (perfil === "admin") return true;
+  return (permissoes ?? []).includes(tipo);
+}
+
+export type UsuarioAdmin = { id: string; nome: string; email: string | null; created_at: string; aprovado: boolean; papeis: string[]; permissoes: string[] };
 
 export async function listarUsuarios(): Promise<UsuarioAdmin[]> {
-  const { data, error } = await supabase.rpc("admin_listar_usuarios");
+  const { data, error } = await supabase.rpc("admin_listar_usuarios_v2");
   if (error) throw error;
   return (data ?? []) as UsuarioAdmin[];
 }
 
-export async function definirUsuario(id: string, aprovado: boolean, papel: Perfil) {
-  const { error } = await supabase.rpc("admin_definir_usuario", { _id: id, _aprovado: aprovado, _papel: papel });
+export async function definirUsuario(id: string, aprovado: boolean, papel: Perfil, permissoes: Permissao[]) {
+  const { error } = await supabase.rpc("admin_definir_usuario_v2", { _id: id, _aprovado: aprovado, _papel: papel, _permissoes: permissoes });
   if (error) throw error;
 }
 
