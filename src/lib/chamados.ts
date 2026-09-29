@@ -1,19 +1,33 @@
 import { queryOptions } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 
+/** Status exclusivo do SAC (a Lojinha não vê nem seleciona). */
+export const STATUS_LIDERANCA = "ANÁLISE LIDERANÇA" as const;
+/** Selecionável só pelo SAC; card visível para ambos. */
+export const STATUS_PRIO_ENTREGA = "PRIORIDADE DE ENTREGA" as const;
+/** Selecionável só pela Lojinha; card visível para ambos. */
+export const STATUS_PRIO_FINALIZADA = "PRIORIDADE FINALIZADA" as const;
+
 export const STATUSES = [
   "NOVO CHAMADO",
   "EM ANÁLISE",
   "AGUARDANDO CLIENTE",
   "AGUARDANDO PAGAMENTO",
   "REENVIO AUTORIZADO",
+  STATUS_PRIO_ENTREGA,
+  STATUS_PRIO_FINALIZADA,
   "CONCLUÍDO",
 ] as const;
 
-/** Status exclusivo do SAC (a Lojinha não vê nem seleciona). */
-export const STATUS_LIDERANCA = "ANÁLISE LIDERANÇA" as const;
-export const STATUSES_SAC = [...STATUSES.slice(0, 5), STATUS_LIDERANCA, "CONCLUÍDO"] as const;
+export const STATUSES_SAC = [...STATUSES.slice(0, 5), STATUS_LIDERANCA, STATUS_PRIO_ENTREGA, STATUS_PRIO_FINALIZADA, "CONCLUÍDO"] as const;
 export type Status = (typeof STATUSES_SAC)[number];
+
+/** Status que cada perfil pode escolher ao movimentar. */
+export function statusSelecionaveis(perfil: "lojinha" | "sac" | "admin" | null): readonly Status[] {
+  if (perfil === "admin") return STATUSES_SAC;
+  if (perfil === "sac") return STATUSES_SAC.filter((s) => s !== STATUS_PRIO_FINALIZADA);
+  return STATUSES.filter((s) => s !== STATUS_PRIO_ENTREGA);
+}
 
 export const STATUS_LABEL: Record<Status, string> = {
   "NOVO CHAMADO": "Novos chamados",
@@ -22,6 +36,8 @@ export const STATUS_LABEL: Record<Status, string> = {
   "AGUARDANDO PAGAMENTO": "Aguardando pagamento",
   "REENVIO AUTORIZADO": "Reenvio autorizado",
   "ANÁLISE LIDERANÇA": "Análise Liderança",
+  "PRIORIDADE DE ENTREGA": "Prioridade de entrega",
+  "PRIORIDADE FINALIZADA": "Prioridade finalizada",
   "CONCLUÍDO": "Concluídos",
 };
 
