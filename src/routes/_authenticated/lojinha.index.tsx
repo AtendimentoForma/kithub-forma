@@ -28,7 +28,7 @@ function Dashboard() {
           <Plus className="h-4 w-4" /> Novo chamado
         </Link>
       </div>
-      <div className="grid gap-4 sm:grid-cols-3 lg:grid-cols-6">
+      <div className="grid gap-4 sm:grid-cols-3 lg:grid-cols-8">
         {STATUSES.map((s) => (
           <Link key={s} to="/lojinha/chamados" search={{ status: s }} className="rounded-xl border bg-background p-4 hover:border-primary">
             <div className="text-3xl font-bold">{list.filter((c) => c.status === s).length}</div>
