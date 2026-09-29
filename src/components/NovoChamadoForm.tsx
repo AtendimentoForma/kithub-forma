@@ -89,6 +89,15 @@ export function NovoChamadoForm({ listaPath }: { listaPath: "/lojinha/chamados" 
       </Shell>
     );
 
+  if (!podeCriar)
+    return (
+      <Shell title="Novo chamado de reenvio">
+        <p className="rounded-xl border bg-background p-6 text-sm text-muted-foreground">
+          Seu acesso é somente de consulta. Peça ao administrador a função "Chamados" para abrir novos chamados.
+        </p>
+      </Shell>
+    );
+
   return (
     <Shell title="Novo chamado de reenvio">
       <form onSubmit={submit} className="space-y-6">
