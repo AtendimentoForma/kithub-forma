@@ -86,6 +86,7 @@ export function ChamadoDetalhe({ chamado, onClose }: { chamado: Chamado; onClose
           ))}
         </ol>
 
+        {podeMovimentar ? (
         <div className="mt-4 space-y-2 rounded-lg border p-3">
           <textarea value={texto} onChange={(e) => setTexto(e.target.value)} rows={3} placeholder="Adicionar informação ao chamado..." className="w-full rounded-md border bg-background px-3 py-2 text-sm" />
           <div className="flex flex-wrap items-center gap-2">
@@ -100,6 +101,9 @@ export function ChamadoDetalhe({ chamado, onClose }: { chamado: Chamado; onClose
           </div>
           {erro && <p className="text-sm text-destructive">{erro}</p>}
         </div>
+        ) : (
+          <p className="mt-4 rounded-lg border bg-muted/30 p-3 text-sm text-muted-foreground">Seu acesso é somente de consulta. Você pode visualizar o chamado, mas não registrar movimentações.</p>
+        )}
 
         <button onClick={onClose} className="mt-4 w-full rounded-md border px-4 py-2 text-sm hover:bg-accent">Fechar</button>
 
