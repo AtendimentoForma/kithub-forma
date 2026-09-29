@@ -2,7 +2,7 @@ import { createFileRoute, redirect } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { Shell } from "@/components/Shell";
-import { definirUsuario, getMyRole, listarUsuarios, type Perfil, type UsuarioAdmin } from "@/lib/chamados";
+import { definirUsuario, getMyRole, listarUsuarios, PERMISSOES, type Perfil, type Permissao, type UsuarioAdmin } from "@/lib/chamados";
 
 export const Route = createFileRoute("/_authenticated/admin")({
   beforeLoad: async () => {
