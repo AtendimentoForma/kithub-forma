@@ -89,19 +89,8 @@ function Linha({ u }: { u: UsuarioAdmin }) {
         <select value={papel} onChange={(e) => setPapel(e.target.value as Perfil)} className="rounded-md border border-input bg-background px-2 py-1">
           {PAPEIS.map((p) => <option key={p.v} value={p.v}>{p.l}</option>)}
         </select>
-        <div className="mt-2">
-          <p className="mb-1 text-xs font-semibold text-muted-foreground">Funções (segure Ctrl/Cmd para marcar mais de uma)</p>
-          <select
-            multiple
-            size={PERMISSOES.length}
-            value={permissoes}
-            onChange={(e) => setPermissoes(Array.from(e.target.selectedOptions, (o) => o.value as Permissao))}
-            className="w-full rounded-md border border-input bg-background px-2 py-1 text-xs"
-          >
-            {PERMISSOES.map((p) => (
-              <option key={p.v} value={p.v} title={p.d}>{p.l} — {p.d}</option>
-            ))}
-          </select>
+        <div className="mt-2 w-56">
+          <SelecaoFuncoes selecionadas={permissoes} aoAlterar={setPermissoes} />
         </div>
         {erro && <p className="mt-1 text-xs text-destructive">{erro}</p>}
       </td>
@@ -120,3 +109,52 @@ function Linha({ u }: { u: UsuarioAdmin }) {
     </tr>
   );
 }
+
+function SelecaoFuncoes({ selecionadas, aoAlterar }: { selecionadas: Permissao[]; aoAlterar: (p: Permissao[]) => void }) {
+  const [aberto, setAberto] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!aberto) return;
+    function aoClicar(e: MouseEvent) {
+      if (ref.current && !ref.current.contains(e.target as Node)) setAberto(false);
+    }
+    document.addEventListener("mousedown", aoClicar);
+    return () => document.removeEventListener("mousedown", aoClicar);
+  }, [aberto]);
+
+  function alternar(v: Permissao) {
+    aoAlterar(selecionadas.includes(v) ? selecionadas.filter((p) => p !== v) : [...selecionadas, v]);
+  }
+
+  const rotulo = selecionadas.length === 0 ? "Funções" : PERMISSOES.filter((p) => selecionadas.includes(p.v)).map((p) => p.l).join(", ");
+
+  return (
+    <div className="relative" ref={ref}>
+      <button
+        type="button"
+        onClick={() => setAberto((a) => !a)}
+        className="flex w-full items-center justify-between gap-2 rounded-md border border-input bg-background px-2 py-1 text-left text-xs hover:bg-muted"
+      >
+        <span className="truncate">{rotulo}</span>
+        <span aria-hidden>▾</span>
+      </button>
+      {aberto && (
+        <div className="absolute z-20 mt-1 w-64 rounded-md border bg-background p-2 shadow-lg">
+          {PERMISSOES.map((p) => (
+            <label key={p.v} className="flex cursor-pointer items-start gap-2 rounded px-1 py-1 text-xs hover:bg-muted">
+              <input
+                type="checkbox"
+                checked={selecionadas.includes(p.v)}
+                onChange={() => alternar(p.v)}
+                className="mt-0.5"
+              />
+              <span><span className="font-semibold">{p.l}</span> — {p.d}</span>
+            </label>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
