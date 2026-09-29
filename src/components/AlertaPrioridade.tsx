@@ -2,10 +2,19 @@ import { useQuery } from "@tanstack/react-query";
 import { useEffect, useRef, useState } from "react";
 import { chamadosQuery, formatNumero, getMyRole, STATUS_PRIO_ENTREGA, STATUS_PRIO_FINALIZADA } from "@/lib/chamados";
 
+let audioCtx: AudioContext | null = null;
+function obterCtx() {
+  if (!audioCtx) {
+    const Ctx = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
+    audioCtx = new Ctx();
+  }
+  return audioCtx;
+}
+
 function tocarAviso() {
   try {
-    const Ctx = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
-    const ctx = new Ctx();
+    const ctx = obterCtx();
+    void ctx.resume();
     [0, 0.25, 0.5].forEach((t) => {
       const osc = ctx.createOscillator();
       const gain = ctx.createGain();
@@ -17,24 +26,57 @@ function tocarAviso() {
       osc.start(ctx.currentTime + t);
       osc.stop(ctx.currentTime + t + 0.2);
     });
-    setTimeout(() => void ctx.close(), 1200);
   } catch { /* navegador sem áudio */ }
+}
+
+function notificarSistema(titulo: string, corpo: string) {
+  if (typeof Notification === "undefined" || Notification.permission !== "granted") return;
+  try {
+    const n = new Notification(titulo, { body: corpo, tag: "kithub-prioridade" });
+    n.onclick = () => { window.focus(); n.close(); };
+  } catch { /* ignore */ }
 }
 
 /** Lojinha é avisada de "Prioridade de entrega"; SAC é avisado de "Prioridade finalizada". */
 export function AlertaPrioridade() {
   const { data: role } = useQuery({ queryKey: ["my-role"], queryFn: getMyRole });
   const alvo = role === "lojinha" ? STATUS_PRIO_ENTREGA : role === "sac" ? STATUS_PRIO_FINALIZADA : null;
-  const { data: list } = useQuery({ ...chamadosQuery, refetchInterval: 15000, enabled: !!alvo });
+  const { data: list } = useQuery({
+    ...chamadosQuery,
+    refetchInterval: 15000,
+    refetchIntervalInBackground: true,
+    enabled: !!alvo,
+  });
   const vistos = useRef<Set<number> | null>(null);
   const [aviso, setAviso] = useState<number[]>([]);
+
+  // Libera o áudio e pede permissão de notificação na primeira interação do usuário.
+  useEffect(() => {
+    if (!alvo) return;
+    const liberar = () => {
+      try { void obterCtx().resume(); } catch { /* ignore */ }
+      if (typeof Notification !== "undefined" && Notification.permission === "default") {
+        void Notification.requestPermission();
+      }
+    };
+    window.addEventListener("pointerdown", liberar);
+    window.addEventListener("keydown", liberar);
+    return () => {
+      window.removeEventListener("pointerdown", liberar);
+      window.removeEventListener("keydown", liberar);
+    };
+  }, [alvo]);
 
   useEffect(() => {
     if (!alvo || !list) return;
     const atuais = new Set(list.filter((c) => c.status === alvo).map((c) => c.numero));
     if (vistos.current) {
       const novos = [...atuais].filter((n) => !vistos.current!.has(n));
-      if (novos.length) { tocarAviso(); setAviso(novos); }
+      if (novos.length) {
+        tocarAviso();
+        setAviso(novos);
+        notificarSistema(`KitHub — ${alvo}`, `Chamado ${novos.map(formatNumero).join(", ")}`);
+      }
     }
     vistos.current = atuais;
   }, [list, alvo]);
