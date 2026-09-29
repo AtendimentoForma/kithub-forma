@@ -314,7 +314,8 @@ export type UsuarioAdmin = { id: string; nome: string; email: string | null; cre
 export async function listarUsuarios(): Promise<UsuarioAdmin[]> {
   const { data, error } = await supabase.rpc("admin_listar_usuarios_v2");
   if (error) throw error;
-  return (data ?? []) as UsuarioAdmin[];
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  return ((data ?? []) as any[]).map((u) => ({ ...u, papeis: u.papeis ?? [], permissoes: u.permissoes ?? [] })) as UsuarioAdmin[];
 }
 
 export async function definirUsuario(id: string, aprovado: boolean, papel: Perfil, permissoes: Permissao[]) {

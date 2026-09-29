@@ -29,8 +29,8 @@ const PAPEIS: { v: Perfil; l: string }[] = [
 ];
 
 function papelPrincipal(u: UsuarioAdmin): Perfil {
-  if (u.papeis.includes("admin")) return "admin";
-  if (u.papeis.includes("sac")) return "sac";
+  if (u.papeis?.includes("admin")) return "admin";
+  if (u.papeis?.includes("sac")) return "sac";
   return "lojinha";
 }
 
@@ -61,7 +61,7 @@ function AdminPage() {
 function Linha({ u }: { u: UsuarioAdmin }) {
   const qc = useQueryClient();
   const [papel, setPapel] = useState<Perfil>(papelPrincipal(u));
-  const [permissoes, setPermissoes] = useState<Permissao[]>(() => u.permissoes.filter((p): p is Permissao => PERMISSOES.some((x) => x.v === p)));
+  const [permissoes, setPermissoes] = useState<Permissao[]>(() => (u.permissoes ?? []).filter((p): p is Permissao => PERMISSOES.some((x) => x.v === p)));
   const [salvando, setSalvando] = useState(false);
   const [erro, setErro] = useState("");
 
