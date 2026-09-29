@@ -88,7 +88,7 @@ export function ChamadosRecentes() {
               const ultima = ultimas[c.numero];
               const desde = ultima?.criadoEm ?? c.criadoEm;
               const vistoEm = leituras?.vistos[c.numero];
-              const naoVisto = Boolean(ultima && leituras && ultima.autorId !== leituras.usuarioId && (!vistoEm || new Date(ultima.criadoEm).getTime() > new Date(vistoEm).getTime()));
+              const naoVisto = Boolean(c.status !== "CONCLUÍDO" && ultima && leituras && ultima.autorId !== leituras.usuarioId && (!vistoEm || new Date(ultima.criadoEm).getTime() > new Date(vistoEm).getTime()));
               return (
                 <Button
                   variant="ghost"
