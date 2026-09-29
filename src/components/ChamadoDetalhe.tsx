@@ -2,7 +2,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { StatusBadge } from "@/components/Shell";
 import { FluxoChamado } from "@/components/FluxoChamado";
-import { STATUSES, STATUSES_SAC, STATUS_LIDERANCA, formatNumero, movimentacoesQuery, addMovimentacao, getMyRole, marcarChamadoVisto, ultimasMovimentacoesQuery, leiturasQuery, mensagemDeErro, excluirChamado, type Chamado, type Status } from "@/lib/chamados";
+import { STATUSES, STATUSES_SAC, STATUS_LIDERANCA, formatNumero, movimentacoesQuery, addMovimentacao, getMyRole, marcarChamadoVisto, ultimasMovimentacoesQuery, leiturasQuery, mensagemDeErro, excluirChamado, minhasPermissoesQuery, podeEditar, type Chamado, type Status } from "@/lib/chamados";
 
 export function ChamadoDetalhe({ chamado, onClose }: { chamado: Chamado; onClose: () => void }) {
   const qc = useQueryClient();
@@ -10,6 +10,8 @@ export function ChamadoDetalhe({ chamado, onClose }: { chamado: Chamado; onClose
   const { data: ultimas } = useQuery(ultimasMovimentacoesQuery);
   const { data: leituras } = useQuery(leiturasQuery);
   const { data: perfil = null } = useQuery({ queryKey: ["my-role"], queryFn: getMyRole });
+  const { data: permissoes } = useQuery(minhasPermissoesQuery);
+  const podeMovimentar = podeEditar(perfil, permissoes, "chamados") || podeEditar(perfil, permissoes, "reenvios") || podeEditar(perfil, permissoes, "pagamentos");
   const [texto, setTexto] = useState("");
   const [status, setStatus] = useState<Status>(chamado.status);
   const [erro, setErro] = useState("");
