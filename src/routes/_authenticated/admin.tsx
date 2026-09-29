@@ -1,6 +1,6 @@
 import { createFileRoute, redirect } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Shell } from "@/components/Shell";
 import { definirUsuario, getMyRole, listarUsuarios, PERMISSOES, type Perfil, type Permissao, type UsuarioAdmin } from "@/lib/chamados";
 
