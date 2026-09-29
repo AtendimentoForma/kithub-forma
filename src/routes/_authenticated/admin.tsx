@@ -92,14 +92,19 @@ function Linha({ u }: { u: UsuarioAdmin }) {
         <select value={papel} onChange={(e) => setPapel(e.target.value as Perfil)} className="rounded-md border border-input bg-background px-2 py-1">
           {PAPEIS.map((p) => <option key={p.v} value={p.v}>{p.l}</option>)}
         </select>
-        <div className="mt-2 space-y-1 rounded-md border border-input p-2">
-          <p className="text-xs font-semibold text-muted-foreground">Funções (pode marcar mais de uma)</p>
-          {PERMISSOES.map((p) => (
-            <label key={p.v} className="flex cursor-pointer items-start gap-2 text-xs">
-              <input type="checkbox" className="mt-0.5" checked={permissoes.includes(p.v)} onChange={() => alternar(p.v)} />
-              <span><span className="font-medium">{p.l}</span> <span className="text-muted-foreground">— {p.d}</span></span>
-            </label>
-          ))}
+        <div className="mt-2">
+          <p className="mb-1 text-xs font-semibold text-muted-foreground">Funções (segure Ctrl/Cmd para marcar mais de uma)</p>
+          <select
+            multiple
+            size={PERMISSOES.length}
+            value={permissoes}
+            onChange={(e) => setPermissoes(Array.from(e.target.selectedOptions, (o) => o.value as Permissao))}
+            className="w-full rounded-md border border-input bg-background px-2 py-1 text-xs"
+          >
+            {PERMISSOES.map((p) => (
+              <option key={p.v} value={p.v} title={p.d}>{p.l} — {p.d}</option>
+            ))}
+          </select>
         </div>
         {erro && <p className="mt-1 text-xs text-destructive">{erro}</p>}
       </td>
