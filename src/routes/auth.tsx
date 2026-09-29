@@ -1,6 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState, type FormEvent } from "react";
-import { Store, Headset } from "lucide-react";
+import { Store, Headset, Eye, EyeOff } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { getMyRole, estouAprovado, type Perfil } from "@/lib/chamados";
 
@@ -36,6 +36,7 @@ function AuthPage() {
   const [erro, setErro] = useState("");
   const [aviso, setAviso] = useState("");
   const [carregando, setCarregando] = useState(false);
+  const [mostrarSenha, setMostrarSenha] = useState(false);
 
   async function irParaPainel(role: Perfil | null) {
     if (role === "sac") navigate({ to: "/sac" });
@@ -78,13 +79,13 @@ function AuthPage() {
       } else {
         const nome = String(f.get("nome") ?? "").trim();
         if (senha.length < 6) throw new Error("A senha deve ter ao menos 6 caracteres.");
-        const { data, error } = await supabase.auth.signUp({
+        const { error } = await supabase.auth.signUp({
           email, password: senha,
           options: { emailRedirectTo: `${window.location.origin}/auth?perfil=${perfil}`, data: { nome, perfil } },
         });
         if (error) throw error;
-        if (data.session) await supabase.auth.signOut();
-        setAviso("Cadastro feito! Confirme o link enviado ao seu e-mail e aguarde a aprovação do administrador para entrar.");
+        await supabase.auth.signOut();
+        setAviso("Cadastro feito! Aguarde a aprovação do administrador para entrar.");
         setModo("entrar");
       }
     } catch (err) {
@@ -112,7 +113,27 @@ function AuthPage() {
             <label className="block text-sm font-medium">Nome<input name="nome" required maxLength={100} className={input} /></label>
           )}
           <label className="block text-sm font-medium">E-mail<input name="email" type="email" required className={input} /></label>
-          <label className="block text-sm font-medium">Senha<input name="senha" type="password" required minLength={6} className={input} /></label>
+          <label className="block text-sm font-medium">
+            Senha
+            <span className="relative mt-1 block">
+              <input
+                name="senha"
+                type={mostrarSenha ? "text" : "password"}
+                required
+                minLength={6}
+                className={`${input} mt-0 pr-11`}
+              />
+              <button
+                type="button"
+                onClick={() => setMostrarSenha((visivel) => !visivel)}
+                aria-label={mostrarSenha ? "Ocultar senha" : "Mostrar senha"}
+                title={mostrarSenha ? "Ocultar senha" : "Mostrar senha"}
+                className="absolute inset-y-0 right-0 flex w-11 items-center justify-center text-muted-foreground hover:text-foreground"
+              >
+                {mostrarSenha ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+              </button>
+            </span>
+          </label>
           {erro && <p className="text-sm font-medium text-destructive">{erro}</p>}
           {aviso && <p className="text-sm font-medium text-primary">{aviso}</p>}
           <button type="submit" disabled={carregando} className="w-full rounded-md bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground hover:bg-primary/90 disabled:opacity-60">

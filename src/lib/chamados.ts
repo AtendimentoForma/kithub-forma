@@ -1,5 +1,6 @@
 import { queryOptions } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { confirmarEmailDoUsuario } from "@/lib/admin-users.functions";
 
 /** Status exclusivo do SAC (a Lojinha não vê nem seleciona). */
 export const STATUS_LIDERANCA = "ANÁLISE LIDERANÇA" as const;
@@ -337,6 +338,7 @@ export async function listarUsuarios(): Promise<UsuarioAdmin[]> {
 export async function definirUsuario(id: string, aprovado: boolean, papel: Perfil, permissoes: Permissao[]) {
   const { error } = await supabase.rpc("admin_definir_usuario_v2", { _id: id, _aprovado: aprovado, _papel: papel, _permissoes: permissoes });
   if (error) throw error;
+  if (aprovado) await confirmarEmailDoUsuario({ data: { userId: id } });
 }
 
 export function formatNumero(n: number) {
