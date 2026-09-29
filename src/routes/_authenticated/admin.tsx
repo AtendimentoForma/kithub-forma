@@ -61,13 +61,20 @@ function AdminPage() {
 function Linha({ u }: { u: UsuarioAdmin }) {
   const qc = useQueryClient();
   const [papel, setPapel] = useState<Perfil>(papelPrincipal(u));
+  const [permissoes, setPermissoes] = useState<Permissao[]>(() => u.permissoes.filter((p): p is Permissao => PERMISSOES.some((x) => x.v === p)));
   const [salvando, setSalvando] = useState(false);
   const [erro, setErro] = useState("");
+
+  function alternar(p: Permissao) {
+    setPermissoes((atual) => (atual.includes(p) ? atual.filter((x) => x !== p) : [...atual, p]));
+  }
+
   async function salvar(aprovado: boolean) {
     setSalvando(true); setErro("");
     try {
-      await definirUsuario(u.id, aprovado, papel);
+      await definirUsuario(u.id, aprovado, papel, permissoes);
       await qc.invalidateQueries({ queryKey: ["usuarios"] });
+      await qc.invalidateQueries({ queryKey: ["minhas-permissoes"] });
     } catch (e) {
       setErro(e instanceof Error ? e.message : "Erro ao salvar.");
     } finally { setSalvando(false); }
@@ -85,13 +92,22 @@ function Linha({ u }: { u: UsuarioAdmin }) {
         <select value={papel} onChange={(e) => setPapel(e.target.value as Perfil)} className="rounded-md border border-input bg-background px-2 py-1">
           {PAPEIS.map((p) => <option key={p.v} value={p.v}>{p.l}</option>)}
         </select>
+        <div className="mt-2 space-y-1 rounded-md border border-input p-2">
+          <p className="text-xs font-semibold text-muted-foreground">Funções (pode marcar mais de uma)</p>
+          {PERMISSOES.map((p) => (
+            <label key={p.v} className="flex cursor-pointer items-start gap-2 text-xs">
+              <input type="checkbox" className="mt-0.5" checked={permissoes.includes(p.v)} onChange={() => alternar(p.v)} />
+              <span><span className="font-medium">{p.l}</span> <span className="text-muted-foreground">— {p.d}</span></span>
+            </label>
+          ))}
+        </div>
         {erro && <p className="mt-1 text-xs text-destructive">{erro}</p>}
       </td>
       <td className="p-3">
         <div className="flex flex-wrap gap-2">
           {u.aprovado ? (
             <>
-              <button disabled={salvando} onClick={() => salvar(true)} className="rounded-md border px-3 py-1 text-xs hover:bg-muted disabled:opacity-60">Salvar papel</button>
+              <button disabled={salvando} onClick={() => salvar(true)} className="rounded-md border px-3 py-1 text-xs hover:bg-muted disabled:opacity-60">Salvar</button>
               <button disabled={salvando} onClick={() => salvar(false)} className="rounded-md border px-3 py-1 text-xs text-destructive hover:bg-muted disabled:opacity-60">Bloquear</button>
             </>
           ) : (
