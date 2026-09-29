@@ -2,7 +2,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { StatusBadge } from "@/components/Shell";
 import { FluxoChamado } from "@/components/FluxoChamado";
-import { STATUSES, STATUSES_SAC, STATUS_LIDERANCA, formatNumero, movimentacoesQuery, addMovimentacao, getMyRole, marcarChamadoVisto, ultimasMovimentacoesQuery, leiturasQuery, mensagemDeErro, excluirChamado, type Chamado, type Status } from "@/lib/chamados";
+import { STATUSES, STATUSES_SAC, STATUS_LIDERANCA, formatNumero, movimentacoesQuery, addMovimentacao, getMyRole, marcarChamadoVisto, ultimasMovimentacoesQuery, leiturasQuery, mensagemDeErro, excluirChamado, minhasPermissoesQuery, podeEditar, type Chamado, type Status } from "@/lib/chamados";
 
 export function ChamadoDetalhe({ chamado, onClose }: { chamado: Chamado; onClose: () => void }) {
   const qc = useQueryClient();
@@ -10,6 +10,8 @@ export function ChamadoDetalhe({ chamado, onClose }: { chamado: Chamado; onClose
   const { data: ultimas } = useQuery(ultimasMovimentacoesQuery);
   const { data: leituras } = useQuery(leiturasQuery);
   const { data: perfil = null } = useQuery({ queryKey: ["my-role"], queryFn: getMyRole });
+  const { data: permissoes } = useQuery(minhasPermissoesQuery);
+  const podeMovimentar = podeEditar(perfil, permissoes, "chamados") || podeEditar(perfil, permissoes, "reenvios") || podeEditar(perfil, permissoes, "pagamentos");
   const [texto, setTexto] = useState("");
   const [status, setStatus] = useState<Status>(chamado.status);
   const [erro, setErro] = useState("");
@@ -84,6 +86,7 @@ export function ChamadoDetalhe({ chamado, onClose }: { chamado: Chamado; onClose
           ))}
         </ol>
 
+        {podeMovimentar ? (
         <div className="mt-4 space-y-2 rounded-lg border p-3">
           <textarea value={texto} onChange={(e) => setTexto(e.target.value)} rows={3} placeholder="Adicionar informação ao chamado..." className="w-full rounded-md border bg-background px-3 py-2 text-sm" />
           <div className="flex flex-wrap items-center gap-2">
@@ -98,6 +101,9 @@ export function ChamadoDetalhe({ chamado, onClose }: { chamado: Chamado; onClose
           </div>
           {erro && <p className="text-sm text-destructive">{erro}</p>}
         </div>
+        ) : (
+          <p className="mt-4 rounded-lg border bg-muted/30 p-3 text-sm text-muted-foreground">Seu acesso é somente de consulta. Você pode visualizar o chamado, mas não registrar movimentações.</p>
+        )}
 
         <button onClick={onClose} className="mt-4 w-full rounded-md border px-4 py-2 text-sm hover:bg-accent">Fechar</button>
 

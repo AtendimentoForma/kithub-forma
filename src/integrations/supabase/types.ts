@@ -214,6 +214,32 @@ export type Database = {
         }
         Relationships: []
       }
+      user_permissoes: {
+        Row: {
+          id: string
+          permissao: Database["public"]["Enums"]["app_permissao"]
+          user_id: string
+        }
+        Insert: {
+          id?: string
+          permissao: Database["public"]["Enums"]["app_permissao"]
+          user_id: string
+        }
+        Update: {
+          id?: string
+          permissao?: Database["public"]["Enums"]["app_permissao"]
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_permissoes_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_roles: {
         Row: {
           id: string
@@ -245,6 +271,15 @@ export type Database = {
         }
         Returns: undefined
       }
+      admin_definir_usuario_v2: {
+        Args: {
+          _aprovado: boolean
+          _id: string
+          _papel: Database["public"]["Enums"]["app_role"]
+          _permissoes: string[]
+        }
+        Returns: undefined
+      }
       admin_listar_usuarios: {
         Args: never
         Returns: {
@@ -254,6 +289,18 @@ export type Database = {
           id: string
           nome: string
           papeis: string[]
+        }[]
+      }
+      admin_listar_usuarios_v2: {
+        Args: never
+        Returns: {
+          aprovado: boolean
+          created_at: string
+          email: string
+          id: string
+          nome: string
+          papeis: string[]
+          permissoes: string[]
         }[]
       }
       despachar_chamado: {
@@ -268,8 +315,17 @@ export type Database = {
         Returns: boolean
       }
       meu_status_aprovacao: { Args: never; Returns: boolean }
+      minhas_permissoes: { Args: never; Returns: string[] }
+      tem_permissao: {
+        Args: {
+          _perm: Database["public"]["Enums"]["app_permissao"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
     }
     Enums: {
+      app_permissao: "consulta" | "chamados" | "reenvios" | "pagamentos"
       app_role: "lojinha" | "sac" | "admin"
     }
     CompositeTypes: {
@@ -398,6 +454,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
+      app_permissao: ["consulta", "chamados", "reenvios", "pagamentos"],
       app_role: ["lojinha", "sac", "admin"],
     },
   },

@@ -99,6 +99,13 @@
       "when": 1790638605038,
       "tag": "0013_admin_delete_leituras",
       "breakpoints": true
+    },
+    {
+      "idx": 14,
+      "version": "7",
+      "when": 1790710332930,
+      "tag": "0014_permissoes_usuarios",
+      "breakpoints": true
     }
   ]
 }

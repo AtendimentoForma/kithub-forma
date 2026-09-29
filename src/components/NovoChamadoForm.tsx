@@ -1,9 +1,9 @@
 import { useNavigate } from "@tanstack/react-router";
-import { useQueryClient } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useRef, useState, type FormEvent } from "react";
 import { Paperclip, X } from "lucide-react";
 import { Shell } from "@/components/Shell";
-import { DESTINOS, MOTIVOS, addChamado, formatNumero, mensagemDeErro } from "@/lib/chamados";
+import { DESTINOS, MOTIVOS, addChamado, formatNumero, mensagemDeErro, getMyRole, minhasPermissoesQuery, podeEditar } from "@/lib/chamados";
 
 const input = "mt-1 w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring";
 
@@ -26,6 +26,9 @@ export function NovoChamadoForm({ listaPath }: { listaPath: "/lojinha/chamados" 
   const [criado, setCriado] = useState<number | null>(null);
   const [anexos, setAnexos] = useState<File[]>([]);
   const anexosRef = useRef<HTMLInputElement>(null);
+  const { data: perfil = null } = useQuery({ queryKey: ["my-role"], queryFn: getMyRole });
+  const { data: permissoes } = useQuery(minhasPermissoesQuery);
+  const podeCriar = podeEditar(perfil, permissoes, "chamados") || podeEditar(perfil, permissoes, "reenvios");
 
   function atualizarAnexos(lista: FileList | null) {
     setAnexos(lista ? Array.from(lista) : []);
@@ -83,6 +86,15 @@ export function NovoChamadoForm({ listaPath }: { listaPath: "/lojinha/chamados" 
           <p className="mt-2 text-muted-foreground">Status inicial: NOVO CHAMADO</p>
           <button onClick={() => navigate({ to: listaPath })} className="mt-6 rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground">Ver chamados</button>
         </div>
+      </Shell>
+    );
+
+  if (!podeCriar)
+    return (
+      <Shell title="Novo chamado de reenvio">
+        <p className="rounded-xl border bg-background p-6 text-sm text-muted-foreground">
+          Seu acesso é somente de consulta. Peça ao administrador a função "Chamados" para abrir novos chamados.
+        </p>
       </Shell>
     );
 
