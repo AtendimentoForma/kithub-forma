@@ -112,6 +112,7 @@ function Linha({ u }: { u: UsuarioAdmin }) {
 
 function SelecaoFuncoes({ selecionadas, aoAlterar }: { selecionadas: Permissao[]; aoAlterar: (p: Permissao[]) => void }) {
   const [aberto, setAberto] = useState(false);
+  const [pos, setPos] = useState<{ top: number; left: number } | null>(null);
   const ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -127,20 +128,29 @@ function SelecaoFuncoes({ selecionadas, aoAlterar }: { selecionadas: Permissao[]
     aoAlterar(selecionadas.includes(v) ? selecionadas.filter((p) => p !== v) : [...selecionadas, v]);
   }
 
+  function abrir() {
+    const r = ref.current?.getBoundingClientRect();
+    if (r) setPos({ top: r.bottom + 4, left: Math.max(8, Math.min(r.left, window.innerWidth - 272)) });
+    setAberto((a) => !a);
+  }
+
   const rotulo = selecionadas.length === 0 ? "Funções" : PERMISSOES.filter((p) => selecionadas.includes(p.v)).map((p) => p.l).join(", ");
 
   return (
     <div className="relative" ref={ref}>
       <button
         type="button"
-        onClick={() => setAberto((a) => !a)}
+        onClick={abrir}
         className="flex w-full items-center justify-between gap-2 rounded-md border border-input bg-background px-2 py-1 text-left text-xs hover:bg-muted"
       >
         <span className="truncate">{rotulo}</span>
         <span aria-hidden>▾</span>
       </button>
-      {aberto && (
-        <div className="absolute z-20 mt-1 w-64 rounded-md border bg-background p-2 shadow-lg">
+      {aberto && pos && (
+        <div
+          style={{ position: "fixed", top: pos.top, left: pos.left }}
+          className="z-50 w-64 rounded-md border bg-background p-2 shadow-lg"
+        >
           {PERMISSOES.map((p) => (
             <label key={p.v} className="flex cursor-pointer items-start gap-2 rounded px-1 py-1 text-xs hover:bg-muted">
               <input
