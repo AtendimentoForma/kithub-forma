@@ -1,6 +1,6 @@
-import { useQueryClient } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
-import { atualizarFluxo, despacharChamado, type Chamado, type Perfil, type Status } from "@/lib/chamados";
+import { atualizarFluxo, despacharChamado, minhasPermissoesQuery, podeEditar, type Chamado, type Perfil, type Status } from "@/lib/chamados";
 
 const COBRANCA = ["Endereço incorreto", "Cliente ausente", "Troca de tamanho"];
 const SEM_COBRANCA = ["Produto errado", "Produto com avaria", "Pedido extraviado"];
@@ -17,8 +17,11 @@ export function FluxoChamado({ chamado, perfil }: { chamado: Chamado; perfil: Pe
   const [valor, setValor] = useState(chamado.valorFrete?.toString() ?? "");
   const [rastreio, setRastreio] = useState("");
 
-  const isSac = perfil === "sac" || perfil === "admin";
-  const isLoja = perfil === "lojinha" || perfil === "admin";
+  const { data: permissoes } = useQuery(minhasPermissoesQuery);
+  const podePagamentos = podeEditar(perfil, permissoes, "pagamentos");
+  const podeReenvios = podeEditar(perfil, permissoes, "reenvios");
+  const isSac = (perfil === "sac" || perfil === "admin");
+  const isLoja = (perfil === "lojinha" || perfil === "admin") && podeReenvios;
   const st = chamado.status;
 
   async function run(fn: () => Promise<void>) {
