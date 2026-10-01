@@ -12,3 +12,5 @@
 Notifications of new ticket movements use per-user `chamado_leituras` records, not shared role flags, so opening a ticket only clears the current user's alert across devices.
 
 Email signups are auto-confirmed; `profiles.aprovado`, role, and permissions assigned by an administrator are the access gate, so users do not depend on confirmation email delivery.
+
+New ticket submissions go through an authenticated server function with shared address validation and persist the formatted address in the existing text column, preserving legacy ticket display without a schema migration.
