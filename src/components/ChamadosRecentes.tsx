@@ -48,10 +48,11 @@ export function ChamadosRecentes() {
   const { data: leituras } = useQuery(leiturasQuery);
   const [aberto, setAberto] = useState<number | null>(null);
   const [ordem, setOrdem] = useState<Ordem>("num_desc");
+  const [busca, setBusca] = useState("");
   const abertoChamado = list.find((c) => c.numero === aberto);
 
   const ordenados = useMemo(() => {
-    const arr = [...list];
+    const arr = list.filter((c) => correspondeBusca(c, busca));
     switch (ordem) {
       case "num_asc": arr.sort((a, b) => a.numero - b.numero); break;
       case "num_desc": arr.sort((a, b) => b.numero - a.numero); break;
