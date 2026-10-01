@@ -6,3 +6,4 @@
 - [x] Etapa 4: cobrança de frete, status do pagamento, autorizar envio, Lojinha despacha
 - [x] Chamados recentes: ordenar por número, tempo e status; sinalizar tempo de movimentação e novidades não lidas por usuário
 - [x] Concluídos sem sinalização de não lido; abertura com seleção de status conforme perfil
+- [x] Abertura de chamados com endereço completo obrigatório (complemento opcional), validado antes de salvar

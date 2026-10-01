@@ -4,7 +4,9 @@ import { useRef, useState, type FormEvent } from "react";
 import { ChevronUp, Paperclip, X } from "lucide-react";
 import { Shell } from "@/components/Shell";
 import { Button } from "@/components/ui/button";
-import { DESTINOS, MOTIVOS, addChamado, addMovimentacao, formatNumero, mensagemDeErro, getMyRole, minhasPermissoesQuery, podeEditar, statusSelecionaveis, type Status } from "@/lib/chamados";
+import { DESTINOS, MOTIVOS, addMovimentacao, formatNumero, mensagemDeErro, getMyRole, minhasPermissoesQuery, podeEditar, statusSelecionaveis, type Status } from "@/lib/chamados";
+import { criarChamado } from "@/lib/criar-chamado.functions";
+import { enderecoSchema, ESTADOS } from "@/lib/endereco";
 
 const input = "mt-1 w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring";
 
@@ -63,6 +65,11 @@ export function NovoChamadoForm({ listaPath }: { listaPath: "/lojinha/chamados" 
     if (motivos.length === 0) return setErro("Selecione ao menos um motivo.");
     if (origens.length === 0) return setErro("Marque ao menos uma opção: \"Cliente entrou em contato\" ou \"Identificado internamente\".");
     if (g("cpf").replace(/\D/g, "").length !== 11) return setErro("CPF deve ter 11 dígitos.");
+    const enderecoValidado = enderecoSchema.safeParse({
+      cep: g("cep"), logradouro: g("logradouro"), numero: g("numero"), complemento: g("complemento"),
+      bairro: g("bairro"), cidade: g("cidade"), estado: g("estado"), pais: g("pais"), referencia: g("referencia"),
+    });
+    if (!enderecoValidado.success) return setErro(enderecoValidado.error.issues[0]?.message ?? "Confira os dados do endereço.");
     if (motivos.includes("Outro") && !g("motivoOutro")) return setErro("Descreva o motivo \"Outro\".");
     if (["CONCLUÍDO", "REENVIO AUTORIZADO", "AGUARDANDO CLIENTE", "ANÁLISE LIDERANÇA"].includes(status) && !g("observacao")) return setErro(`Para enviar como "${status}", preencha a observação.`);
     const nomesAnexos = anexos.map((x) => x.name);
@@ -70,12 +77,12 @@ export function NovoChamadoForm({ listaPath }: { listaPath: "/lojinha/chamados" 
     setEnviando(true);
     let novoNumero: number | null = null;
     try {
-      const c = await addChamado({
-        paxNome: g("paxNome"), cpf: g("cpf"), paxId: g("paxId"), idDelivery: g("idDelivery"), destino: g("destino") || null, ano: g("ano") || null, responsavel: g("responsavel"),
-        rastreio: g("rastreio"), endereco: g("endereco"), dataEnvio: g("dataEnvio"),
+      const c = await criarChamado({ data: {
+        paxNome: g("paxNome"), cpf: g("cpf"), paxId: g("paxId"), idDelivery: g("idDelivery"), destino: g("destino"), ano: g("ano"), responsavel: g("responsavel"),
+        rastreio: g("rastreio"), endereco: enderecoValidado.data, dataEnvio: g("dataEnvio"),
         motivos, motivoOutro: g("motivoOutro") || null, origemSolicitacao: origens.join(", "),
         observacao: g("observacao") || null, anexos: nomesAnexos,
-      });
+      } });
       novoNumero = c.numero;
       setCriado(c.numero);
       if (status !== "NOVO CHAMADO") {
@@ -158,7 +165,25 @@ export function NovoChamadoForm({ listaPath }: { listaPath: "/lojinha/chamados" 
           <div className="grid gap-4 sm:grid-cols-2">
             <Field label="Nº rastreio Mandaê" name="rastreio" />
             <Field label="Data do envio" name="dataEnvio" type="date" />
-            <div className="sm:col-span-2"><Field label="Endereço utilizado" name="endereco" /></div>
+          </div>
+          <h3 className="mb-4 mt-6 font-semibold">Endereço utilizado</h3>
+          <div className="grid gap-4 sm:grid-cols-2">
+            <Field label="CEP" name="cep" placeholder="00000-000" />
+            <Field label="Endereço" name="logradouro" />
+            <Field label="Número" name="numero" />
+            <Field label="Complemento" name="complemento" required={false} />
+            <Field label="Bairro" name="bairro" />
+            <Field label="Cidade" name="cidade" />
+            <label className="block text-sm font-medium">Estado *
+              <select name="estado" required defaultValue="" className={input}>
+                <option value="" disabled>Selecione o estado</option>
+                {ESTADOS.map((estado) => <option key={estado} value={estado}>{estado}</option>)}
+              </select>
+            </label>
+            <label className="block text-sm font-medium">País *
+              <input name="pais" required defaultValue="Brasil" maxLength={40} className={input} />
+            </label>
+            <Field label="Ponto de referência" name="referencia" />
           </div>
         </section>
         <section className="rounded-xl border bg-background p-6">
