@@ -1,10 +1,23 @@
 import { useQuery } from "@tanstack/react-query";
-import { ArrowDown, ArrowUp, ArrowUpDown } from "lucide-react";
+import { ArrowDown, ArrowUp, ArrowUpDown, Search } from "lucide-react";
 import { useMemo, useState } from "react";
 import { StatusBadge } from "@/components/Shell";
 import { ChamadoDetalhe } from "@/components/ChamadoDetalhe";
 import { Button } from "@/components/ui/button";
 import { chamadosQuery, formatNumero, leiturasQuery, ultimasMovimentacoesQuery, type Chamado } from "@/lib/chamados";
+
+/** Remove acentos e lower-case para busca tolerante. */
+function normaliza(s: string): string {
+  return s.normalize("NFD").replace(/\p{Diacritic}/gu, "").toLowerCase().trim();
+}
+
+/** Busca por ID do PAX, ID Delivery, Rastreio Mandaê, nome do passageiro e CPF. */
+function correspondeBusca(c: Chamado, termo: string): boolean {
+  const t = normaliza(termo);
+  if (!t) return true;
+  const campos = [String(c.numero), c.paxNome, c.cpf, c.paxId, c.idDelivery ?? "", c.rastreio, c.novoRastreio ?? ""];
+  return campos.some((v) => normaliza(v).includes(t));
+}
 
 type Ordem = "num_desc" | "num_asc" | "tempo_maior" | "tempo_menor" | "status_asc" | "status_desc";
 
@@ -35,10 +48,11 @@ export function ChamadosRecentes() {
   const { data: leituras } = useQuery(leiturasQuery);
   const [aberto, setAberto] = useState<number | null>(null);
   const [ordem, setOrdem] = useState<Ordem>("num_desc");
+  const [busca, setBusca] = useState("");
   const abertoChamado = list.find((c) => c.numero === aberto);
 
   const ordenados = useMemo(() => {
-    const arr = [...list];
+    const arr = list.filter((c) => correspondeBusca(c, busca));
     switch (ordem) {
       case "num_asc": arr.sort((a, b) => a.numero - b.numero); break;
       case "num_desc": arr.sort((a, b) => b.numero - a.numero); break;
@@ -48,7 +62,7 @@ export function ChamadosRecentes() {
       case "status_desc": arr.sort((a, b) => b.status.localeCompare(a.status, "pt-BR") || b.numero - a.numero); break;
     }
     return arr;
-  }, [list, ultimas, ordem]);
+  }, [list, ultimas, ordem, busca]);
 
   function ciclarNumero() {
     setOrdem((o) => (o === "num_desc" ? "num_asc" : "num_desc"));
@@ -67,9 +81,22 @@ export function ChamadosRecentes() {
 
   return (
     <>
+      <div className="mb-4 flex items-center gap-2 rounded-full border bg-background px-4 py-2.5 shadow-sm">
+        <Search className="h-4 w-4 shrink-0 text-muted-foreground" />
+        <input
+          type="search"
+          value={busca}
+          onChange={(e) => setBusca(e.target.value)}
+          placeholder="Pesquisar por ID do PAX, ID Delivery, rastreio, nome do passageiro ou CPF..."
+          className="w-full bg-transparent text-sm outline-none placeholder:text-muted-foreground"
+          aria-label="Pesquisar chamado"
+        />
+      </div>
       <div className="overflow-x-auto rounded-lg border bg-background">
         {list.length === 0 ? (
           <p className="p-6 text-sm text-muted-foreground">Nenhum chamado ainda.</p>
+        ) : ordenados.length === 0 ? (
+          <p className="p-6 text-sm text-muted-foreground">Nenhum chamado encontrado para a busca.</p>
         ) : (
           <>
             <div className="grid min-w-[720px] grid-cols-[minmax(0,1fr)_5rem_11rem_9rem] items-center gap-2 border-b bg-muted/50 px-4 py-2 text-xs font-medium text-muted-foreground sm:gap-5">
