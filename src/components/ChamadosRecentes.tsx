@@ -1,10 +1,23 @@
 import { useQuery } from "@tanstack/react-query";
-import { ArrowDown, ArrowUp, ArrowUpDown } from "lucide-react";
+import { ArrowDown, ArrowUp, ArrowUpDown, Search } from "lucide-react";
 import { useMemo, useState } from "react";
 import { StatusBadge } from "@/components/Shell";
 import { ChamadoDetalhe } from "@/components/ChamadoDetalhe";
 import { Button } from "@/components/ui/button";
 import { chamadosQuery, formatNumero, leiturasQuery, ultimasMovimentacoesQuery, type Chamado } from "@/lib/chamados";
+
+/** Remove acentos e lower-case para busca tolerante. */
+function normaliza(s: string): string {
+  return s.normalize("NFD").replace(/\p{Diacritic}/gu, "").toLowerCase().trim();
+}
+
+/** Busca por ID do PAX, ID Delivery, Rastreio Mandaê, nome do passageiro e CPF. */
+function correspondeBusca(c: Chamado, termo: string): boolean {
+  const t = normaliza(termo);
+  if (!t) return true;
+  const campos = [String(c.numero), c.paxNome, c.cpf, c.paxId, c.idDelivery ?? "", c.rastreio, c.novoRastreio ?? ""];
+  return campos.some((v) => normaliza(v).includes(t));
+}
 
 type Ordem = "num_desc" | "num_asc" | "tempo_maior" | "tempo_menor" | "status_asc" | "status_desc";
 
