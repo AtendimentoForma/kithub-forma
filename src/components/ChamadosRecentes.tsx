@@ -62,7 +62,7 @@ export function ChamadosRecentes() {
       case "status_desc": arr.sort((a, b) => b.status.localeCompare(a.status, "pt-BR") || b.numero - a.numero); break;
     }
     return arr;
-  }, [list, ultimas, ordem]);
+  }, [list, ultimas, ordem, busca]);
 
   function ciclarNumero() {
     setOrdem((o) => (o === "num_desc" ? "num_asc" : "num_desc"));
