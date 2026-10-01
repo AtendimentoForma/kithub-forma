@@ -183,7 +183,7 @@ export function NovoChamadoForm({ listaPath }: { listaPath: "/lojinha/chamados" 
             <label className="block text-sm font-medium">País *
               <input name="pais" required defaultValue="Brasil" maxLength={40} className={input} />
             </label>
-            <Field label="Ponto de referência" name="referencia" maxLength={100} />
+            <Field label="Ponto de referência" name="referencia" required={false} maxLength={100} />
           </div>
         </section>
         <section className="rounded-xl border bg-background p-6">
