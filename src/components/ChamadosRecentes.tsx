@@ -81,6 +81,17 @@ export function ChamadosRecentes() {
 
   return (
     <>
+      <div className="mb-4 flex items-center gap-2 rounded-full border bg-background px-4 py-2.5 shadow-sm">
+        <Search className="h-4 w-4 shrink-0 text-muted-foreground" />
+        <input
+          type="search"
+          value={busca}
+          onChange={(e) => setBusca(e.target.value)}
+          placeholder="Pesquisar por ID do PAX, ID Delivery, rastreio, nome do passageiro ou CPF..."
+          className="w-full bg-transparent text-sm outline-none placeholder:text-muted-foreground"
+          aria-label="Pesquisar chamado"
+        />
+      </div>
       <div className="overflow-x-auto rounded-lg border bg-background">
         {list.length === 0 ? (
           <p className="p-6 text-sm text-muted-foreground">Nenhum chamado ainda.</p>
