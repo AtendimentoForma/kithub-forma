@@ -3,7 +3,7 @@ import { useState } from "react";
 import { Shell, StatusBadge } from "@/components/Shell";
 import { ChamadoDetalhe } from "@/components/ChamadoDetalhe";
 import { useQuery } from "@tanstack/react-query";
-import { STATUSES, STATUS_LABEL, chamadosQuery, formatNumero, type Status, type Chamado } from "@/lib/chamados";
+import { STATUSES, STATUS_LABEL, STATUS_ICONE, chamadosQuery, formatNumero, type Status, type Chamado } from "@/lib/chamados";
 
 export const Route = createFileRoute("/_authenticated/lojinha/chamados")({
   validateSearch: (s: Record<string, unknown>): { status?: Status } =>
@@ -32,12 +32,25 @@ function Lista() {
   return (
     <Shell title="Chamados">
       <div className="mb-4 flex flex-wrap gap-2">
-        <Link to="/lojinha/chamados" search={{}} className={pill(!status)}>Todos ({list.length})</Link>
-        {STATUSES.map((s) => (
-          <Link key={s} to="/lojinha/chamados" search={{ status: s }} className={pill(status === s)}>
-            {STATUS_LABEL[s]} ({list.filter((c) => c.status === s).length})
-          </Link>
-        ))}
+        {status ? (
+          (() => {
+            const Icone = STATUS_ICONE[status];
+            return (
+              <span className="inline-flex items-center gap-2 rounded-full border bg-primary px-3 py-1 text-sm font-medium text-primary-foreground">
+                <Icone className="h-4 w-4" /> {STATUS_LABEL[status]}
+              </span>
+            );
+          })()
+        ) : (
+          <>
+            <Link to="/lojinha/chamados" search={{}} className={pill(true)}>Todos ({list.length})</Link>
+            {STATUSES.map((s) => (
+              <Link key={s} to="/lojinha/chamados" search={{ status: s }} className={pill(false)}>
+                {STATUS_LABEL[s]} ({list.filter((c) => c.status === s).length})
+              </Link>
+            ))}
+          </>
+        )}
       </div>
       <div className="overflow-x-auto rounded-xl border bg-background">
         <table className="w-full text-sm">

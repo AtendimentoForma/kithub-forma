@@ -1,4 +1,6 @@
 import { queryOptions } from "@tanstack/react-query";
+import type { LucideIcon } from "lucide-react";
+import { CheckCircle2, CircleDollarSign, Clock, Flag, Inbox, PackageCheck, Search, Truck, Users } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { confirmarEmailDoUsuario } from "@/lib/admin-users.functions";
 
@@ -40,6 +42,19 @@ export const STATUS_LABEL: Record<Status, string> = {
   "PRIORIDADE DE ENTREGA": "Prioridade de entrega",
   "PRIORIDADE FINALIZADA": "Prioridade finalizada",
   "CONCLUÍDO": "Concluídos",
+};
+
+/** Ícone de cada status, usado nos cards do dashboard e no filtro da listagem. */
+export const STATUS_ICONE: Record<Status, LucideIcon> = {
+  "NOVO CHAMADO": Inbox,
+  "EM ANÁLISE": Search,
+  "AGUARDANDO CLIENTE": Clock,
+  "AGUARDANDO PAGAMENTO": CircleDollarSign,
+  "REENVIO AUTORIZADO": PackageCheck,
+  "ANÁLISE LIDERANÇA": Users,
+  "PRIORIDADE DE ENTREGA": Truck,
+  "PRIORIDADE FINALIZADA": Flag,
+  "CONCLUÍDO": CheckCircle2,
 };
 
 export const MOTIVOS = [

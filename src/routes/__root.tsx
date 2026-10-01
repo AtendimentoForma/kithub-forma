@@ -35,7 +35,8 @@ function NotFoundComponent() {
   );
 }
 
-function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
+function ErrorComponent({ error: erroDesconhecido, reset }: { error: unknown; reset: () => void }) {
+  const error = erroDesconhecido instanceof Error ? erroDesconhecido : new Error(String(erroDesconhecido ?? "Erro desconhecido"));
   console.error(error);
   const router = useRouter();
   useEffect(() => {
