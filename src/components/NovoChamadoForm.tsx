@@ -10,11 +10,11 @@ import { enderecoSchema, ESTADOS } from "@/lib/endereco";
 
 const input = "mt-1 w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring";
 
-function Field({ label, name, type = "text", required = true, placeholder }: { label: string; name: string; type?: string; required?: boolean; placeholder?: string }) {
+function Field({ label, name, type = "text", required = true, placeholder, maxLength = 255, inputMode }: { label: string; name: string; type?: string; required?: boolean; placeholder?: string; maxLength?: number; inputMode?: "numeric" }) {
   return (
     <label className="block text-sm font-medium">
       {label}{required && " *"}
-      <input name={name} type={type} required={required} placeholder={placeholder} maxLength={255} className={input} />
+      <input name={name} type={type} required={required} placeholder={placeholder} maxLength={maxLength} inputMode={inputMode} className={input} />
     </label>
   );
 }
@@ -168,12 +168,12 @@ export function NovoChamadoForm({ listaPath }: { listaPath: "/lojinha/chamados" 
           </div>
           <h3 className="mb-4 mt-6 font-semibold">Endereço utilizado</h3>
           <div className="grid gap-4 sm:grid-cols-2">
-            <Field label="CEP" name="cep" placeholder="00000-000" />
-            <Field label="Endereço" name="logradouro" />
-            <Field label="Número" name="numero" />
-            <Field label="Complemento" name="complemento" required={false} />
-            <Field label="Bairro" name="bairro" />
-            <Field label="Cidade" name="cidade" />
+            <Field label="CEP" name="cep" placeholder="00000-000" maxLength={9} inputMode="numeric" />
+            <Field label="Endereço" name="logradouro" maxLength={80} />
+            <Field label="Número" name="numero" maxLength={20} />
+            <Field label="Complemento" name="complemento" required={false} maxLength={60} />
+            <Field label="Bairro" name="bairro" maxLength={40} />
+            <Field label="Cidade" name="cidade" maxLength={40} />
             <label className="block text-sm font-medium">Estado *
               <select name="estado" required defaultValue="" className={input}>
                 <option value="" disabled>Selecione o estado</option>
@@ -183,7 +183,7 @@ export function NovoChamadoForm({ listaPath }: { listaPath: "/lojinha/chamados" 
             <label className="block text-sm font-medium">País *
               <input name="pais" required defaultValue="Brasil" maxLength={40} className={input} />
             </label>
-            <Field label="Ponto de referência" name="referencia" />
+            <Field label="Ponto de referência" name="referencia" maxLength={100} />
           </div>
         </section>
         <section className="rounded-xl border bg-background p-6">
