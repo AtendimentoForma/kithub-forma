@@ -95,6 +95,8 @@ export function ChamadosRecentes() {
       <div className="overflow-x-auto rounded-lg border bg-background">
         {list.length === 0 ? (
           <p className="p-6 text-sm text-muted-foreground">Nenhum chamado ainda.</p>
+        ) : ordenados.length === 0 ? (
+          <p className="p-6 text-sm text-muted-foreground">Nenhum chamado encontrado para a busca.</p>
         ) : (
           <>
             <div className="grid min-w-[720px] grid-cols-[minmax(0,1fr)_5rem_11rem_9rem] items-center gap-2 border-b bg-muted/50 px-4 py-2 text-xs font-medium text-muted-foreground sm:gap-5">
