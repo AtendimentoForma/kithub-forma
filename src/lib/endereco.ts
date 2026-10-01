@@ -18,12 +18,12 @@ export const enderecoSchema = z.object({
   cidade: required("a cidade", 40),
   estado: z.enum(ESTADOS, { errorMap: () => ({ message: "Selecione um estado válido." }) }),
   pais: required("o país", 40),
-  referencia: required("o ponto de referência", 100),
+  referencia: z.string().trim().max(100, "Ponto de referência deve ter até 100 caracteres."),
 });
 
 export type Endereco = z.infer<typeof enderecoSchema>;
 
 export function formatarEndereco(e: Endereco) {
   const cep = e.cep.replace(/\D/g, "");
-  return `${e.logradouro}, ${e.numero}${e.complemento ? `, ${e.complemento}` : ""} — ${e.bairro}, ${e.cidade} - ${e.estado}, ${e.pais} — CEP ${cep.slice(0, 5)}-${cep.slice(5)} — Referência: ${e.referencia}`;
+  return `${e.logradouro}, ${e.numero}${e.complemento ? `, ${e.complemento}` : ""} — ${e.bairro}, ${e.cidade} - ${e.estado}, ${e.pais} — CEP ${cep.slice(0, 5)}-${cep.slice(5)}${e.referencia ? ` — Referência: ${e.referencia}` : ""}`;
 }
