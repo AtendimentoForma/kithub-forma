@@ -3,7 +3,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { Shell } from "@/components/Shell";
 import { ChamadoDetalhe } from "@/components/ChamadoDetalhe";
-import { STATUSES_SAC as STATUSES, STATUS_LABEL, chamadosQuery, formatNumero, updateStatus, type Status } from "@/lib/chamados";
+import { STATUSES_SAC as STATUSES, STATUS_LABEL, STATUS_ICONE, chamadosQuery, formatNumero, updateStatus, type Status } from "@/lib/chamados";
 
 export const Route = createFileRoute("/_authenticated/sac/chamados")({
   validateSearch: (s: Record<string, unknown>): { status?: Status } =>
@@ -50,12 +50,25 @@ function Lista() {
   return (
     <Shell title="Chamados — SAC" perfil="sac">
       <div className="mb-4 flex flex-wrap items-center gap-2">
-        <Link to="/sac/chamados" search={{}} className={pill(!status)}>Todos ({list.length})</Link>
-        {STATUSES.map((s) => (
-          <Link key={s} to="/sac/chamados" search={{ status: s }} className={pill(status === s)}>
-            {STATUS_LABEL[s]} ({list.filter((c) => c.status === s).length})
-          </Link>
-        ))}
+        {status ? (
+          (() => {
+            const Icone = STATUS_ICONE[status];
+            return (
+              <span className="inline-flex items-center gap-2 rounded-full border bg-primary px-3 py-1 text-sm font-medium text-primary-foreground">
+                <Icone className="h-4 w-4" /> {STATUS_LABEL[status]}
+              </span>
+            );
+          })()
+        ) : (
+          <>
+            <Link to="/sac/chamados" search={{}} className={pill(true)}>Todos ({list.length})</Link>
+            {STATUSES.map((s) => (
+              <Link key={s} to="/sac/chamados" search={{ status: s }} className={pill(false)}>
+                {STATUS_LABEL[s]} ({list.filter((c) => c.status === s).length})
+              </Link>
+            ))}
+          </>
+        )}
         {erro && <span className="text-sm text-destructive">{erro}</span>}
       </div>
       <div className="overflow-x-auto rounded-xl border bg-background">

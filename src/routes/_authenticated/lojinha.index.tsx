@@ -3,7 +3,7 @@ import { Plus } from "lucide-react";
 import { Shell } from "@/components/Shell";
 import { ChamadosRecentes } from "@/components/ChamadosRecentes";
 import { useQuery } from "@tanstack/react-query";
-import { STATUSES, STATUS_LABEL, chamadosQuery } from "@/lib/chamados";
+import { STATUSES, STATUS_LABEL, STATUS_ICONE, chamadosQuery } from "@/lib/chamados";
 
 export const Route = createFileRoute("/_authenticated/lojinha/")({
   head: () => ({
@@ -29,12 +29,16 @@ function Dashboard() {
         </Link>
       </div>
       <div className="grid gap-4 sm:grid-cols-3 lg:grid-cols-8">
-        {STATUSES.map((s) => (
-          <Link key={s} to="/lojinha/chamados" search={{ status: s }} className="rounded-xl border bg-background p-4 hover:border-primary">
-            <div className="text-3xl font-bold">{list.filter((c) => c.status === s).length}</div>
-            <div className="mt-1 text-xs text-muted-foreground">{STATUS_LABEL[s]}</div>
-          </Link>
-        ))}
+        {STATUSES.map((s) => {
+          const Icone = STATUS_ICONE[s];
+          return (
+            <Link key={s} to="/lojinha/chamados" search={{ status: s }} className="rounded-xl border bg-background p-4 hover:border-primary">
+              <Icone className="mb-2 h-5 w-5 text-muted-foreground" />
+              <div className="text-3xl font-bold">{list.filter((c) => c.status === s).length}</div>
+              <div className="mt-1 text-xs text-muted-foreground">{STATUS_LABEL[s]}</div>
+            </Link>
+          );
+        })}
       </div>
       <h2 className="mb-3 mt-8 font-semibold">Chamados recentes</h2>
       <ChamadosRecentes />
