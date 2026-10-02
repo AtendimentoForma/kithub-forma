@@ -1,6 +1,9 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Shell } from "@/components/Shell";
 import { ChamadosRecentes } from "@/components/ChamadosRecentes";
+import { StatCard } from "@/components/kithub-ui";
+import { Button } from "@/components/ui/button";
+import { Plus } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { STATUSES_SAC as STATUSES, STATUS_LABEL, STATUS_ICONE, chamadosQuery } from "@/lib/chamados";
 
@@ -22,20 +25,16 @@ function Dashboard() {
   const { data: list = [] } = useQuery(chamadosQuery);
   return (
     <Shell title="Dashboard do SAC" perfil="sac">
-      <Link to="/sac/novo" className="mb-6 inline-block rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90">+ Novo chamado</Link>
-      <div className="grid gap-4 sm:grid-cols-3 lg:grid-cols-9">
+      <div className="mb-6 flex justify-end"><Button asChild><Link to="/sac/novo"><Plus /> Novo chamado</Link></Button></div>
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
         {STATUSES.map((s) => {
           const Icone = STATUS_ICONE[s];
           return (
-            <Link key={s} to="/sac/chamados" search={{ status: s }} className="rounded-xl border bg-background p-4 hover:border-primary">
-              <Icone className="mb-2 h-5 w-5 text-muted-foreground" />
-              <div className="text-3xl font-bold">{list.filter((c) => c.status === s).length}</div>
-              <div className="mt-1 text-xs text-muted-foreground">{STATUS_LABEL[s]}</div>
-            </Link>
+            <StatCard key={s} to="/sac/chamados" search={{ status: s }} icon={Icone} value={list.filter((c) => c.status === s).length} label={STATUS_LABEL[s]} featured={s === "NOVO CHAMADO"} />
           );
         })}
       </div>
-      <h2 className="mb-3 mt-8 font-semibold">Chamados recentes</h2>
+      <h2 className="mb-4 mt-10 text-xl font-bold">Chamados recentes</h2>
       <ChamadosRecentes />
     </Shell>
   );
