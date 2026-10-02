@@ -1,8 +1,10 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState, type FormEvent } from "react";
-import { Store, Headset, Eye, EyeOff } from "lucide-react";
+import { Store, Headset, Eye, EyeOff, ArrowLeft } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { getMyRole, estouAprovado, type Perfil } from "@/lib/chamados";
+import { KitHubBrand, ThemeToggle } from "@/components/kithub-ui";
+import { Button } from "@/components/ui/button";
 
 type PerfilLogin = "lojinha" | "sac";
 
@@ -27,7 +29,7 @@ export const Route = createFileRoute("/auth")({
   component: AuthPage,
 });
 
-const input = "mt-1 w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring";
+const input = "mt-1.5 h-11 w-full rounded-lg border border-input bg-background px-3 py-2 text-sm outline-hidden focus:border-primary focus:ring-3 focus:ring-primary/15";
 
 function AuthPage() {
   const navigate = useNavigate();
@@ -99,16 +101,18 @@ function AuthPage() {
   const { label, Icon } = PERFIL_INFO[perfil];
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-muted/40 px-4">
-      <div className="w-full max-w-md">
+    <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-background px-4 py-16">
+      <div aria-hidden className="absolute -left-28 -top-36 h-72 w-72 rounded-full border-[30px] border-primary/25" />
+      <div className="absolute right-5 top-5"><ThemeToggle /></div>
+      <div className="relative w-full max-w-md">
         <div className="text-center">
-          <h1 className="text-3xl font-bold tracking-tight">KitHub</h1>
-          <div className="mt-4 inline-flex items-center gap-2 rounded-full border bg-background px-4 py-1.5 text-sm font-medium">
+          <div className="flex justify-center"><KitHubBrand /></div>
+          <div className="mt-7 inline-flex items-center gap-2 rounded-full border border-primary/60 bg-card px-4 py-2 text-sm font-semibold">
             <Icon className="h-4 w-4 text-primary" />
             {modo === "entrar" ? `Entrar como ${label}` : `Cadastrar ${label}`}
           </div>
         </div>
-        <form onSubmit={submit} className="mt-6 space-y-4 rounded-xl border bg-background p-6">
+        <form onSubmit={submit} className="mt-6 space-y-4 rounded-xl border border-primary/55 bg-card p-6 shadow-sm sm:p-8">
           {modo === "cadastrar" && (
             <label className="block text-sm font-medium">Nome<input name="nome" required maxLength={100} className={input} /></label>
           )}
@@ -123,26 +127,28 @@ function AuthPage() {
                 minLength={6}
                 className={`${input} mt-0 pr-11`}
               />
-              <button
+              <Button
                 type="button"
+                variant="ghost"
+                size="icon"
                 onClick={() => setMostrarSenha((visivel) => !visivel)}
                 aria-label={mostrarSenha ? "Ocultar senha" : "Mostrar senha"}
                 title={mostrarSenha ? "Ocultar senha" : "Mostrar senha"}
-                className="absolute inset-y-0 right-0 flex w-11 items-center justify-center text-muted-foreground hover:text-foreground"
+                className="absolute inset-y-0 right-0 h-11 w-11 text-muted-foreground hover:text-foreground"
               >
                 {mostrarSenha ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-              </button>
+              </Button>
             </span>
           </label>
           {erro && <p className="text-sm font-medium text-destructive">{erro}</p>}
           {aviso && <p className="text-sm font-medium text-primary">{aviso}</p>}
-          <button type="submit" disabled={carregando} className="w-full rounded-md bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground hover:bg-primary/90 disabled:opacity-60">
+          <Button type="submit" disabled={carregando} className="h-11 w-full rounded-full">
             {carregando ? "Aguarde..." : modo === "entrar" ? "Entrar" : "Cadastrar"}
-          </button>
-          <button type="button" onClick={() => { setModo(modo === "entrar" ? "cadastrar" : "entrar"); setErro(""); }} className="w-full text-sm text-muted-foreground hover:text-foreground">
+          </Button>
+          <Button variant="ghost" type="button" onClick={() => { setModo(modo === "entrar" ? "cadastrar" : "entrar"); setErro(""); }} className="w-full text-muted-foreground">
             {modo === "entrar" ? "Não tem acesso? Cadastre-se" : "Já tem acesso? Entrar"}
-          </button>
-          <Link to="/" className="block w-full text-center text-sm text-muted-foreground hover:text-foreground">Trocar perfil</Link>
+          </Button>
+          <Link to="/" className="flex items-center justify-center gap-2 text-sm text-muted-foreground hover:text-foreground"><ArrowLeft className="h-4 w-4" /> Trocar perfil</Link>
         </form>
       </div>
     </div>

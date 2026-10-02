@@ -1,6 +1,8 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { atualizarFluxo, despacharChamado, minhasPermissoesQuery, podeEditar, type Chamado, type Perfil, type Status } from "@/lib/chamados";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 
 const COBRANCA = ["Endereço incorreto", "Cliente ausente", "Troca de tamanho"];
 const SEM_COBRANCA = ["Produto errado", "Produto com avaria", "Pedido extraviado"];
@@ -59,13 +61,13 @@ export function FluxoChamado({ chamado, perfil }: { chamado: Chamado; perfil: Pe
           <div><b>Sem cobrança (exceção):</b> {SEM_COBRANCA.join(", ")}</div>
         </div>
         <div className="flex flex-wrap items-center gap-2">
-          <input className={`${input} w-32`} inputMode="decimal" placeholder="Valor R$" value={valor} onChange={(e) => setValor(e.target.value)} />
-          <button disabled={busy} className={primary} onClick={() => {
+          <Input className="w-32" inputMode="decimal" placeholder="Valor R$" value={valor} onChange={(e) => setValor(e.target.value)} />
+          <Button disabled={busy} onClick={() => {
             const v = Number(valor.replace(",", "."));
             if (!(v > 0) || v > 100000) { setErro("Informe um valor de frete válido."); return; }
             go({ requer_pagamento: true, valor_frete: v, status_pagamento: "PENDENTE" }, `Pagamento de frete solicitado: R$ ${v.toFixed(2).replace(".", ",")}`, "AGUARDANDO PAGAMENTO");
-          }}>Sim, solicitar pagamento</button>
-          <button disabled={busy} className={outline} onClick={() => go({ requer_pagamento: false, status_pagamento: null }, "Sem cobrança de frete — envio autorizado.", "REENVIO AUTORIZADO")}>Não, autorizar envio</button>
+          }}>Sim, solicitar pagamento</Button>
+          <Button disabled={busy} variant="outline" onClick={() => go({ requer_pagamento: false, status_pagamento: null }, "Sem cobrança de frete — envio autorizado.", "REENVIO AUTORIZADO")}>Não, autorizar envio</Button>
         </div>
       </div>
     );
@@ -74,9 +76,9 @@ export function FluxoChamado({ chamado, perfil }: { chamado: Chamado; perfil: Pe
       <div className="space-y-2">
         <h4 className="font-semibold">Etapa 4 — Status do pagamento: {chamado.statusPagamento ?? "PENDENTE"}</h4>
         <div className="flex flex-wrap gap-2">
-          <button disabled={busy} className={primary} onClick={() => go({ status_pagamento: "RECEBIDO" }, "Pagamento recebido — envio autorizado.", "REENVIO AUTORIZADO")}>Pagamento recebido</button>
-          <button disabled={busy} className={outline} onClick={() => go({ status_pagamento: "PENDENTE" }, "Pagamento ainda pendente — cliente cobrado novamente.", null)}>Continua pendente</button>
-          <button disabled={busy} className={outline} onClick={() => go({ status_pagamento: "CANCELADO", motivo_cancelamento: "Pagamento cancelado" }, "Pagamento cancelado — reenvio não realizado.", "CONCLUÍDO")}>Pagamento cancelado</button>
+          <Button disabled={busy} onClick={() => go({ status_pagamento: "RECEBIDO" }, "Pagamento recebido — envio autorizado.", "REENVIO AUTORIZADO")}>Pagamento recebido</Button>
+          <Button disabled={busy} variant="outline" onClick={() => go({ status_pagamento: "PENDENTE" }, "Pagamento ainda pendente — cliente cobrado novamente.", null)}>Continua pendente</Button>
+          <Button disabled={busy} variant="outline" onClick={() => go({ status_pagamento: "CANCELADO", motivo_cancelamento: "Pagamento cancelado" }, "Pagamento cancelado — reenvio não realizado.", "CONCLUÍDO")}>Pagamento cancelado</Button>
         </div>
       </div>
     );
@@ -85,11 +87,11 @@ export function FluxoChamado({ chamado, perfil }: { chamado: Chamado; perfil: Pe
       <div className="space-y-2">
         <h4 className="font-semibold">Reenvio autorizado — despachar pedido</h4>
         <div className="flex gap-2">
-          <input className={input} maxLength={100} placeholder="Novo nº de rastreio Mandaê" value={rastreio} onChange={(e) => setRastreio(e.target.value)} />
-          <button disabled={busy} className={primary} onClick={() => {
+          <Input maxLength={100} placeholder="Novo nº de rastreio Mandaê" value={rastreio} onChange={(e) => setRastreio(e.target.value)} />
+          <Button disabled={busy} onClick={() => {
             if (!rastreio.trim()) { setErro("Informe o novo nº de rastreio."); return; }
             run(() => despacharChamado(chamado.numero, rastreio.trim()));
-          }}>Pedido despachado</button>
+          }}>Pedido despachado</Button>
         </div>
       </div>
     );

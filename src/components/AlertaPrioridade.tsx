@@ -1,6 +1,8 @@
 import { useQuery } from "@tanstack/react-query";
 import { useEffect, useRef, useState } from "react";
 import { chamadosQuery, formatNumero, getMyRole, STATUS_PRIO_ENTREGA, STATUS_PRIO_FINALIZADA } from "@/lib/chamados";
+import { BellRing } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 const TITULO_ALERTA = "● 𝗡𝗢𝗩𝗔 𝗣𝗥𝗜𝗢𝗥𝗜𝗗𝗔𝗗𝗘 — KitHub";
 
@@ -113,10 +115,9 @@ export function AlertaPrioridade() {
 
   if (!aviso.length || !alvo) return null;
   return (
-    <div role="alert" className="fixed bottom-4 right-4 z-50 max-w-sm rounded-lg border border-primary bg-background p-4 shadow-lg">
-      <p className="text-sm font-semibold">Novo chamado em "{alvo}"</p>
-      <p className="mt-1 text-sm text-muted-foreground">{aviso.map(formatNumero).join(", ")}</p>
-      <button onClick={() => { setAviso([]); limparDestaqueDaAba(); }} className="mt-2 rounded-md bg-primary px-3 py-1 text-xs font-semibold text-primary-foreground">OK</button>
+    <div role="alert" className="fixed bottom-4 right-4 z-50 max-w-sm rounded-xl border border-primary bg-card p-4 shadow-lg">
+      <div className="flex gap-3"><span className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-primary text-primary-foreground"><BellRing className="h-4 w-4" /></span><div><p className="text-sm font-semibold">Novo chamado em "{alvo}"</p><p className="mt-1 text-sm text-muted-foreground">{aviso.map(formatNumero).join(", ")}</p></div></div>
+      <Button size="sm" onClick={() => { setAviso([]); limparDestaqueDaAba(); }} className="mt-3">OK</Button>
     </div>
   );
 }
