@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Shell } from "@/components/Shell";
 import { ChamadoDetalhe } from "@/components/ChamadoDetalhe";
 import { STATUSES_SAC as STATUSES, STATUS_LABEL, STATUS_ICONE, chamadosQuery, formatNumero, updateStatus, type Status } from "@/lib/chamados";
+import { EmptyState } from "@/components/kithub-ui";
 
 export const Route = createFileRoute("/_authenticated/sac/chamados")({
   validateSearch: (s: Record<string, unknown>): { status?: Status } =>
@@ -30,7 +31,7 @@ function Lista() {
   const abertoChamado = list.find((c) => c.numero === aberto);
   const filtrados = status ? list.filter((c) => c.status === status) : list;
   const pill = (active: boolean) =>
-    `rounded-full border px-3 py-1 text-sm ${active ? "bg-primary text-primary-foreground" : "bg-background hover:bg-accent"}`;
+    `rounded-full border px-3 py-1.5 text-xs font-semibold ${active ? "border-primary bg-primary text-primary-foreground" : "bg-card hover:border-primary hover:bg-accent"}`;
 
   async function mudar(numero: number, novoStatus: Status) {
     setErro("");
@@ -71,14 +72,14 @@ function Lista() {
         )}
         {erro && <span className="text-sm text-destructive">{erro}</span>}
       </div>
-      <div className="overflow-x-auto rounded-xl border bg-background">
+      <div className="overflow-x-auto rounded-xl border bg-card shadow-xs">
         <table className="w-full text-sm">
-          <thead className="border-b bg-muted/50 text-left text-muted-foreground">
+          <thead className="border-b bg-muted/60 text-left text-xs font-semibold text-muted-foreground">
             <tr><th className="p-3">Nº</th><th className="p-3">Passageiro</th><th className="p-3">Motivo</th><th className="p-3">Solicitante</th><th className="p-3">Abertura</th><th className="p-3">Status</th></tr>
           </thead>
           <tbody>
             {filtrados.map((c) => (
-              <tr key={c.numero} onClick={() => setAberto(c.numero)} className="cursor-pointer border-b last:border-0 hover:bg-muted/40">
+              <tr key={c.numero} onClick={() => setAberto(c.numero)} className="cursor-pointer border-b last:border-0 hover:bg-accent/45">
                 <td className="p-3 font-mono font-semibold">{formatNumero(c.numero)}</td>
                 <td className="p-3">{c.paxNome}</td>
                 <td className="p-3">{c.motivos.join(", ")}</td>
@@ -91,7 +92,7 @@ function Lista() {
                 </td>
               </tr>
             ))}
-            {!isLoading && filtrados.length === 0 && <tr><td colSpan={6} className="p-6 text-center text-muted-foreground">Nenhum chamado encontrado.</td></tr>}
+            {!isLoading && filtrados.length === 0 && <tr><td colSpan={6}><EmptyState /></td></tr>}
           </tbody>
         </table>
       </div>

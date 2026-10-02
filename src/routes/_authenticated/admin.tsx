@@ -3,6 +3,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useRef, useState } from "react";
 import { Shell } from "@/components/Shell";
 import { definirUsuario, getMyRole, listarUsuarios, PERMISSOES, type Perfil, type Permissao, type UsuarioAdmin } from "@/lib/chamados";
+import { Button } from "@/components/ui/button";
 
 export const Route = createFileRoute("/_authenticated/admin")({
   beforeLoad: async () => {
@@ -43,9 +44,9 @@ function AdminPage() {
         {pendentes > 0 ? `${pendentes} usuário(s) aguardando aprovação.` : "Nenhum usuário aguardando aprovação."}
       </p>
       {error && <p className="text-sm text-destructive">{(error as Error).message}</p>}
-      <div className="overflow-x-auto rounded-xl border bg-background">
+      <div className="overflow-x-auto rounded-xl border bg-card shadow-xs">
         <table className="w-full text-sm">
-          <thead className="border-b text-left text-muted-foreground">
+          <thead className="border-b bg-muted/60 text-left text-xs font-semibold text-muted-foreground">
             <tr><th className="p-3">Nome</th><th className="p-3">E-mail</th><th className="p-3">Situação</th><th className="p-3">Papel</th><th className="p-3"></th></tr>
           </thead>
           <tbody>
@@ -98,11 +99,11 @@ function Linha({ u }: { u: UsuarioAdmin }) {
         <div className="flex flex-wrap gap-2">
           {u.aprovado ? (
             <>
-              <button disabled={salvando} onClick={() => salvar(true)} className="rounded-md border px-3 py-1 text-xs hover:bg-muted disabled:opacity-60">Salvar</button>
-              <button disabled={salvando} onClick={() => salvar(false)} className="rounded-md border px-3 py-1 text-xs text-destructive hover:bg-muted disabled:opacity-60">Bloquear</button>
+              <Button size="sm" variant="outline" disabled={salvando} onClick={() => salvar(true)}>Salvar</Button>
+              <Button size="sm" variant="outline" disabled={salvando} onClick={() => salvar(false)} className="text-destructive">Bloquear</Button>
             </>
           ) : (
-            <button disabled={salvando} onClick={() => salvar(true)} className="rounded-md bg-primary px-3 py-1 text-xs text-primary-foreground hover:bg-primary/90 disabled:opacity-60">Aprovar</button>
+            <Button size="sm" disabled={salvando} onClick={() => salvar(true)}>Aprovar</Button>
           )}
         </div>
       </td>
