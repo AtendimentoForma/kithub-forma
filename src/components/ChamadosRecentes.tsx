@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import { StatusBadge } from "@/components/Shell";
 import { ChamadoDetalhe } from "@/components/ChamadoDetalhe";
 import { Button } from "@/components/ui/button";
+import { EmptyState } from "@/components/kithub-ui";
 import { chamadosQuery, formatNumero, leiturasQuery, ultimasMovimentacoesQuery, type Chamado } from "@/lib/chamados";
 
 /** Remove acentos e lower-case para busca tolerante. */
@@ -81,7 +82,7 @@ export function ChamadosRecentes() {
 
   return (
     <>
-      <div className="mb-4 flex items-center gap-2 rounded-full border bg-background px-4 py-2.5 shadow-sm">
+      <div className="mb-4 flex min-h-12 items-center gap-3 rounded-full border border-input bg-card px-5 shadow-xs focus-within:border-primary focus-within:ring-3 focus-within:ring-primary/15">
         <Search className="h-4 w-4 shrink-0 text-muted-foreground" />
         <input
           type="search"
@@ -92,14 +93,14 @@ export function ChamadosRecentes() {
           aria-label="Pesquisar chamado"
         />
       </div>
-      <div className="overflow-x-auto rounded-lg border bg-background">
+      <div className="overflow-x-auto rounded-xl border bg-card shadow-xs">
         {list.length === 0 ? (
-          <p className="p-6 text-sm text-muted-foreground">Nenhum chamado ainda.</p>
+          <EmptyState message="Nenhum chamado ainda." />
         ) : ordenados.length === 0 ? (
-          <p className="p-6 text-sm text-muted-foreground">Nenhum chamado encontrado para a busca.</p>
+          <EmptyState message="Nenhum chamado encontrado para a busca." />
         ) : (
           <>
-            <div className="grid min-w-[720px] grid-cols-[minmax(0,1fr)_5rem_11rem_9rem] items-center gap-2 border-b bg-muted/50 px-4 py-2 text-xs font-medium text-muted-foreground sm:gap-5">
+            <div className="grid min-w-[720px] grid-cols-[minmax(0,1fr)_5rem_11rem_9rem] items-center gap-2 border-b bg-muted/60 px-5 py-3 text-xs font-semibold text-muted-foreground sm:gap-5">
               <Button variant="ghost" size="sm" onClick={ciclarNumero} className={`${thBtn} h-7 justify-self-start px-0 text-xs`} title="Ordenar pelo número do chamado">
                 Nº {iconNum}
               </Button>
@@ -121,7 +122,7 @@ export function ChamadosRecentes() {
                   variant="ghost"
                   key={c.numero}
                   onClick={() => setAberto(c.numero)}
-                  className={`grid h-auto min-w-[720px] w-full grid-cols-[minmax(0,1fr)_5rem_11rem_9rem] items-center gap-2 rounded-none border-b px-4 py-4 text-left text-sm last:border-0 hover:bg-muted/40 sm:gap-5 ${naoVisto ? "bg-accent/60 font-bold" : "font-normal"}`}
+                  className={`grid h-auto min-w-[720px] w-full grid-cols-[minmax(0,1fr)_5rem_11rem_9rem] items-center gap-2 rounded-none border-b px-5 py-4 text-left text-sm last:border-0 hover:bg-accent/45 sm:gap-5 ${naoVisto ? "bg-primary/8 font-bold" : "font-normal"}`}
                 >
                   <div className="flex min-w-0 items-center gap-2 overflow-hidden">
                     {naoVisto && <span className="h-2 w-2 shrink-0 rounded-full bg-primary" title="Nova movimentação" aria-label="Nova movimentação" />}

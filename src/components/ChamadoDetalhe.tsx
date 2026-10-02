@@ -1,8 +1,11 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
+import { Clock3, X } from "lucide-react";
 import { StatusBadge } from "@/components/Shell";
 import { FluxoChamado } from "@/components/FluxoChamado";
 import { STATUS_LIDERANCA, statusSelecionaveis, formatNumero, movimentacoesQuery, addMovimentacao, getMyRole, marcarChamadoVisto, ultimasMovimentacoesQuery, leiturasQuery, mensagemDeErro, minhasPermissoesQuery, podeEditar, type Chamado, type Status } from "@/lib/chamados";
+import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
 
 export function ChamadoDetalhe({ chamado, onClose }: { chamado: Chamado; onClose: () => void }) {
   const qc = useQueryClient();
@@ -47,13 +50,13 @@ export function ChamadoDetalhe({ chamado, onClose }: { chamado: Chamado; onClose
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-foreground/40 p-4" onClick={onClose}>
-      <div className="max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-xl bg-background p-6" onClick={(e) => e.stopPropagation()}>
-        <div className="flex items-center justify-between">
-          <h2 className="text-xl font-bold">Chamado {formatNumero(chamado.numero)}</h2>
-          <StatusBadge status={chamado.status} />
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-foreground/35 p-3 backdrop-blur-sm sm:p-5" onClick={onClose}>
+      <div role="dialog" aria-modal="true" aria-label={`Chamado ${formatNumero(chamado.numero)}`} className="max-h-[94vh] w-full max-w-3xl overflow-y-auto rounded-xl border bg-card p-5 shadow-xl sm:p-7" onClick={(e) => e.stopPropagation()}>
+        <div className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-3 border-b pb-5">
+          <div className="min-w-0"><p className="text-xs font-semibold text-primary">DETALHES DO CHAMADO</p><h2 className="mt-1 text-xl font-bold">Chamado {formatNumero(chamado.numero)}</h2></div>
+          <div className="flex items-center gap-2"><StatusBadge status={chamado.status} /><Button variant="ghost" size="icon" onClick={onClose} aria-label="Fechar"><X /></Button></div>
         </div>
-        <dl className="mt-4 grid grid-cols-2 gap-3 text-sm">
+        <dl className="mt-5 grid gap-4 rounded-xl bg-muted/45 p-4 text-sm sm:grid-cols-2">
           {([
             ["Aberto em", new Date(chamado.criadoEm).toLocaleString("pt-BR")],
             ["Solicitante", chamado.solicitante],
@@ -74,30 +77,30 @@ export function ChamadoDetalhe({ chamado, onClose }: { chamado: Chamado; onClose
 
         <FluxoChamado key={`${chamado.numero}-${chamado.status}`} chamado={chamado} perfil={perfil} />
 
-        <h3 className="mt-6 mb-2 font-semibold">Movimentações</h3>
-        <ol className="space-y-2 border-l pl-4 text-sm">
-          <li><span className="text-muted-foreground">{new Date(chamado.criadoEm).toLocaleString("pt-BR")} · {chamado.solicitante} (Lojinha)</span><div>Chamado aberto — NOVO CHAMADO</div></li>
+        <h3 className="mt-7 mb-4 text-lg font-bold">Histórico do chamado</h3>
+        <ol className="relative ml-2 space-y-5 border-l border-primary/35 pl-6 text-sm">
+          <li className="relative"><span className="absolute -left-[2.05rem] top-0 grid h-4 w-4 place-items-center rounded-full bg-primary ring-4 ring-card"><Clock3 className="h-2.5 w-2.5 text-primary-foreground" /></span><span className="text-xs text-muted-foreground">{new Date(chamado.criadoEm).toLocaleString("pt-BR")} · {chamado.solicitante} (Lojinha)</span><div className="mt-1 font-medium">Chamado aberto — NOVO CHAMADO</div></li>
           {movs.map((m) => (
-            <li key={m.id}>
-              <span className="text-muted-foreground">{new Date(m.criado_em).toLocaleString("pt-BR")} · {m.autor_nome} ({m.perfil})</span>
-              {m.status_novo && <div className="font-medium">Status: {m.status_anterior} → {m.status_novo}</div>}
-              {m.texto && <div className="whitespace-pre-wrap">{m.texto}</div>}
+            <li key={m.id} className="relative"><span className="absolute -left-[1.84rem] top-1 h-2.5 w-2.5 rounded-full bg-primary ring-4 ring-card" />
+              <span className="text-xs text-muted-foreground">{new Date(m.criado_em).toLocaleString("pt-BR")} · {m.autor_nome} ({m.perfil})</span>
+              {m.status_novo && <div className="mt-1 font-semibold">Status: {m.status_anterior} → {m.status_novo}</div>}
+              {m.texto && <div className="mt-1 whitespace-pre-wrap text-muted-foreground">{m.texto}</div>}
             </li>
           ))}
         </ol>
 
         {podeMovimentar ? (
-        <div className="mt-4 space-y-2 rounded-lg border p-3">
-          <textarea value={texto} onChange={(e) => setTexto(e.target.value)} rows={3} placeholder="Adicionar informação ao chamado..." className="w-full rounded-md border bg-background px-3 py-2 text-sm" />
+        <div className="mt-6 space-y-3 rounded-xl border bg-muted/25 p-4">
+          <Textarea value={texto} onChange={(e) => setTexto(e.target.value)} rows={3} placeholder="Adicionar informação ao chamado..." />
           <div className="flex flex-wrap items-center gap-2">
             <label className="text-sm text-muted-foreground">Status:</label>
             <select value={status} onChange={(e) => setStatus(e.target.value as Status)} className="rounded-md border bg-background px-2 py-1 text-sm">
               {statusSelecionaveis(perfil).map((s) => <option key={s} value={s}>{s}</option>)}
               {!statusSelecionaveis(perfil).includes(chamado.status) && <option value={chamado.status} disabled>{chamado.status}</option>}
             </select>
-            <button disabled={enviando} onClick={enviar} className="ml-auto rounded-md bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground disabled:opacity-50">
+            <Button disabled={enviando} onClick={enviar} className="ml-auto">
               {enviando ? "Enviando..." : "Registrar movimentação"}
-            </button>
+            </Button>
           </div>
           {erro && <p className="text-sm text-destructive">{erro}</p>}
         </div>
@@ -105,7 +108,7 @@ export function ChamadoDetalhe({ chamado, onClose }: { chamado: Chamado; onClose
           <p className="mt-4 rounded-lg border bg-muted/30 p-3 text-sm text-muted-foreground">Seu acesso é somente de consulta. Você pode visualizar o chamado, mas não registrar movimentações.</p>
         )}
 
-        <button onClick={onClose} className="mt-4 w-full rounded-md border px-4 py-2 text-sm hover:bg-accent">Fechar</button>
+        <Button variant="outline" onClick={onClose} className="mt-5 w-full">Fechar</Button>
       </div>
     </div>
   );

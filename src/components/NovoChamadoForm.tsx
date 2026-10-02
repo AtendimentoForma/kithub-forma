@@ -4,17 +4,19 @@ import { useRef, useState, type FormEvent } from "react";
 import { ChevronUp, Paperclip, X } from "lucide-react";
 import { Shell } from "@/components/Shell";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { DESTINOS, MOTIVOS, addMovimentacao, formatNumero, mensagemDeErro, getMyRole, minhasPermissoesQuery, podeEditar, statusSelecionaveis, type Status } from "@/lib/chamados";
 import { criarChamado } from "@/lib/criar-chamado.functions";
 import { enderecoSchema, ESTADOS } from "@/lib/endereco";
 
-const input = "mt-1 w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring";
+const input = "mt-1.5 h-10 w-full rounded-lg border border-input bg-background px-3 py-2 text-sm outline-hidden focus:border-primary focus:ring-3 focus:ring-primary/15";
 
 function Field({ label, name, type = "text", required = true, placeholder, maxLength = 255, inputMode }: { label: string; name: string; type?: string; required?: boolean; placeholder?: string; maxLength?: number; inputMode?: "numeric" }) {
   return (
     <label className="block text-sm font-medium">
       {label}{required && " *"}
-      <input name={name} type={type} required={required} placeholder={placeholder} maxLength={maxLength} inputMode={inputMode} className={input} />
+      <Input name={name} type={type} required={required} placeholder={placeholder} maxLength={maxLength} inputMode={inputMode} className="mt-1.5" />
     </label>
   );
 }
@@ -107,7 +109,7 @@ export function NovoChamadoForm({ listaPath }: { listaPath: "/lojinha/chamados" 
   if (criado !== null)
     return (
       <Shell title="Chamado criado">
-        <div className="rounded-xl border bg-background p-8 text-center">
+        <div className="kithub-surface p-8 text-center">
           <div className="font-mono text-3xl font-bold">{formatNumero(criado)}</div>
           <p className="mt-2 text-muted-foreground">Status: {statusCriado}</p>
           {erro && <p role="alert" className="mt-3 text-sm text-destructive">{erro}</p>}
@@ -119,7 +121,7 @@ export function NovoChamadoForm({ listaPath }: { listaPath: "/lojinha/chamados" 
   if (!podeCriar)
     return (
       <Shell title="Novo chamado de reenvio">
-        <p className="rounded-xl border bg-background p-6 text-sm text-muted-foreground">
+        <p className="kithub-surface p-6 text-sm text-muted-foreground">
           Seu acesso é somente de consulta. Peça ao administrador a função "Chamados" para abrir novos chamados.
         </p>
       </Shell>
@@ -128,7 +130,7 @@ export function NovoChamadoForm({ listaPath }: { listaPath: "/lojinha/chamados" 
   return (
     <Shell title="Novo chamado de reenvio">
       <form onSubmit={submit} className="space-y-6">
-        <section className="rounded-xl border bg-background p-6">
+        <section className="kithub-surface p-5 sm:p-6">
           <h2 className="mb-4 font-semibold">Origem da solicitação *</h2>
           <div className="flex flex-wrap gap-4">
             {["Cliente entrou em contato", "Identificado internamente"].map((o) => (
@@ -138,7 +140,7 @@ export function NovoChamadoForm({ listaPath }: { listaPath: "/lojinha/chamados" 
             ))}
           </div>
         </section>
-        <section className="rounded-xl border bg-background p-6">
+        <section className="kithub-surface p-5 sm:p-6">
           <h2 className="mb-4 font-semibold">Dados do passageiro</h2>
           <div className="grid gap-4 sm:grid-cols-2">
             <Field label="Nome" name="paxNome" />
@@ -148,7 +150,7 @@ export function NovoChamadoForm({ listaPath }: { listaPath: "/lojinha/chamados" 
             <Field label="Nome do responsável" name="responsavel" />
           </div>
         </section>
-        <section className="rounded-xl border bg-background p-6">
+        <section className="kithub-surface p-5 sm:p-6">
           <h2 className="mb-4 font-semibold">Viagem</h2>
           <div className="grid gap-4 sm:grid-cols-2">
             <label className="block text-sm font-medium">Destino *
@@ -160,7 +162,7 @@ export function NovoChamadoForm({ listaPath }: { listaPath: "/lojinha/chamados" 
             <Field label="Ano" name="ano" />
           </div>
         </section>
-        <section className="rounded-xl border bg-background p-6">
+        <section className="kithub-surface p-5 sm:p-6">
           <h2 className="mb-4 font-semibold">Dados do envio original</h2>
           <div className="grid gap-4 sm:grid-cols-2">
             <Field label="Nº rastreio Mandaê" name="rastreio" />
@@ -186,7 +188,7 @@ export function NovoChamadoForm({ listaPath }: { listaPath: "/lojinha/chamados" 
             <Field label="Ponto de referência" name="referencia" required={false} maxLength={100} />
           </div>
         </section>
-        <section className="rounded-xl border bg-background p-6">
+        <section className="kithub-surface p-5 sm:p-6">
           <h2 className="mb-4 font-semibold">Motivo da solicitação *</h2>
           <div className="flex flex-wrap gap-4">
             {MOTIVOS.map((m) => (
@@ -197,10 +199,10 @@ export function NovoChamadoForm({ listaPath }: { listaPath: "/lojinha/chamados" 
           </div>
           {motivos.includes("Outro") && <div className="mt-4"><Field label="Descreva o motivo" name="motivoOutro" /></div>}
         </section>
-        <section className="rounded-xl border bg-background p-6">
+        <section className="kithub-surface p-5 sm:p-6">
           <h2 className="mb-4 font-semibold">Informações adicionais (opcional)</h2>
           <label className="block text-sm font-medium">Observação / descrição
-            <textarea name="observacao" rows={4} maxLength={1000} className={input} />
+            <Textarea name="observacao" rows={4} maxLength={1000} className="mt-1.5" />
           </label>
           <div className="mt-4">
             <span className="block text-sm font-medium">Anexar fotos / documentos</span>
@@ -230,14 +232,16 @@ export function NovoChamadoForm({ listaPath }: { listaPath: "/lojinha/chamados" 
                       <span className="truncate">{f.name}</span>
                       <span className="shrink-0 text-xs">({(f.size / 1024).toFixed(0)} KB)</span>
                     </span>
-                    <button
+                    <Button
                       type="button"
+                      variant="ghost"
+                      size="icon"
                       onClick={() => removerAnexo(i)}
                       aria-label={`Remover ${f.name}`}
-                      className="rounded p-1 text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
+                      className="h-7 w-7 text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
                     >
                       <X className="h-4 w-4" />
-                    </button>
+                    </Button>
                   </li>
                 ))}
               </ul>
