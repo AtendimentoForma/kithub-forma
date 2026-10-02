@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { Shell } from "@/components/Shell";
 import { definirUsuario, getMyRole, listarUsuarios, PERMISSOES, type Perfil, type Permissao, type UsuarioAdmin } from "@/lib/chamados";
 import { Button } from "@/components/ui/button";
+import { ChevronDown } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/admin")({
   beforeLoad: async () => {
@@ -139,14 +140,16 @@ function SelecaoFuncoes({ selecionadas, aoAlterar }: { selecionadas: Permissao[]
 
   return (
     <div className="relative" ref={ref}>
-      <button
+      <Button
         type="button"
+        variant="outline"
+        size="sm"
         onClick={abrir}
-        className="flex w-full items-center justify-between gap-2 rounded-md border border-input bg-background px-2 py-1 text-left text-xs hover:bg-muted"
+        className="w-full justify-between px-2 text-left text-xs"
       >
         <span className="truncate">{rotulo}</span>
-        <span aria-hidden>▾</span>
-      </button>
+        <ChevronDown className="h-3.5 w-3.5" />
+      </Button>
       {aberto && pos && (
         <div
           style={{ position: "fixed", top: pos.top, left: pos.left }}

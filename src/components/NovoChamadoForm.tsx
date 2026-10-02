@@ -109,7 +109,7 @@ export function NovoChamadoForm({ listaPath }: { listaPath: "/lojinha/chamados" 
   if (criado !== null)
     return (
       <Shell title="Chamado criado">
-        <div className="rounded-xl border bg-background p-8 text-center">
+        <div className="kithub-surface p-8 text-center">
           <div className="font-mono text-3xl font-bold">{formatNumero(criado)}</div>
           <p className="mt-2 text-muted-foreground">Status: {statusCriado}</p>
           {erro && <p role="alert" className="mt-3 text-sm text-destructive">{erro}</p>}
@@ -121,7 +121,7 @@ export function NovoChamadoForm({ listaPath }: { listaPath: "/lojinha/chamados" 
   if (!podeCriar)
     return (
       <Shell title="Novo chamado de reenvio">
-        <p className="rounded-xl border bg-background p-6 text-sm text-muted-foreground">
+        <p className="kithub-surface p-6 text-sm text-muted-foreground">
           Seu acesso é somente de consulta. Peça ao administrador a função "Chamados" para abrir novos chamados.
         </p>
       </Shell>
@@ -232,14 +232,16 @@ export function NovoChamadoForm({ listaPath }: { listaPath: "/lojinha/chamados" 
                       <span className="truncate">{f.name}</span>
                       <span className="shrink-0 text-xs">({(f.size / 1024).toFixed(0)} KB)</span>
                     </span>
-                    <button
+                    <Button
                       type="button"
+                      variant="ghost"
+                      size="icon"
                       onClick={() => removerAnexo(i)}
                       aria-label={`Remover ${f.name}`}
-                      className="rounded p-1 text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
+                      className="h-7 w-7 text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
                     >
                       <X className="h-4 w-4" />
-                    </button>
+                    </Button>
                   </li>
                 ))}
               </ul>

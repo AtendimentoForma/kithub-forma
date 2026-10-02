@@ -7,11 +7,6 @@ import { Input } from "@/components/ui/input";
 const COBRANCA = ["Endereço incorreto", "Cliente ausente", "Troca de tamanho"];
 const SEM_COBRANCA = ["Produto errado", "Produto com avaria", "Pedido extraviado"];
 
-const btn = "rounded-md px-3 py-1.5 text-sm font-semibold disabled:opacity-50";
-const primary = `${btn} bg-primary text-primary-foreground`;
-const outline = `${btn} border bg-background hover:bg-accent`;
-const input = "w-full rounded-md border bg-background px-3 py-2 text-sm";
-
 export function FluxoChamado({ chamado, perfil }: { chamado: Chamado; perfil: Perfil | null }) {
   const qc = useQueryClient();
   const [erro, setErro] = useState("");
