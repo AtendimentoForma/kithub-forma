@@ -24,7 +24,7 @@ export const Route = createFileRoute("/_authenticated/lojinha/")({
 function Dashboard() {
   const { data: list = [] } = useQuery(chamadosQuery);
   return (
-    <Shell title="Dashboard da Lojinha">
+    <Shell title="Visão Geral Lojinha">
       <div className="mb-6 flex justify-end">
         <Button asChild><Link to="/lojinha/novo"><Plus /> Novo chamado</Link></Button>
       </div>
