@@ -80,6 +80,7 @@ export function NovoChamadoForm({ listaPath }: { listaPath: "/lojinha/chamados" 
     let novoNumero: number | null = null;
     try {
       const c = await criarChamado({ data: {
+        statusInicial: status,
         paxNome: g("paxNome"), cpf: g("cpf"), paxId: g("paxId"), idDelivery: g("idDelivery"), destino: g("destino"), ano: g("ano"), responsavel: g("responsavel"),
         rastreio: g("rastreio"), endereco: enderecoValidado.data, dataEnvio: g("dataEnvio"),
         motivos, motivoOutro: g("motivoOutro") || null, origemSolicitacao: origens.join(", "),
