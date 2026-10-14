@@ -1,6 +1,6 @@
 import { useNavigate } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { useRef, useState, type FormEvent } from "react";
+import { useRef, useState, type ChangeEvent, type FormEvent } from "react";
 import { ChevronUp, Paperclip, X } from "lucide-react";
 import { Shell } from "@/components/Shell";
 import { Button } from "@/components/ui/button";
@@ -8,15 +8,15 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { DESTINOS, MOTIVOS, addMovimentacao, formatNumero, mensagemDeErro, getMyRole, minhasPermissoesQuery, podeEditar, statusSelecionaveis, type Status } from "@/lib/chamados";
 import { criarChamado } from "@/lib/criar-chamado.functions";
-import { enderecoSchema, ESTADOS } from "@/lib/endereco";
+import { buscarCep, enderecoSchema, ESTADOS, mascararCep } from "@/lib/endereco";
 
 const input = "mt-1.5 h-10 w-full rounded-lg border border-input bg-background px-3 py-2 text-sm outline-hidden focus:border-primary focus:ring-3 focus:ring-primary/15";
 
-function Field({ label, name, type = "text", required = true, placeholder, maxLength = 255, inputMode }: { label: string; name: string; type?: string; required?: boolean; placeholder?: string; maxLength?: number; inputMode?: "numeric" }) {
+function Field({ label, name, type = "text", required = true, placeholder, maxLength = 255, inputMode, onChange, disabled }: { label: string; name: string; type?: string; required?: boolean; placeholder?: string; maxLength?: number; inputMode?: "numeric"; onChange?: (e: ChangeEvent<HTMLInputElement>) => void; disabled?: boolean }) {
   return (
     <label className="block text-sm font-medium">
       {label}{required && " *"}
-      <Input name={name} type={type} required={required} placeholder={placeholder} maxLength={maxLength} inputMode={inputMode} className="mt-1.5" />
+      <Input name={name} type={type} required={required} placeholder={placeholder} maxLength={maxLength} inputMode={inputMode} onChange={onChange} disabled={disabled} className="mt-1.5" />
     </label>
   );
 }
@@ -38,6 +38,38 @@ export function NovoChamadoForm({ listaPath }: { listaPath: "/lojinha/chamados" 
   const { data: permissoes } = useQuery(minhasPermissoesQuery);
   const podeCriar = podeEditar(perfil, permissoes, "chamados") || podeEditar(perfil, permissoes, "reenvios");
   const statusDisponiveis = statusSelecionaveis(listaPath === "/sac/chamados" ? "sac" : "lojinha");
+
+  const cepBusca = useRef<AbortController | null>(null);
+  const [cepMsg, setCepMsg] = useState("");
+
+  async function aoDigitarCep(e: ChangeEvent<HTMLInputElement>) {
+    const input = e.currentTarget;
+    const form = input.form;
+    input.value = mascararCep(input.value);
+    cepBusca.current?.abort();
+    setCepMsg("");
+    if (!form || input.value.length !== 9) return;
+    const ctrl = new AbortController();
+    cepBusca.current = ctrl;
+    setCepMsg("Buscando endereço...");
+    try {
+      const end = await buscarCep(input.value, ctrl.signal);
+      if (!end) return setCepMsg("CEP não encontrado. Preencha o endereço manualmente.");
+      const preencher = (nome: string, valor: string) => {
+        const el = form.elements.namedItem(nome) as HTMLInputElement | HTMLSelectElement | null;
+        if (el && valor) el.value = valor;
+      };
+      preencher("logradouro", end.logradouro);
+      preencher("bairro", end.bairro);
+      preencher("cidade", end.cidade);
+      preencher("estado", end.estado);
+      setCepMsg("");
+      (form.elements.namedItem(end.logradouro ? "numero" : "logradouro") as HTMLInputElement | null)?.focus();
+    } catch (err) {
+      if ((err as Error).name === "AbortError") return;
+      setCepMsg("Não foi possível buscar o CEP agora. Preencha o endereço manualmente.");
+    }
+  }
 
   function atualizarAnexos(lista: FileList | null) {
     setAnexos(lista ? Array.from(lista) : []);
@@ -171,7 +203,10 @@ export function NovoChamadoForm({ listaPath }: { listaPath: "/lojinha/chamados" 
           </div>
           <h3 className="mb-4 mt-6 font-semibold">Endereço utilizado</h3>
           <div className="grid gap-4 sm:grid-cols-2">
-            <Field label="CEP" name="cep" placeholder="00000-000" maxLength={9} inputMode="numeric" />
+            <div>
+              <Field label="CEP" name="cep" placeholder="00000-000" maxLength={9} inputMode="numeric" onChange={aoDigitarCep} />
+              {cepMsg && <p className="mt-1.5 text-xs text-muted-foreground" role="status">{cepMsg}</p>}
+            </div>
             <Field label="Endereço" name="logradouro" maxLength={80} />
             <Field label="Número" name="numero" maxLength={20} />
             <Field label="Complemento" name="complemento" required={false} maxLength={60} />
