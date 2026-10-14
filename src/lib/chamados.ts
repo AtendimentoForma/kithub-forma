@@ -69,6 +69,7 @@ export interface Chamado {
   numero: number;
   criadoEm: string;
   solicitante: string;
+  solicitanteId: string;
   status: Status;
   paxNome: string;
   cpf: string;
@@ -118,6 +119,7 @@ function fromRow(r: any): Chamado {
     numero: r.numero,
     criadoEm: r.criado_em,
     solicitante: r.solicitante,
+    solicitanteId: r.solicitante_id,
     status: r.status,
     paxNome: r.pax_nome,
     cpf: r.cpf,
@@ -202,6 +204,20 @@ export const ultimasMovimentacoesQuery = queryOptions({
   },
   refetchInterval: 15000,
 });
+
+/** Chamado com novidade (criação ou movimentação de outra pessoa) que o usuário ainda não abriu. */
+export function chamadoNaoVisto(
+  c: Chamado,
+  ultima: { criadoEm: string; autorId: string } | undefined,
+  leituras: { usuarioId: string; vistos: Record<number, string> } | undefined,
+) {
+  if (!leituras || c.status === "CONCLUÍDO") return false;
+  const vistoEm = leituras.vistos[c.numero];
+  const autorId = ultima?.autorId ?? c.solicitanteId;
+  if (autorId === leituras.usuarioId) return false;
+  const novidadeEm = ultima?.criadoEm ?? c.criadoEm;
+  return !vistoEm || new Date(novidadeEm).getTime() > new Date(vistoEm).getTime();
+}
 
 export const leiturasQuery = queryOptions({
   queryKey: ["chamado-leituras"],

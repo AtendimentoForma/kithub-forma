@@ -10,6 +10,7 @@ import { KitHubBrand, PageIntro, ThemeToggle } from "@/components/kithub-ui";
 import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { cn } from "@/lib/utils";
+import { useAlertaAba } from "@/hooks/use-alerta-aba";
 
 const statusTone: Partial<Record<Status, string>> = {
   "NOVO CHAMADO": "border-primary/40 bg-primary/15 text-foreground",
@@ -29,6 +30,7 @@ export function Shell({ title, children, perfil = "lojinha" }: { title: string; 
   const pathname = useLocation({ select: (l) => l.pathname });
   const qc = useQueryClient();
   const { data: role } = useQuery({ queryKey: ["my-role"], queryFn: getMyRole });
+  useAlertaAba();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [collapsed, setCollapsed] = useState(false);
   const [nome, setNome] = useState("Usuário");

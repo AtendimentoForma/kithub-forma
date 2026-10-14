@@ -5,7 +5,7 @@ import { StatusBadge } from "@/components/Shell";
 import { ChamadoDetalhe } from "@/components/ChamadoDetalhe";
 import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/kithub-ui";
-import { chamadosQuery, formatNumero, leiturasQuery, ultimasMovimentacoesQuery, type Chamado } from "@/lib/chamados";
+import { chamadoNaoVisto, chamadosQuery, formatNumero, leiturasQuery, ultimasMovimentacoesQuery, type Chamado } from "@/lib/chamados";
 
 /** Remove acentos e lower-case para busca tolerante. */
 function normaliza(s: string): string {
@@ -115,8 +115,7 @@ export function ChamadosRecentes() {
             {ordenados.map((c) => {
               const ultima = ultimas[c.numero];
               const desde = ultima?.criadoEm ?? c.criadoEm;
-              const vistoEm = leituras?.vistos[c.numero];
-              const naoVisto = Boolean(c.status !== "CONCLUÍDO" && ultima && leituras && ultima.autorId !== leituras.usuarioId && (!vistoEm || new Date(ultima.criadoEm).getTime() > new Date(vistoEm).getTime()));
+              const naoVisto = chamadoNaoVisto(c, ultima, leituras);
               return (
                 <Button
                   variant="ghost"
