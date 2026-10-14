@@ -8,6 +8,11 @@ const texto = (max: number) => z.string().trim().min(1).max(max);
 const opcional = (max: number) => z.string().trim().max(max).nullable();
 
 const chamadoSchema = z.object({
+  statusInicial: z.enum([
+    "NOVO CHAMADO", "EM ANÁLISE", "AGUARDANDO CLIENTE", "AGUARDANDO PAGAMENTO",
+    "REENVIO AUTORIZADO", "ANÁLISE LIDERANÇA", "PRIORIDADE DE ENTREGA",
+    "PRIORIDADE FINALIZADA", "CONCLUÍDO",
+  ]).optional(),
   paxNome: texto(255), cpf: texto(20), paxId: texto(255), idDelivery: texto(255),
   destino: texto(255), ano: texto(255), responsavel: texto(255),
   rastreio: texto(255), dataEnvio: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
