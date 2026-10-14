@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { useEffect } from "react";
-import { chamadoNaoVisto, chamadosQuery, leiturasQuery, ultimasMovimentacoesQuery } from "@/lib/chamados";
+import { chamadosQuery, leiturasQuery } from "@/lib/chamados";
 
 function iconeComContador(qtd: number) {
   const canvas = document.createElement("canvas");
@@ -19,13 +19,13 @@ function iconeComContador(qtd: number) {
   return canvas.toDataURL("image/png");
 }
 
-/** Faz o título e o ícone da aba piscarem com a quantidade de chamados com movimentação não vista. */
+/** Faz o título e o ícone da aba piscarem com a quantidade de chamados novos ainda sem tratativa. */
 export function useAlertaAba() {
-  const { data: chamados = [] } = useQuery(chamadosQuery);
-  const { data: ultimas = {} } = useQuery(ultimasMovimentacoesQuery);
+  const { data: chamados = [] } = useQuery({ ...chamadosQuery, refetchInterval: 15000 });
   const { data: leituras } = useQuery(leiturasQuery);
 
-  const naoVistos = chamados.filter((c) => chamadoNaoVisto(c, ultimas[c.numero], leituras)).length;
+  // Só chamados que ainda não tiveram a primeira tratativa (status NOVO CHAMADO) e que não foram criados por mim.
+  const naoVistos = leituras ? chamados.filter((c) => c.status === "NOVO CHAMADO" && c.solicitanteId !== leituras.usuarioId).length : 0;
 
   useEffect(() => {
     if (naoVistos === 0) return;
