@@ -53,5 +53,14 @@ export const criarChamado = createServerFn({ method: "POST" })
       observacao: c.observacao, anexos: c.anexos,
     }).select("numero").single();
     if (error) throw error;
+    await notificarNovoChamadoSlack({
+      numero: data.numero,
+      solicitante: perfil?.nome || context.claims.email || "Usuário",
+      paxNome: c.paxNome, paxId: c.paxId, idDelivery: c.idDelivery,
+      destino: c.destino, ano: c.ano,
+      motivos: c.motivos, motivoOutro: c.motivoOutro,
+      origem: c.origemSolicitacao,
+      status: c.statusInicial ?? "NOVO CHAMADO",
+    });
     return { numero: data.numero };
   });
