@@ -2,6 +2,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { enderecoSchema, formatarEndereco } from "@/lib/endereco";
+import { notificarNovoChamadoSlack } from "./slack.server";
 
 const texto = (max: number) => z.string().trim().min(1).max(max);
 const opcional = (max: number) => z.string().trim().max(max).nullable();
