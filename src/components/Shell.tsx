@@ -1,6 +1,6 @@
 import { Link, useLocation, useNavigate, useRouter } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { ArrowLeft, Bell, ChevronDown, Headphones, Home, LogOut, Menu, PanelLeftClose, PanelLeftOpen, ShieldCheck, Store, Users, X } from "lucide-react";
+import { ArrowLeft, BarChart3, Bell, ChevronDown, Headphones, Home, LogOut, Menu, PanelLeftClose, PanelLeftOpen, ShieldCheck, Store, Users, X } from "lucide-react";
 import { useEffect, useState, type ReactNode } from "react";
 import type { Status } from "@/lib/chamados";
 import { getMyRole } from "@/lib/chamados";
@@ -52,6 +52,7 @@ export function Shell({ title, children, perfil = "lojinha" }: { title: string; 
     { label: "Início", to: inicio, icon: Home, show: true },
     { label: "Lojinha", to: "/lojinha" as const, icon: Store, show: perfil === "lojinha" || isAdmin },
     { label: "SAC", to: "/sac" as const, icon: Headphones, show: perfil === "sac" || isAdmin },
+    { label: "Relatórios", to: "/sac/relatorios" as const, icon: BarChart3, show: perfil === "sac" || isAdmin },
     { label: "Usuários", to: "/admin" as const, icon: Users, show: isAdmin },
   ].filter((item) => item.show);
 

@@ -21,6 +21,7 @@ import { Route as AuthenticatedLojinhaNovoRouteImport } from './routes/_authenti
 import { Route as AuthenticatedSacIndexRouteImport } from './routes/_authenticated/sac.index'
 import { Route as AuthenticatedSacChamadosRouteImport } from './routes/_authenticated/sac.chamados'
 import { Route as AuthenticatedSacNovoRouteImport } from './routes/_authenticated/sac.novo'
+import { Route as AuthenticatedSacRelatoriosRouteImport } from './routes/_authenticated/sac.relatorios'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -85,6 +86,12 @@ const AuthenticatedSacNovoRoute = AuthenticatedSacNovoRouteImport.update({
   path: '/novo',
   getParentRoute: () => AuthenticatedSacRoute,
 } as any)
+const AuthenticatedSacRelatoriosRoute =
+  AuthenticatedSacRelatoriosRouteImport.update({
+    id: '/relatorios',
+    path: '/relatorios',
+    getParentRoute: () => AuthenticatedSacRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -96,6 +103,7 @@ export interface FileRoutesByFullPath {
   '/lojinha/novo': typeof AuthenticatedLojinhaNovoRoute
   '/sac/chamados': typeof AuthenticatedSacChamadosRoute
   '/sac/novo': typeof AuthenticatedSacNovoRoute
+  '/sac/relatorios': typeof AuthenticatedSacRelatoriosRoute
   '/lojinha/': typeof AuthenticatedLojinhaIndexRoute
   '/sac/': typeof AuthenticatedSacIndexRoute
 }
@@ -107,6 +115,7 @@ export interface FileRoutesByTo {
   '/lojinha/novo': typeof AuthenticatedLojinhaNovoRoute
   '/sac/chamados': typeof AuthenticatedSacChamadosRoute
   '/sac/novo': typeof AuthenticatedSacNovoRoute
+  '/sac/relatorios': typeof AuthenticatedSacRelatoriosRoute
   '/lojinha': typeof AuthenticatedLojinhaIndexRoute
   '/sac': typeof AuthenticatedSacIndexRoute
 }
@@ -122,6 +131,7 @@ export interface FileRoutesById {
   '/_authenticated/lojinha/novo': typeof AuthenticatedLojinhaNovoRoute
   '/_authenticated/sac/chamados': typeof AuthenticatedSacChamadosRoute
   '/_authenticated/sac/novo': typeof AuthenticatedSacNovoRoute
+  '/_authenticated/sac/relatorios': typeof AuthenticatedSacRelatoriosRoute
   '/_authenticated/lojinha/': typeof AuthenticatedLojinhaIndexRoute
   '/_authenticated/sac/': typeof AuthenticatedSacIndexRoute
 }
@@ -137,6 +147,7 @@ export interface FileRouteTypes {
     | '/lojinha/novo'
     | '/sac/chamados'
     | '/sac/novo'
+    | '/sac/relatorios'
     | '/lojinha/'
     | '/sac/'
   fileRoutesByTo: FileRoutesByTo
@@ -148,6 +159,7 @@ export interface FileRouteTypes {
     | '/lojinha/novo'
     | '/sac/chamados'
     | '/sac/novo'
+    | '/sac/relatorios'
     | '/lojinha'
     | '/sac'
   id:
@@ -162,6 +174,7 @@ export interface FileRouteTypes {
     | '/_authenticated/lojinha/novo'
     | '/_authenticated/sac/chamados'
     | '/_authenticated/sac/novo'
+    | '/_authenticated/sac/relatorios'
     | '/_authenticated/lojinha/'
     | '/_authenticated/sac/'
   fileRoutesById: FileRoutesById
@@ -258,6 +271,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedSacNovoRouteImport
       parentRoute: typeof AuthenticatedSacRoute
     }
+    '/_authenticated/sac/relatorios': {
+      id: '/_authenticated/sac/relatorios'
+      path: '/relatorios'
+      fullPath: '/sac/relatorios'
+      preLoaderRoute: typeof AuthenticatedSacRelatoriosRouteImport
+      parentRoute: typeof AuthenticatedSacRoute
+    }
   }
 }
 
@@ -279,12 +299,14 @@ const AuthenticatedLojinhaRouteWithChildren =
 interface AuthenticatedSacRouteChildren {
   AuthenticatedSacChamadosRoute: typeof AuthenticatedSacChamadosRoute
   AuthenticatedSacNovoRoute: typeof AuthenticatedSacNovoRoute
+  AuthenticatedSacRelatoriosRoute: typeof AuthenticatedSacRelatoriosRoute
   AuthenticatedSacIndexRoute: typeof AuthenticatedSacIndexRoute
 }
 
 const AuthenticatedSacRouteChildren: AuthenticatedSacRouteChildren = {
   AuthenticatedSacChamadosRoute: AuthenticatedSacChamadosRoute,
   AuthenticatedSacNovoRoute: AuthenticatedSacNovoRoute,
+  AuthenticatedSacRelatoriosRoute: AuthenticatedSacRelatoriosRoute,
   AuthenticatedSacIndexRoute: AuthenticatedSacIndexRoute,
 }
 
