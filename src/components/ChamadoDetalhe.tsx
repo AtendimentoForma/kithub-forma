@@ -79,7 +79,7 @@ export function ChamadoDetalhe({ chamado, onClose }: { chamado: Chamado; onClose
 
         <h3 className="mt-7 mb-4 text-lg font-bold">Histórico do chamado</h3>
         <ol className="relative ml-2 space-y-5 border-l border-primary/35 pl-6 text-sm">
-          <li className="relative"><span className="absolute -left-[2.05rem] top-0 grid h-4 w-4 place-items-center rounded-full bg-primary ring-4 ring-card"><Clock3 className="h-2.5 w-2.5 text-primary-foreground" /></span><span className="text-xs text-muted-foreground">{new Date(chamado.criadoEm).toLocaleString("pt-BR")} · {chamado.solicitante} (Lojinha)</span><div className="mt-1 font-medium">Chamado aberto — NOVO CHAMADO</div></li>
+          <li className="relative"><span className="absolute -left-[2.05rem] top-0 grid h-4 w-4 place-items-center rounded-full bg-primary ring-4 ring-card"><Clock3 className="h-2.5 w-2.5 text-primary-foreground" /></span><span className="text-xs text-muted-foreground">{new Date(chamado.criadoEm).toLocaleString("pt-BR")} · {chamado.solicitante}{(() => { const pf = movs.find((m) => m.autor_nome === chamado.solicitante)?.perfil; return pf ? ` (${pf})` : ""; })()}</span><div className="mt-1 font-medium">Chamado aberto — NOVO CHAMADO</div></li>
           {movs.map((m) => (
             <li key={m.id} className="relative"><span className="absolute -left-[1.84rem] top-1 h-2.5 w-2.5 rounded-full bg-primary ring-4 ring-card" />
               <span className="text-xs text-muted-foreground">{new Date(m.criado_em).toLocaleString("pt-BR")} · {m.autor_nome} ({m.perfil})</span>
