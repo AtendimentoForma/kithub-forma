@@ -32,6 +32,7 @@ export function NovoChamadoForm({ listaPath }: { listaPath: "/lojinha/chamados" 
   const [status, setStatus] = useState<Status>("NOVO CHAMADO");
   const [statusCriado, setStatusCriado] = useState<Status>("NOVO CHAMADO");
   const [menuAberto, setMenuAberto] = useState(false);
+  const [tipoEnvio, setTipoEnvio] = useState("");
   const [anexos, setAnexos] = useState<File[]>([]);
   const anexosRef = useRef<HTMLInputElement>(null);
   const { data: perfil = null } = useQuery({ queryKey: ["my-role"], queryFn: getMyRole });
@@ -99,11 +100,14 @@ export function NovoChamadoForm({ listaPath }: { listaPath: "/lojinha/chamados" 
     if (motivos.length === 0) return setErro("Selecione ao menos um motivo.");
     if (origens.length === 0) return setErro("Marque ao menos uma opção: \"Cliente entrou em contato\" ou \"Identificado internamente\".");
     if (g("cpf").replace(/\D/g, "").length !== 11) return setErro("CPF deve ter 11 dígitos.");
-    const enderecoValidado = enderecoSchema.safeParse({
+    if (!tipoEnvio) return setErro("Selecione uma opção em \"Informações de envio\".");
+    const original = tipoEnvio === "Dados do envio original";
+    if (!original && !g("infoEnvio")) return setErro("Preencha a observação das informações de envio.");
+    const enderecoValidado = original ? enderecoSchema.safeParse({
       cep: g("cep"), logradouro: g("logradouro"), numero: g("numero"), complemento: g("complemento"),
       bairro: g("bairro"), cidade: g("cidade"), estado: g("estado"), pais: g("pais"), referencia: g("referencia"),
-    });
-    if (!enderecoValidado.success) return setErro(enderecoValidado.error.issues[0]?.message ?? "Confira os dados do endereço.");
+    }) : null;
+    if (enderecoValidado && !enderecoValidado.success) return setErro(enderecoValidado.error.issues[0]?.message ?? "Confira os dados do endereço.");
     if (motivos.includes("Outro") && !g("motivoOutro")) return setErro("Descreva o motivo \"Outro\".");
     if (["CONCLUÍDO", "REENVIO AUTORIZADO", "AGUARDANDO CLIENTE", "ANÁLISE LIDERANÇA"].includes(status) && !g("observacao")) return setErro(`Para enviar como "${status}", preencha a observação.`);
     const nomesAnexos = anexos.map((x) => x.name);
@@ -114,7 +118,8 @@ export function NovoChamadoForm({ listaPath }: { listaPath: "/lojinha/chamados" 
       const c = await criarChamado({ data: {
         statusInicial: status,
         paxNome: g("paxNome"), cpf: g("cpf"), paxId: g("paxId"), idDelivery: g("idDelivery"), destino: g("destino"), ano: g("ano"), responsavel: g("responsavel"),
-        rastreio: g("rastreio"), endereco: enderecoValidado.data, dataEnvio: g("dataEnvio"),
+        tipoEnvio: tipoEnvio as "Dados do envio original", infoEnvio: original ? null : g("infoEnvio"),
+        rastreio: original ? g("rastreio") : undefined, endereco: enderecoValidado?.data, dataEnvio: original ? g("dataEnvio") : undefined,
         motivos, motivoOutro: g("motivoOutro") || null, origemSolicitacao: origens.join(", "),
         observacao: g("observacao") || null, anexos: nomesAnexos,
       } });
@@ -196,8 +201,21 @@ export function NovoChamadoForm({ listaPath }: { listaPath: "/lojinha/chamados" 
           </div>
         </section>
         <section className="kithub-surface p-5 sm:p-6">
-          <h2 className="mb-4 font-semibold">Dados do envio original</h2>
-          <div className="grid gap-4 sm:grid-cols-2">
+          <h2 className="mb-4 font-semibold">Informações de envio *</h2>
+          <div className="flex flex-wrap gap-4">
+            {["Dados do envio original", "Retirada Torre Forma", "Envio para análise"].map((o) => (
+              <label key={o} className="flex items-center gap-2 text-sm">
+                <input type="checkbox" checked={tipoEnvio === o} onChange={() => setTipoEnvio((p) => (p === o ? "" : o))} className="h-4 w-4 accent-primary" /> {o}
+              </label>
+            ))}
+          </div>
+          {tipoEnvio && tipoEnvio !== "Dados do envio original" && (
+            <label className="mt-4 block text-sm font-medium">Observação *
+              <Textarea name="infoEnvio" rows={3} maxLength={1000} required className="mt-1.5" placeholder="Informações adicionais" />
+            </label>
+          )}
+          {tipoEnvio === "Dados do envio original" && (<>
+          <div className="mt-4 grid gap-4 sm:grid-cols-2">
             <Field label="Nº rastreio Mandaê" name="rastreio" />
             <Field label="Data do envio" name="dataEnvio" type="date" />
           </div>
@@ -223,6 +241,7 @@ export function NovoChamadoForm({ listaPath }: { listaPath: "/lojinha/chamados" 
             </label>
             <Field label="Ponto de referência" name="referencia" required={false} maxLength={100} />
           </div>
+          </>)}
         </section>
         <section className="kithub-surface p-5 sm:p-6">
           <h2 className="mb-4 font-semibold">Motivo da solicitação *</h2>

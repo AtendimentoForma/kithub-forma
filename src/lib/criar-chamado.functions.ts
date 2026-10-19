@@ -15,11 +15,15 @@ const chamadoSchema = z.object({
   ]).optional(),
   paxNome: texto(255), cpf: texto(20), paxId: texto(255), idDelivery: texto(255),
   destino: texto(255), ano: texto(255), responsavel: texto(255),
-  rastreio: texto(255), dataEnvio: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
+  tipoEnvio: z.enum(["Dados do envio original", "Retirada Torre Forma", "Envio para análise"]).default("Dados do envio original"),
+  infoEnvio: opcional(1000).optional(),
+  rastreio: z.string().trim().max(255).optional(), dataEnvio: z.string().optional(),
   motivos: z.array(texto(100)).min(1).max(10), motivoOutro: opcional(255),
   origemSolicitacao: texto(255), observacao: opcional(1000),
-  anexos: z.array(texto(255)).max(20), endereco: enderecoSchema,
-}).refine((c) => c.cpf.replace(/\D/g, "").length === 11, { message: "CPF deve ter 11 dígitos." });
+  anexos: z.array(texto(255)).max(20), endereco: enderecoSchema.optional(),
+}).refine((c) => c.cpf.replace(/\D/g, "").length === 11, { message: "CPF deve ter 11 dígitos." })
+  .refine((c) => c.tipoEnvio !== "Dados do envio original" || (!!c.rastreio && /^\d{4}-\d{2}-\d{2}$/.test(c.dataEnvio ?? "") && !!c.endereco), { message: "Preencha os dados do envio original." })
+  .refine((c) => c.tipoEnvio === "Dados do envio original" || !!c.infoEnvio?.trim(), { message: "Preencha a observação das informações de envio." });
 
 export const criarChamado = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
@@ -42,13 +46,16 @@ export const criarChamado = createServerFn({ method: "POST" })
     const duplicado = abertos?.find((item) => item.pax_id.trim().toLocaleLowerCase("pt-BR") === c.paxId.toLocaleLowerCase("pt-BR"));
     if (duplicado) throw new Error(`Já existe o chamado #${String(duplicado.numero).padStart(5, "0")} em aberto para o ID do Pax ${c.paxId}. Conclua-o antes de abrir outro.`);
 
+    const original = c.tipoEnvio === "Dados do envio original";
     const { data: perfil } = await context.supabase.from("profiles").select("nome").eq("id", context.userId).maybeSingle();
     const { data, error } = await context.supabase.from("chamados").insert({
       solicitante_id: context.userId,
       solicitante: perfil?.nome || context.claims.email || "Usuário",
       pax_nome: c.paxNome, cpf: c.cpf, pax_id: c.paxId, id_delivery: c.idDelivery,
       destino: c.destino, ano: c.ano, responsavel: c.responsavel,
-      rastreio: c.rastreio, endereco: formatarEndereco(c.endereco), data_envio: c.dataEnvio,
+      rastreio: original ? c.rastreio! : "—",
+      endereco: original ? formatarEndereco(c.endereco!) : `${c.tipoEnvio}: ${c.infoEnvio}`,
+      data_envio: original ? c.dataEnvio! : new Date().toISOString().slice(0, 10),
       motivos: c.motivos, motivo_outro: c.motivoOutro, origem_solicitacao: c.origemSolicitacao,
       observacao: c.observacao, anexos: c.anexos,
     }).select("numero").single();
