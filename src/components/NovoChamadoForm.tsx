@@ -146,7 +146,7 @@ export function NovoChamadoForm({ listaPath }: { listaPath: "/lojinha/chamados" 
 
   if (criado !== null)
     return (
-      <Shell title="Chamado criado">
+      <Shell title="Chamado criado" perfil={listaPath === "/sac/chamados" ? "sac" : "lojinha"}>
         <div className="kithub-surface p-8 text-center">
           <div className="font-mono text-3xl font-bold">{formatNumero(criado)}</div>
           <p className="mt-2 text-muted-foreground">Status: {statusCriado}</p>
@@ -158,7 +158,7 @@ export function NovoChamadoForm({ listaPath }: { listaPath: "/lojinha/chamados" 
 
   if (!podeCriar)
     return (
-      <Shell title="Novo chamado de reenvio">
+      <Shell title="Novo chamado de reenvio" perfil={listaPath === "/sac/chamados" ? "sac" : "lojinha"}>
         <p className="kithub-surface p-6 text-sm text-muted-foreground">
           Seu acesso é somente de consulta. Peça ao administrador a função "Chamados" para abrir novos chamados.
         </p>
@@ -166,7 +166,7 @@ export function NovoChamadoForm({ listaPath }: { listaPath: "/lojinha/chamados" 
     );
 
   return (
-    <Shell title="Novo chamado de reenvio">
+    <Shell title="Novo chamado de reenvio" perfil={listaPath === "/sac/chamados" ? "sac" : "lojinha"}>
       <form onSubmit={submit} className="space-y-6">
         <section className="kithub-surface p-5 sm:p-6">
           <h2 className="mb-4 font-semibold">Origem da solicitação *</h2>
