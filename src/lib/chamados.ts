@@ -216,8 +216,10 @@ export function chamadoNaoVisto(
   ultima: { criadoEm: string; autorId: string } | undefined,
   leituras: { usuarioId: string; vistos: Record<number, string> } | undefined,
 ) {
-  if (!leituras || c.status === "CONCLUÍDO") return false;
+  if (!leituras) return false;
   const vistoEm = leituras.vistos[c.numero];
+  if (vistoEm && new Date(vistoEm).getTime() === 0) return true;
+  if (c.status === "CONCLUÍDO") return false;
   const autorId = ultima?.autorId ?? c.solicitanteId;
   if (autorId === leituras.usuarioId) return false;
   const novidadeEm = ultima?.criadoEm ?? c.criadoEm;
@@ -235,6 +237,13 @@ export const leiturasQuery = queryOptions({
   },
   refetchInterval: 15000,
 });
+
+/** Data-marcador usada para "marcar como não lido". */
+export const MARCA_NAO_LIDO = new Date(0).toISOString();
+
+/** Ordem de exibição dos chamados por status. */
+export const ORDEM_STATUS = ["NOVO CHAMADO", "PRIORIDADE DE ENTREGA", "ANÁLISE LIDERANÇA", "PRIORIDADE FINALIZADA", "EM ANÁLISE", "AGUARDANDO CLIENTE", "AGUARDANDO PAGAMENTO", "REENVIO AUTORIZADO", "CONCLUÍDO"];
+export function posicaoStatus(s: string) { const i = ORDEM_STATUS.indexOf(s); return i < 0 ? ORDEM_STATUS.length : i; }
 
 export async function marcarChamadoVisto(numero: number, vistoEm: string) {
   const { data: { user }, error: authError } = await supabase.auth.getUser();
