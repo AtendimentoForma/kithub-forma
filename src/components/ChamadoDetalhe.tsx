@@ -43,7 +43,7 @@ export function ChamadoDetalhe({ chamado, onClose }: { chamado: Chamado; onClose
       await marcarChamadoVisto(chamado.numero, MARCA_NAO_LIDO);
       onClose();
       await qc.invalidateQueries({ queryKey: ["chamado-leituras"] });
-    } catch (e) { setErro(mensagemDeErro(e)); }
+    } catch (e) { setErro(e instanceof Error ? e.message : "Não foi possível marcar como não lido."); }
   }
 
   async function enviar() {
