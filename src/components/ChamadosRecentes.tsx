@@ -5,7 +5,7 @@ import { StatusBadge } from "@/components/Shell";
 import { ChamadoDetalhe } from "@/components/ChamadoDetalhe";
 import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/kithub-ui";
-import { chamadoNaoVisto, chamadosQuery, formatNumero, leiturasQuery, ultimasMovimentacoesQuery, type Chamado } from "@/lib/chamados";
+import { DESTINOS, ORDEM_STATUS, posicaoStatus, chamadoNaoVisto, chamadosQuery, formatNumero, leiturasQuery, ultimasMovimentacoesQuery, type Chamado } from "@/lib/chamados";
 
 /** Remove acentos e lower-case para busca tolerante. */
 function normaliza(s: string): string {
@@ -48,22 +48,24 @@ export function ChamadosRecentes() {
   const { data: ultimas = {} } = useQuery(ultimasMovimentacoesQuery);
   const { data: leituras } = useQuery(leiturasQuery);
   const [aberto, setAberto] = useState<number | null>(null);
-  const [ordem, setOrdem] = useState<Ordem>("num_desc");
+  const [ordem, setOrdem] = useState<Ordem>("status_asc");
   const [busca, setBusca] = useState("");
+  const [filtroStatus, setFiltroStatus] = useState("");
+  const [filtroDestino, setFiltroDestino] = useState("");
   const abertoChamado = list.find((c) => c.numero === aberto);
 
   const ordenados = useMemo(() => {
-    const arr = list.filter((c) => correspondeBusca(c, busca));
+    const arr = list.filter((c) => correspondeBusca(c, busca) && (!filtroStatus || c.status === filtroStatus) && (!filtroDestino || c.destino === filtroDestino));
     switch (ordem) {
       case "num_asc": arr.sort((a, b) => a.numero - b.numero); break;
       case "num_desc": arr.sort((a, b) => b.numero - a.numero); break;
       case "tempo_maior": arr.sort((a, b) => esperaMs(b, ultimas) - esperaMs(a, ultimas)); break;
       case "tempo_menor": arr.sort((a, b) => esperaMs(a, ultimas) - esperaMs(b, ultimas)); break;
-      case "status_asc": arr.sort((a, b) => a.status.localeCompare(b.status, "pt-BR") || b.numero - a.numero); break;
-      case "status_desc": arr.sort((a, b) => b.status.localeCompare(a.status, "pt-BR") || b.numero - a.numero); break;
+      case "status_asc": arr.sort((a, b) => posicaoStatus(a.status) - posicaoStatus(b.status) || b.numero - a.numero); break;
+      case "status_desc": arr.sort((a, b) => posicaoStatus(b.status) - posicaoStatus(a.status) || b.numero - a.numero); break;
     }
     return arr;
-  }, [list, ultimas, ordem, busca]);
+  }, [list, ultimas, ordem, busca, filtroStatus, filtroDestino]);
 
   function ciclarNumero() {
     setOrdem((o) => (o === "num_desc" ? "num_asc" : "num_desc"));
@@ -93,11 +95,22 @@ export function ChamadosRecentes() {
           aria-label="Pesquisar chamado"
         />
       </div>
+      <div className="mb-4 flex flex-wrap gap-3">
+        <select value={filtroStatus} onChange={(e) => setFiltroStatus(e.target.value)} aria-label="Filtrar por status" className="rounded-full border border-input bg-card px-4 py-2 text-sm shadow-xs focus:border-primary focus:outline-none focus:ring-3 focus:ring-primary/15">
+          <option value="">Todos os status</option>
+          {ORDEM_STATUS.map((s) => <option key={s} value={s}>{s}</option>)}
+        </select>
+        <select value={filtroDestino} onChange={(e) => setFiltroDestino(e.target.value)} aria-label="Filtrar por destino" className="rounded-full border border-input bg-card px-4 py-2 text-sm shadow-xs focus:border-primary focus:outline-none focus:ring-3 focus:ring-primary/15">
+          <option value="">Todos os destinos</option>
+          {DESTINOS.map((d) => <option key={d} value={d}>{d}</option>)}
+        </select>
+        {(filtroStatus || filtroDestino) && <Button variant="ghost" size="sm" onClick={() => { setFiltroStatus(""); setFiltroDestino(""); }}>Limpar filtros</Button>}
+      </div>
       <div className="overflow-x-auto rounded-xl border bg-card shadow-xs">
         {list.length === 0 ? (
           <EmptyState message="Nenhum chamado ainda." />
         ) : ordenados.length === 0 ? (
-          <EmptyState message="Nenhum chamado encontrado para a busca." />
+          <EmptyState message="Nenhum chamado encontrado para a busca ou filtros." />
         ) : (
           <>
             <div className="grid min-w-[720px] grid-cols-[minmax(0,1fr)_5rem_11rem_9rem] items-center gap-2 border-b bg-muted/60 px-5 py-3 text-xs font-semibold text-muted-foreground sm:gap-5">
