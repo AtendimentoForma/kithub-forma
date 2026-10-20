@@ -8,3 +8,5 @@
 - [x] Concluídos sem sinalização de não lido; abertura com seleção de status conforme perfil
 - [x] Abertura de chamados com endereço completo obrigatório (complemento e ponto de referência opcionais), validado antes de salvar
 - [x] Modernização visual completa do KitHub com identidade amarela, tema persistente e estrutura interna responsiva
+- [x] Reversos: card nos dois painéis, formulário próprio, registro compartilhado e anexos obrigatórios para Defeito
+- [ ] Validar registro e leitura de reverso com anexos no login real — aguarda usuário entrar na prévia; sessão de teste indisponível

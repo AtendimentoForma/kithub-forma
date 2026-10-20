@@ -7,6 +7,10 @@ export const Route = createFileRoute("/_authenticated/sac/relatorios")({
     meta: [
       { title: "Relatório de motivos — KitHub" },
       { name: "description", content: "Motivos das solicitações de reenvio, em ordem de frequência." },
+      { property: "og:title", content: "Relatório de motivos — KitHub" },
+      { property: "og:description", content: "Motivos das solicitações de reenvio, em ordem de frequência." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
     ],
   }),
   component: () => (

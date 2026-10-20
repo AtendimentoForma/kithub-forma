@@ -214,6 +214,80 @@ export type Database = {
         }
         Relationships: []
       }
+      reversos: {
+        Row: {
+          anexos: Json
+          ano: string
+          autorizacao_mandae: string
+          cpf: string
+          criado_em: string
+          destino: string
+          id_delivery: string
+          motivos: string[]
+          numero: number
+          observacao: string | null
+          origem_solicitacao: string[]
+          pax_id: string
+          pax_nome: string
+          perfil_origem: string
+          rastreamento_mandae: string
+          responsavel: string
+          solicitante: string
+          solicitante_id: string
+          status: string
+        }
+        Insert: {
+          anexos?: Json
+          ano: string
+          autorizacao_mandae: string
+          cpf: string
+          criado_em?: string
+          destino: string
+          id_delivery: string
+          motivos: string[]
+          numero?: number
+          observacao?: string | null
+          origem_solicitacao: string[]
+          pax_id: string
+          pax_nome: string
+          perfil_origem: string
+          rastreamento_mandae: string
+          responsavel: string
+          solicitante: string
+          solicitante_id: string
+          status?: string
+        }
+        Update: {
+          anexos?: Json
+          ano?: string
+          autorizacao_mandae?: string
+          cpf?: string
+          criado_em?: string
+          destino?: string
+          id_delivery?: string
+          motivos?: string[]
+          numero?: number
+          observacao?: string | null
+          origem_solicitacao?: string[]
+          pax_id?: string
+          pax_nome?: string
+          perfil_origem?: string
+          rastreamento_mandae?: string
+          responsavel?: string
+          solicitante?: string
+          solicitante_id?: string
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "reversos_solicitante_id_fkey"
+            columns: ["solicitante_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_permissoes: {
         Row: {
           id: string
