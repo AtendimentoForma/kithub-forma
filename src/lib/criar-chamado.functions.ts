@@ -18,7 +18,7 @@ const chamadoSchema = z.object({
   tipoEnvio: z.enum(["Dados do envio original", "Retirada Torre Forma", "Envio para análise"]).default("Dados do envio original"),
   infoEnvio: opcional(1000).optional(),
   rastreio: z.string().trim().max(255).optional(), dataEnvio: z.string().optional(),
-  motivos: z.array(texto(100)).min(1).max(10), motivoOutro: opcional(255),
+  motivos: z.array(texto(100)).min(1).max(10), motivoOutro: opcional(255), motivoCorreios: opcional(255),
   origemSolicitacao: texto(255), observacao: opcional(1000),
   anexos: z.array(texto(255)).max(20), endereco: enderecoSchema.optional(),
 }).refine((c) => c.cpf.replace(/\D/g, "").length === 11, { message: "CPF deve ter 11 dígitos." })
