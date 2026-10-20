@@ -5,7 +5,7 @@ import { ChamadosRecentes } from "@/components/ChamadosRecentes";
 import { StatCard } from "@/components/kithub-ui";
 import { Button } from "@/components/ui/button";
 import { useQuery } from "@tanstack/react-query";
-import { STATUSES, STATUS_LABEL, STATUS_ICONE, chamadosQuery } from "@/lib/chamados";
+import { STATUSES, STATUS_LABEL, STATUS_ICONE, STATUS_PRIO_ENTREGA, chamadosQuery } from "@/lib/chamados";
 import { reversosQuery } from "@/lib/reversos";
 
 export const Route = createFileRoute("/_authenticated/lojinha/")({
@@ -33,8 +33,10 @@ function Dashboard() {
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-8">
         {STATUSES.map((s) => {
           const Icone = STATUS_ICONE[s];
+          const total = list.filter((c) => c.status === s).length;
+          const prioridade = s === STATUS_PRIO_ENTREGA;
           return (
-            <StatCard key={s} to="/lojinha/chamados" search={{ status: s }} icon={Icone} value={list.filter((c) => c.status === s).length} label={STATUS_LABEL[s]} featured={s === "NOVO CHAMADO"} />
+            <StatCard key={s} to="/lojinha/chamados" search={{ status: s }} icon={Icone} value={total} label={STATUS_LABEL[s]} featured={s === "NOVO CHAMADO"} urgente={prioridade && total > 0} centralizado={prioridade} />
           );
         })}
         <StatCard to="/lojinha/reversos" search={{}} icon={PackageOpen} value={reversos.length} label="Reversos" />

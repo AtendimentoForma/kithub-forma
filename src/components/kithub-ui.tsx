@@ -49,14 +49,15 @@ export function PageIntro({ title, description, action }: { title: string; descr
   );
 }
 
-export function StatCard({ label, value, icon: Icon, to, search, featured = false }: { label: string; value: number; icon: LucideIcon; to: "/lojinha/chamados" | "/sac/chamados" | "/lojinha/reversos" | "/sac/reversos"; search: Record<string, string>; featured?: boolean }) {
+export function StatCard({ label, value, icon: Icon, to, search, featured = false, urgente = false, centralizado = false }: { label: string; value: number; icon: LucideIcon; to: "/lojinha/chamados" | "/sac/chamados" | "/lojinha/reversos" | "/sac/reversos"; search: Record<string, string>; featured?: boolean; urgente?: boolean; centralizado?: boolean }) {
   return (
-    <Link to={to} search={search} className={cn("group min-h-36 rounded-xl border bg-card p-5 shadow-xs transition duration-200 hover:-translate-y-0.5 hover:border-primary hover:shadow-sm", featured && "border-primary bg-primary/8")}>
-      <div className="flex items-start justify-between gap-3">
-        <span className={cn("grid h-10 w-10 place-items-center rounded-lg bg-muted text-muted-foreground transition group-hover:bg-primary group-hover:text-primary-foreground", featured && "bg-primary text-primary-foreground")}><Icon className="h-5 w-5" /></span>
-        <span className="text-3xl font-extrabold text-foreground">{value}</span>
+    <Link to={to} search={search} className={cn("group min-h-36 rounded-xl border bg-card p-5 shadow-xs transition duration-200 hover:-translate-y-0.5 hover:border-primary hover:shadow-sm", featured && "border-primary bg-primary/8", urgente && "border-destructive bg-destructive/10 hover:border-destructive motion-safe:animate-pulse", centralizado && "flex flex-col items-center text-center")}>
+      <div className={cn("flex items-start justify-between gap-3", centralizado && "w-full flex-col items-center")}>
+        <span className={cn("grid h-10 w-10 place-items-center rounded-lg bg-muted text-muted-foreground transition group-hover:bg-primary group-hover:text-primary-foreground", featured && "bg-primary text-primary-foreground", urgente && "bg-destructive text-destructive-foreground group-hover:bg-destructive group-hover:text-destructive-foreground")}><Icon className="h-5 w-5" /></span>
+        <span className={cn("text-3xl font-extrabold text-foreground", urgente && "text-destructive")}>{value}</span>
       </div>
-      <p className="mt-5 text-sm font-semibold leading-snug text-foreground">{label}</p>
+      <p className={cn("mt-5 text-sm font-semibold leading-snug text-foreground", urgente && "text-destructive")}>{label}</p>
+      {urgente && <span className="mt-2 rounded-full bg-destructive px-2.5 py-0.5 text-[11px] font-bold uppercase tracking-wide text-destructive-foreground">Atenção</span>}
     </Link>
   );
 }
