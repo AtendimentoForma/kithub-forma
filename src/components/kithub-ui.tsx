@@ -57,7 +57,6 @@ export function StatCard({ label, value, icon: Icon, to, search, featured = fals
         <span className={cn("text-3xl font-extrabold text-foreground", urgente && "text-destructive")}>{value}</span>
       </div>
       <p className={cn("mt-5 text-sm font-semibold leading-snug text-foreground", urgente && "text-destructive")}>{label}</p>
-      {urgente && <span className="mt-2 rounded-full bg-destructive px-2.5 py-0.5 text-[11px] font-bold uppercase tracking-wide text-destructive-foreground">Atenção</span>}
     </Link>
   );
 }
