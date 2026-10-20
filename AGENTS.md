@@ -16,3 +16,5 @@ Email signups are auto-confirmed; `profiles.aprovado`, role, and permissions ass
 New ticket submissions go through an authenticated server function with shared address validation and persist the formatted address in the existing text column, preserving legacy ticket display without a schema migration.
 
 All authenticated screens share the KitHub shell and semantic design tokens so navigation, theme, and responsive behavior stay consistent without changing business flows.
+
+Reverse shipments use a separate RLS-protected public.reversos table and profile-specific routes; authenticated server functions share validation with the form, while actual attachment files live in private storage and are verified before insertion, keeping existing ticket workflows unchanged.

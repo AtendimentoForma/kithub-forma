@@ -18,10 +18,16 @@ import { Route as AuthenticatedSacRouteImport } from './routes/_authenticated/sa
 import { Route as AuthenticatedLojinhaIndexRouteImport } from './routes/_authenticated/lojinha.index'
 import { Route as AuthenticatedLojinhaChamadosRouteImport } from './routes/_authenticated/lojinha.chamados'
 import { Route as AuthenticatedLojinhaNovoRouteImport } from './routes/_authenticated/lojinha.novo'
+import { Route as AuthenticatedLojinhaReversosRouteImport } from './routes/_authenticated/lojinha.reversos'
 import { Route as AuthenticatedSacIndexRouteImport } from './routes/_authenticated/sac.index'
 import { Route as AuthenticatedSacChamadosRouteImport } from './routes/_authenticated/sac.chamados'
 import { Route as AuthenticatedSacNovoRouteImport } from './routes/_authenticated/sac.novo'
 import { Route as AuthenticatedSacRelatoriosRouteImport } from './routes/_authenticated/sac.relatorios'
+import { Route as AuthenticatedSacReversosRouteImport } from './routes/_authenticated/sac.reversos'
+import { Route as AuthenticatedLojinhaReversosIndexRouteImport } from './routes/_authenticated/lojinha.reversos.index'
+import { Route as AuthenticatedLojinhaReversosNovoRouteImport } from './routes/_authenticated/lojinha.reversos.novo'
+import { Route as AuthenticatedSacReversosIndexRouteImport } from './routes/_authenticated/sac.reversos.index'
+import { Route as AuthenticatedSacReversosNovoRouteImport } from './routes/_authenticated/sac.reversos.novo'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -70,6 +76,12 @@ const AuthenticatedLojinhaNovoRoute =
     path: '/novo',
     getParentRoute: () => AuthenticatedLojinhaRoute,
   } as any)
+const AuthenticatedLojinhaReversosRoute =
+  AuthenticatedLojinhaReversosRouteImport.update({
+    id: '/reversos',
+    path: '/reversos',
+    getParentRoute: () => AuthenticatedLojinhaRoute,
+  } as any)
 const AuthenticatedSacIndexRoute = AuthenticatedSacIndexRouteImport.update({
   id: '/',
   path: '/',
@@ -92,6 +104,36 @@ const AuthenticatedSacRelatoriosRoute =
     path: '/relatorios',
     getParentRoute: () => AuthenticatedSacRoute,
   } as any)
+const AuthenticatedSacReversosRoute =
+  AuthenticatedSacReversosRouteImport.update({
+    id: '/reversos',
+    path: '/reversos',
+    getParentRoute: () => AuthenticatedSacRoute,
+  } as any)
+const AuthenticatedLojinhaReversosIndexRoute =
+  AuthenticatedLojinhaReversosIndexRouteImport.update({
+    id: '/',
+    path: '/',
+    getParentRoute: () => AuthenticatedLojinhaReversosRoute,
+  } as any)
+const AuthenticatedLojinhaReversosNovoRoute =
+  AuthenticatedLojinhaReversosNovoRouteImport.update({
+    id: '/novo',
+    path: '/novo',
+    getParentRoute: () => AuthenticatedLojinhaReversosRoute,
+  } as any)
+const AuthenticatedSacReversosIndexRoute =
+  AuthenticatedSacReversosIndexRouteImport.update({
+    id: '/',
+    path: '/',
+    getParentRoute: () => AuthenticatedSacReversosRoute,
+  } as any)
+const AuthenticatedSacReversosNovoRoute =
+  AuthenticatedSacReversosNovoRouteImport.update({
+    id: '/novo',
+    path: '/novo',
+    getParentRoute: () => AuthenticatedSacReversosRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -101,11 +143,17 @@ export interface FileRoutesByFullPath {
   '/sac': typeof AuthenticatedSacRouteWithChildren
   '/lojinha/chamados': typeof AuthenticatedLojinhaChamadosRoute
   '/lojinha/novo': typeof AuthenticatedLojinhaNovoRoute
+  '/lojinha/reversos': typeof AuthenticatedLojinhaReversosRouteWithChildren
   '/sac/chamados': typeof AuthenticatedSacChamadosRoute
   '/sac/novo': typeof AuthenticatedSacNovoRoute
   '/sac/relatorios': typeof AuthenticatedSacRelatoriosRoute
+  '/sac/reversos': typeof AuthenticatedSacReversosRouteWithChildren
   '/lojinha/': typeof AuthenticatedLojinhaIndexRoute
   '/sac/': typeof AuthenticatedSacIndexRoute
+  '/lojinha/reversos/novo': typeof AuthenticatedLojinhaReversosNovoRoute
+  '/sac/reversos/novo': typeof AuthenticatedSacReversosNovoRoute
+  '/lojinha/reversos/': typeof AuthenticatedLojinhaReversosIndexRoute
+  '/sac/reversos/': typeof AuthenticatedSacReversosIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -118,6 +166,10 @@ export interface FileRoutesByTo {
   '/sac/relatorios': typeof AuthenticatedSacRelatoriosRoute
   '/lojinha': typeof AuthenticatedLojinhaIndexRoute
   '/sac': typeof AuthenticatedSacIndexRoute
+  '/lojinha/reversos/novo': typeof AuthenticatedLojinhaReversosNovoRoute
+  '/sac/reversos/novo': typeof AuthenticatedSacReversosNovoRoute
+  '/lojinha/reversos': typeof AuthenticatedLojinhaReversosIndexRoute
+  '/sac/reversos': typeof AuthenticatedSacReversosIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -129,11 +181,17 @@ export interface FileRoutesById {
   '/_authenticated/sac': typeof AuthenticatedSacRouteWithChildren
   '/_authenticated/lojinha/chamados': typeof AuthenticatedLojinhaChamadosRoute
   '/_authenticated/lojinha/novo': typeof AuthenticatedLojinhaNovoRoute
+  '/_authenticated/lojinha/reversos': typeof AuthenticatedLojinhaReversosRouteWithChildren
   '/_authenticated/sac/chamados': typeof AuthenticatedSacChamadosRoute
   '/_authenticated/sac/novo': typeof AuthenticatedSacNovoRoute
   '/_authenticated/sac/relatorios': typeof AuthenticatedSacRelatoriosRoute
+  '/_authenticated/sac/reversos': typeof AuthenticatedSacReversosRouteWithChildren
   '/_authenticated/lojinha/': typeof AuthenticatedLojinhaIndexRoute
   '/_authenticated/sac/': typeof AuthenticatedSacIndexRoute
+  '/_authenticated/lojinha/reversos/novo': typeof AuthenticatedLojinhaReversosNovoRoute
+  '/_authenticated/sac/reversos/novo': typeof AuthenticatedSacReversosNovoRoute
+  '/_authenticated/lojinha/reversos/': typeof AuthenticatedLojinhaReversosIndexRoute
+  '/_authenticated/sac/reversos/': typeof AuthenticatedSacReversosIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -145,11 +203,17 @@ export interface FileRouteTypes {
     | '/sac'
     | '/lojinha/chamados'
     | '/lojinha/novo'
+    | '/lojinha/reversos'
     | '/sac/chamados'
     | '/sac/novo'
     | '/sac/relatorios'
+    | '/sac/reversos'
     | '/lojinha/'
     | '/sac/'
+    | '/lojinha/reversos/novo'
+    | '/sac/reversos/novo'
+    | '/lojinha/reversos/'
+    | '/sac/reversos/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -162,6 +226,10 @@ export interface FileRouteTypes {
     | '/sac/relatorios'
     | '/lojinha'
     | '/sac'
+    | '/lojinha/reversos/novo'
+    | '/sac/reversos/novo'
+    | '/lojinha/reversos'
+    | '/sac/reversos'
   id:
     | '__root__'
     | '/'
@@ -172,11 +240,17 @@ export interface FileRouteTypes {
     | '/_authenticated/sac'
     | '/_authenticated/lojinha/chamados'
     | '/_authenticated/lojinha/novo'
+    | '/_authenticated/lojinha/reversos'
     | '/_authenticated/sac/chamados'
     | '/_authenticated/sac/novo'
     | '/_authenticated/sac/relatorios'
+    | '/_authenticated/sac/reversos'
     | '/_authenticated/lojinha/'
     | '/_authenticated/sac/'
+    | '/_authenticated/lojinha/reversos/novo'
+    | '/_authenticated/sac/reversos/novo'
+    | '/_authenticated/lojinha/reversos/'
+    | '/_authenticated/sac/reversos/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -250,6 +324,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedLojinhaNovoRouteImport
       parentRoute: typeof AuthenticatedLojinhaRoute
     }
+    '/_authenticated/lojinha/reversos': {
+      id: '/_authenticated/lojinha/reversos'
+      path: '/reversos'
+      fullPath: '/lojinha/reversos'
+      preLoaderRoute: typeof AuthenticatedLojinhaReversosRouteImport
+      parentRoute: typeof AuthenticatedLojinhaRoute
+    }
     '/_authenticated/sac/': {
       id: '/_authenticated/sac/'
       path: '/'
@@ -278,28 +359,101 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedSacRelatoriosRouteImport
       parentRoute: typeof AuthenticatedSacRoute
     }
+    '/_authenticated/sac/reversos': {
+      id: '/_authenticated/sac/reversos'
+      path: '/reversos'
+      fullPath: '/sac/reversos'
+      preLoaderRoute: typeof AuthenticatedSacReversosRouteImport
+      parentRoute: typeof AuthenticatedSacRoute
+    }
+    '/_authenticated/lojinha/reversos/': {
+      id: '/_authenticated/lojinha/reversos/'
+      path: '/'
+      fullPath: '/lojinha/reversos/'
+      preLoaderRoute: typeof AuthenticatedLojinhaReversosIndexRouteImport
+      parentRoute: typeof AuthenticatedLojinhaReversosRoute
+    }
+    '/_authenticated/lojinha/reversos/novo': {
+      id: '/_authenticated/lojinha/reversos/novo'
+      path: '/novo'
+      fullPath: '/lojinha/reversos/novo'
+      preLoaderRoute: typeof AuthenticatedLojinhaReversosNovoRouteImport
+      parentRoute: typeof AuthenticatedLojinhaReversosRoute
+    }
+    '/_authenticated/sac/reversos/': {
+      id: '/_authenticated/sac/reversos/'
+      path: '/'
+      fullPath: '/sac/reversos/'
+      preLoaderRoute: typeof AuthenticatedSacReversosIndexRouteImport
+      parentRoute: typeof AuthenticatedSacReversosRoute
+    }
+    '/_authenticated/sac/reversos/novo': {
+      id: '/_authenticated/sac/reversos/novo'
+      path: '/novo'
+      fullPath: '/sac/reversos/novo'
+      preLoaderRoute: typeof AuthenticatedSacReversosNovoRouteImport
+      parentRoute: typeof AuthenticatedSacReversosRoute
+    }
   }
 }
+
+interface AuthenticatedLojinhaReversosRouteChildren {
+  AuthenticatedLojinhaReversosNovoRoute: typeof AuthenticatedLojinhaReversosNovoRoute
+  AuthenticatedLojinhaReversosIndexRoute: typeof AuthenticatedLojinhaReversosIndexRoute
+}
+
+const AuthenticatedLojinhaReversosRouteChildren: AuthenticatedLojinhaReversosRouteChildren =
+  {
+    AuthenticatedLojinhaReversosNovoRoute:
+      AuthenticatedLojinhaReversosNovoRoute,
+    AuthenticatedLojinhaReversosIndexRoute:
+      AuthenticatedLojinhaReversosIndexRoute,
+  }
+
+const AuthenticatedLojinhaReversosRouteWithChildren =
+  AuthenticatedLojinhaReversosRoute._addFileChildren(
+    AuthenticatedLojinhaReversosRouteChildren,
+  )
 
 interface AuthenticatedLojinhaRouteChildren {
   AuthenticatedLojinhaChamadosRoute: typeof AuthenticatedLojinhaChamadosRoute
   AuthenticatedLojinhaNovoRoute: typeof AuthenticatedLojinhaNovoRoute
+  AuthenticatedLojinhaReversosRoute: typeof AuthenticatedLojinhaReversosRouteWithChildren
   AuthenticatedLojinhaIndexRoute: typeof AuthenticatedLojinhaIndexRoute
 }
 
 const AuthenticatedLojinhaRouteChildren: AuthenticatedLojinhaRouteChildren = {
   AuthenticatedLojinhaChamadosRoute: AuthenticatedLojinhaChamadosRoute,
   AuthenticatedLojinhaNovoRoute: AuthenticatedLojinhaNovoRoute,
+  AuthenticatedLojinhaReversosRoute:
+    AuthenticatedLojinhaReversosRouteWithChildren,
   AuthenticatedLojinhaIndexRoute: AuthenticatedLojinhaIndexRoute,
 }
 
 const AuthenticatedLojinhaRouteWithChildren =
   AuthenticatedLojinhaRoute._addFileChildren(AuthenticatedLojinhaRouteChildren)
 
+interface AuthenticatedSacReversosRouteChildren {
+  AuthenticatedSacReversosNovoRoute: typeof AuthenticatedSacReversosNovoRoute
+  AuthenticatedSacReversosIndexRoute: typeof AuthenticatedSacReversosIndexRoute
+}
+
+const AuthenticatedSacReversosRouteChildren: AuthenticatedSacReversosRouteChildren =
+  {
+    AuthenticatedSacReversosNovoRoute: AuthenticatedSacReversosNovoRoute,
+    AuthenticatedSacReversosIndexRoute: AuthenticatedSacReversosIndexRoute,
+  }
+
+const AuthenticatedSacReversosRouteWithChildren =
+  AuthenticatedSacReversosRoute._addFileChildren(
+    AuthenticatedSacReversosRouteChildren,
+  )
+
 interface AuthenticatedSacRouteChildren {
   AuthenticatedSacChamadosRoute: typeof AuthenticatedSacChamadosRoute
   AuthenticatedSacNovoRoute: typeof AuthenticatedSacNovoRoute
   AuthenticatedSacRelatoriosRoute: typeof AuthenticatedSacRelatoriosRoute
+  AuthenticatedSacReversosRoute: typeof AuthenticatedSacReversosRouteWithChildren
   AuthenticatedSacIndexRoute: typeof AuthenticatedSacIndexRoute
 }
 
@@ -307,6 +461,7 @@ const AuthenticatedSacRouteChildren: AuthenticatedSacRouteChildren = {
   AuthenticatedSacChamadosRoute: AuthenticatedSacChamadosRoute,
   AuthenticatedSacNovoRoute: AuthenticatedSacNovoRoute,
   AuthenticatedSacRelatoriosRoute: AuthenticatedSacRelatoriosRoute,
+  AuthenticatedSacReversosRoute: AuthenticatedSacReversosRouteWithChildren,
   AuthenticatedSacIndexRoute: AuthenticatedSacIndexRoute,
 }
 
