@@ -12,7 +12,7 @@ import { abrirAnexoReverso } from "@/lib/reversos.functions";
 import { mensagemDeErro } from "@/lib/chamados";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "./ui/dialog";
 
-export function Reversos({ perfil, numero }: { perfil: "sac" | "lojinha"; numero?: number }) {
+export function Reversos({ perfil, numero }: { perfil: "sac" | "lojinha"; numero?: number | undefined }) {
   const { data: lista } = useSuspenseQuery(reversosQuery);
   const [selecionado, setSelecionado] = useState<Reverso | undefined>(() => lista.find(r => r.numero === numero));
   const [erro, setErro] = useState("");

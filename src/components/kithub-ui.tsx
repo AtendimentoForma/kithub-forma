@@ -49,7 +49,7 @@ export function PageIntro({ title, description, action }: { title: string; descr
   );
 }
 
-export function StatCard({ label, value, icon: Icon, to, search, featured = false }: { label: string; value: number; icon: LucideIcon; to: "/lojinha/chamados" | "/sac/chamados" | "/lojinha/reversos" | "/sac/reversos"; search?: Record<string, string>; featured?: boolean }) {
+export function StatCard({ label, value, icon: Icon, to, search, featured = false }: { label: string; value: number; icon: LucideIcon; to: "/lojinha/chamados" | "/sac/chamados" | "/lojinha/reversos" | "/sac/reversos"; search: Record<string, string>; featured?: boolean }) {
   return (
     <Link to={to} search={search} className={cn("group min-h-36 rounded-xl border bg-card p-5 shadow-xs transition duration-200 hover:-translate-y-0.5 hover:border-primary hover:shadow-sm", featured && "border-primary bg-primary/8")}>
       <div className="flex items-start justify-between gap-3">
