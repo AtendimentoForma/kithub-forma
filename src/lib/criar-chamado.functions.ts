@@ -18,12 +18,13 @@ const chamadoSchema = z.object({
   tipoEnvio: z.enum(["Dados do envio original", "Retirada Torre Forma", "Envio para análise"]).default("Dados do envio original"),
   infoEnvio: opcional(1000).optional(),
   rastreio: z.string().trim().max(255).optional(), dataEnvio: z.string().optional(),
-  motivos: z.array(texto(100)).min(1).max(10), motivoOutro: opcional(255),
+  motivos: z.array(texto(100)).min(1).max(10), motivoOutro: opcional(255), motivoCorreios: opcional(255),
   origemSolicitacao: texto(255), observacao: opcional(1000),
   anexos: z.array(texto(255)).max(20), endereco: enderecoSchema.optional(),
 }).refine((c) => c.cpf.replace(/\D/g, "").length === 11, { message: "CPF deve ter 11 dígitos." })
   .refine((c) => c.tipoEnvio !== "Dados do envio original" || (!!c.rastreio && /^\d{4}-\d{2}-\d{2}$/.test(c.dataEnvio ?? "") && !!c.endereco), { message: "Preencha os dados do envio original." })
-  .refine((c) => c.tipoEnvio === "Dados do envio original" || !!c.infoEnvio?.trim(), { message: "Preencha a observação das informações de envio." });
+  .refine((c) => c.tipoEnvio === "Dados do envio original" || !!c.infoEnvio?.trim(), { message: "Preencha a observação das informações de envio." })
+  .refine((c) => !c.motivos.includes("Envio correios") || !!c.motivoCorreios?.trim(), { message: "Descreva o motivo do envio por correios." });
 
 export const criarChamado = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
@@ -56,7 +57,7 @@ export const criarChamado = createServerFn({ method: "POST" })
       rastreio: original ? c.rastreio! : "—",
       endereco: original ? formatarEndereco(c.endereco!) : `${c.tipoEnvio}: ${c.infoEnvio}`,
       data_envio: original ? c.dataEnvio! : new Date().toISOString().slice(0, 10),
-      motivos: c.motivos, motivo_outro: c.motivoOutro, origem_solicitacao: c.origemSolicitacao,
+      motivos: c.motivos, motivo_outro: c.motivoOutro, motivo_correios: c.motivoCorreios, origem_solicitacao: c.origemSolicitacao,
       observacao: c.observacao, anexos: c.anexos,
     }).select("numero").single();
     if (error) throw error;
@@ -65,7 +66,7 @@ export const criarChamado = createServerFn({ method: "POST" })
       solicitante: perfil?.nome || context.claims.email || "Usuário",
       paxNome: c.paxNome, paxId: c.paxId, idDelivery: c.idDelivery,
       destino: c.destino, ano: c.ano,
-      motivos: c.motivos, motivoOutro: c.motivoOutro,
+      motivos: c.motivos, motivoOutro: c.motivoOutro, motivoCorreios: c.motivoCorreios,
       origem: c.origemSolicitacao,
       status: c.statusInicial ?? "NOVO CHAMADO",
     });
