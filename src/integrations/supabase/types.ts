@@ -106,6 +106,7 @@ export type Database = {
           endereco: string
           id_delivery: string | null
           motivo_cancelamento: string | null
+          motivo_correios: string | null
           motivo_outro: string | null
           motivos: string[]
           novo_rastreio: string | null
@@ -138,6 +139,7 @@ export type Database = {
           endereco: string
           id_delivery?: string | null
           motivo_cancelamento?: string | null
+          motivo_correios?: string | null
           motivo_outro?: string | null
           motivos?: string[]
           novo_rastreio?: string | null
@@ -170,6 +172,7 @@ export type Database = {
           endereco?: string
           id_delivery?: string | null
           motivo_cancelamento?: string | null
+          motivo_correios?: string | null
           motivo_outro?: string | null
           motivos?: string[]
           novo_rastreio?: string | null
