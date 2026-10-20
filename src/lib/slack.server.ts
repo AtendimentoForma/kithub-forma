@@ -14,6 +14,7 @@ export type AvisoNovoChamado = {
   ano: string;
   motivos: string[];
   motivoOutro: string | null;
+  motivoCorreios: string | null;
   origem: string;
   status: string;
 };
@@ -27,7 +28,8 @@ export async function notificarNovoChamadoSlack(a: AvisoNovoChamado): Promise<vo
   }
   const motivos = a.motivos.includes("Outro") && a.motivoOutro
     ? [...a.motivos.filter((m) => m !== "Outro"), `Outro: ${a.motivoOutro}`]
-    : a.motivos;
+    : [...a.motivos];
+  if (a.motivoCorreios && a.motivos.includes("Envio correios")) motivos.push(`Envio correios: ${a.motivoCorreios}`);
   const texto = [
     `:inbox_tray: *Novo chamado ${String(a.numero).padStart(5, "0")} — KitHub*`,
     `• Aberto por: ${a.solicitante}`,

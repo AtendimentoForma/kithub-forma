@@ -69,7 +69,7 @@ export function ChamadoDetalhe({ chamado, onClose }: { chamado: Chamado; onClose
             <div key={k}><dt className="text-muted-foreground">{k}</dt><dd className="font-medium">{v}</dd></div>
           ))}
           <div className="col-span-2"><dt className="text-muted-foreground">Endereço</dt><dd className="font-medium">{chamado.endereco}</dd></div>
-          <div className="col-span-2"><dt className="text-muted-foreground">Motivo</dt><dd className="font-medium">{chamado.motivos.join(", ")}{chamado.motivoOutro ? ` — ${chamado.motivoOutro}` : ""}</dd></div>
+          <div className="col-span-2"><dt className="text-muted-foreground">Motivo</dt><dd className="font-medium">{chamado.motivos.join(", ")}{chamado.motivoOutro ? ` — ${chamado.motivoOutro}` : ""}{chamado.motivoCorreios && chamado.motivos.includes("Envio correios") ? ` — Envio correios: ${chamado.motivoCorreios}` : ""}</dd></div>
           {chamado.origemSolicitacao && <div className="col-span-2"><dt className="text-muted-foreground">Origem da solicitação</dt><dd className="font-medium">{chamado.origemSolicitacao}</dd></div>}
           {chamado.observacao && <div className="col-span-2"><dt className="text-muted-foreground">Observação</dt><dd>{chamado.observacao}</dd></div>}
           {chamado.anexos.length > 0 && <div className="col-span-2"><dt className="text-muted-foreground">Anexos</dt><dd>{chamado.anexos.join(", ")}</dd></div>}
