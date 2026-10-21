@@ -12,7 +12,7 @@ export const reversoSchema = z.object({
   dadosReverso: z.literal(true, { errorMap: () => ({ message: "Selecione Dados do reverso." }) }),
   autorizacaoMandae: texto, rastreamentoMandae: texto,
   kitOutroDestino: z.string().trim().max(255),
-  motivos: z.array(z.enum(MOTIVOS_REVERSO)).min(1, "Selecione ao menos um motivo.").max(2),
+  motivos: z.array(z.enum(MOTIVOS_REVERSO)).min(1, "Selecione ao menos um motivo.").max(3),
   observacao: z.string().trim().max(1000), anexos: z.array(anexoReversoSchema).max(20),
 }).refine(v => !v.motivos.includes("Defeito") || v.anexos.length > 0, { message: "Para Defeito, anexe ao menos uma foto ou documento.", path: ["anexos"] })
   .refine(v => !v.motivos.includes("Kit de outro destino") || v.kitOutroDestino.length > 0, { message: "Descreva qual kit de qual destino foi recebido.", path: ["kitOutroDestino"] });

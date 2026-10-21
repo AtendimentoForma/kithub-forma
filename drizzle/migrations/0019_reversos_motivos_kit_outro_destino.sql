@@ -1,0 +1,2 @@
+ALTER TABLE public.reversos DROP CONSTRAINT IF EXISTS reversos_motivos_check;
+ALTER TABLE public.reversos ADD CONSTRAINT reversos_motivos_check CHECK (cardinality(motivos) BETWEEN 1 AND 3 AND motivos <@ ARRAY['Troca de tamanho','Defeito','Kit de outro destino']::text[]);
