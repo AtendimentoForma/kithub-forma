@@ -5,7 +5,7 @@ import { ChamadosRecentes } from "@/components/ChamadosRecentes";
 import { StatCard } from "@/components/kithub-ui";
 import { Button } from "@/components/ui/button";
 import { useQuery } from "@tanstack/react-query";
-import { STATUSES, STATUS_LABEL, STATUS_ICONE, STATUS_PRIO_ENTREGA, chamadosQuery } from "@/lib/chamados";
+import { STATUSES, STATUS_LABEL, STATUS_ICONE, STATUS_PRIO_ENTREGA, chamadosQuery, leiturasQuery, ultimasMovimentacoesQuery, chamadoNaoVisto } from "@/lib/chamados";
 import { reversosQuery } from "@/lib/reversos";
 
 export const Route = createFileRoute("/_authenticated/lojinha/")({
@@ -25,6 +25,8 @@ export const Route = createFileRoute("/_authenticated/lojinha/")({
 function Dashboard() {
   const { data: list = [] } = useQuery(chamadosQuery);
   const { data: reversos = [] } = useQuery(reversosQuery);
+  const { data: ultimas = {} } = useQuery(ultimasMovimentacoesQuery);
+  const { data: leituras } = useQuery(leiturasQuery);
   return (
     <Shell title="Visão Geral Lojinha">
       <div className="mb-6 flex justify-end">
@@ -33,13 +35,14 @@ function Dashboard() {
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-8">
         {STATUSES.map((s) => {
           const Icone = STATUS_ICONE[s];
-          const total = list.filter((c) => c.status === s).length;
+          const total = list.filter((c) => c.status === s && chamadoNaoVisto(c, ultimas[c.numero], leituras)).length;
+          const existe = list.some((c) => c.status === s);
           const prioridade = s === STATUS_PRIO_ENTREGA;
           return (
-            <StatCard key={s} to="/lojinha/chamados" search={{ status: s }} icon={Icone} value={total} label={STATUS_LABEL[s]} featured={s === "NOVO CHAMADO"} urgente={prioridade && total > 0} centralizado={prioridade} />
+            <StatCard key={s} to="/lojinha/chamados" search={{ status: s }} icon={Icone} value={total} label={STATUS_LABEL[s]} featured={s === "NOVO CHAMADO"} urgente={prioridade && existe} centralizado={prioridade} />
           );
         })}
-        <StatCard to="/lojinha/reversos" search={{}} icon={PackageOpen} value={reversos.length} label="Reversos" />
+        <StatCard to="/lojinha/reversos" search={{}} icon={PackageOpen} value={0} label="Reversos" />
       </div>
       <h2 className="mb-4 mt-10 text-xl font-bold">Chamados recentes</h2>
       <ChamadosRecentes />
