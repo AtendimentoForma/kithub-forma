@@ -7,7 +7,12 @@ describe("Regras de reversos", () => {
     expect(reversoSchema.safeParse({ ...dados, motivos: ["Troca de tamanho", "Defeito"], anexos: [{ nome: "foto.png", caminho: "user/foto.png", tipo: "image/png", tamanho: 100 }] }).success).toBe(true);
   });
   it("Troca de tamanho não exige anexo", () => expect(reversoSchema.safeParse(dados).success).toBe(true));
-  it("Permite somente Troca de tamanho e Defeito", () => expect(reversoSchema.safeParse({ ...dados, motivos: ["Outro"] }).success).toBe(false));
+  it("Não permite motivos fora da lista", () => expect(reversoSchema.safeParse({ ...dados, motivos: ["Outro"] }).success).toBe(false));
+  it("Kit de outro destino exige a descrição do kit e destino", () => {
+    expect(reversoSchema.safeParse({ ...dados, motivos: ["Kit de outro destino"], kitOutroDestino: "" }).success).toBe(false);
+    expect(reversoSchema.safeParse({ ...dados, motivos: ["Kit de outro destino"], kitOutroDestino: "Kit Rio de Janeiro recebido" }).success).toBe(true);
+    expect(reversoSchema.safeParse({ ...dados, kitOutroDestino: "" }).success).toBe(true);
+  });
   it("Dados do reverso requer autorização e rastreamento Mandaê", () => {
     expect(reversoSchema.safeParse({ ...dados, autorizacaoMandae: "" }).success).toBe(false);
     expect(reversoSchema.safeParse({ ...dados, rastreamentoMandae: "" }).success).toBe(false);
