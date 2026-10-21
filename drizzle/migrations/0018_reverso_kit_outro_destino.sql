@@ -1,0 +1,1 @@
+ALTER TABLE public.reversos ADD COLUMN kit_outro_destino text;

@@ -26,7 +26,7 @@ export const criarReverso = createServerFn({ method: "POST" }).middleware([requi
     solicitante_id: context.userId, solicitante: perfil?.nome || context.claims.email || "Usuário", perfil_origem: data.perfil,
     origem_solicitacao: data.origens, pax_nome: data.paxNome, cpf: data.cpf, pax_id: data.paxId, id_delivery: data.idDelivery,
     responsavel: data.responsavel, destino: data.destino, ano: data.ano, autorizacao_mandae: data.autorizacaoMandae,
-    rastreamento_mandae: data.rastreamentoMandae, motivos: data.motivos, observacao: data.observacao || null, anexos: data.anexos,
+    rastreamento_mandae: data.rastreamentoMandae, kit_outro_destino: data.kitOutroDestino || null, motivos: data.motivos, observacao: data.observacao || null, anexos: data.anexos,
   }).select("numero").single();
   if (error) throw error;
   return registro;

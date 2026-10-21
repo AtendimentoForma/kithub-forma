@@ -226,6 +226,7 @@ export type Database = {
           criado_em: string
           destino: string
           id_delivery: string
+          kit_outro_destino: string | null
           motivos: string[]
           numero: number
           observacao: string | null
@@ -247,6 +248,7 @@ export type Database = {
           criado_em?: string
           destino: string
           id_delivery: string
+          kit_outro_destino?: string | null
           motivos: string[]
           numero?: number
           observacao?: string | null
@@ -268,6 +270,7 @@ export type Database = {
           criado_em?: string
           destino?: string
           id_delivery?: string
+          kit_outro_destino?: string | null
           motivos?: string[]
           numero?: number
           observacao?: string | null
