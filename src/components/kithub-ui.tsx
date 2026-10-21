@@ -55,7 +55,7 @@ export function StatCard({ label, value, icon: Icon, to, search, featured = fals
       <div className={cn("flex items-start justify-between gap-3", centralizado && "w-full flex-col items-center")}>
         <span className={cn("relative grid h-10 w-10 place-items-center rounded-lg bg-muted text-muted-foreground transition group-hover:bg-primary group-hover:text-primary-foreground", featured && "bg-primary text-primary-foreground", urgente && "bg-destructive text-destructive-foreground group-hover:bg-destructive group-hover:text-destructive-foreground")}>
           <Icon className="h-5 w-5" />
-          {value > 0 && <span className="absolute -right-1 -top-1 h-3 w-3 rounded-full border-2 border-card bg-destructive" aria-label="Há chamados neste card" title="Há chamados neste card" />}
+          {value > 0 && <span className="absolute -right-2 -top-2 grid h-5 min-w-5 place-items-center rounded-full border-2 border-card bg-destructive px-1 text-[10px] font-bold leading-none text-destructive-foreground" aria-label={`${value} chamado(s) novo(s)`} title={`${value} chamado(s) novo(s)`}>{value > 99 ? "99+" : value}</span>}
         </span>
       </div>
       <p className={cn("mt-5 text-sm font-semibold leading-snug text-foreground", urgente && "text-destructive")}>{label}</p>
