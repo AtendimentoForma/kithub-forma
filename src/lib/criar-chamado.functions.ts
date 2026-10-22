@@ -3,6 +3,7 @@ import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { enderecoSchema, formatarEndereco } from "@/lib/endereco";
 import { notificarNovoChamadoSlack } from "./slack.server";
+import { anexoReversoSchema, validarArquivoReverso } from "./reversos-schema";
 
 const texto = (max: number) => z.string().trim().min(1).max(max);
 const opcional = (max: number) => z.string().trim().max(max).nullable();
@@ -21,6 +22,7 @@ const chamadoSchema = z.object({
   motivos: z.array(texto(100)).min(1).max(10), motivoOutro: opcional(255), motivoCorreios: opcional(255),
   origemSolicitacao: texto(255), observacao: opcional(1000),
   anexos: z.array(texto(255)).max(20), endereco: enderecoSchema.optional(),
+  anexosArquivos: z.array(anexoReversoSchema).max(20).default([]),
 }).refine((c) => c.cpf.replace(/\D/g, "").length === 11, { message: "CPF deve ter 11 dígitos." })
   .refine((c) => c.tipoEnvio !== "Dados do envio original" || (!!c.rastreio && /^\d{4}-\d{2}-\d{2}$/.test(c.dataEnvio ?? "") && !!c.endereco), { message: "Preencha os dados do envio original." })
   .refine((c) => c.tipoEnvio === "Dados do envio original" || !!c.infoEnvio?.trim(), { message: "Preencha a observação das informações de envio." })
@@ -48,17 +50,24 @@ export const criarChamado = createServerFn({ method: "POST" })
     if (duplicado) throw new Error(`Já existe o chamado #${String(duplicado.numero).padStart(5, "0")} em aberto para o ID do Pax ${c.paxId}. Conclua-o antes de abrir outro.`);
 
     const original = c.tipoEnvio === "Dados do envio original";
+    if (original && (!c.endereco || !c.rastreio || !c.dataEnvio)) throw new Error("Preencha os dados do envio original.");
+    for (const anexo of c.anexosArquivos) {
+      if (!anexo.caminho.startsWith(`${context.userId}/`) || anexo.caminho.includes("..")) throw new Error("Anexo inválido.");
+      const { data: blob, error: anexoErro } = await context.supabase.storage.from("chamados-anexos").download(anexo.caminho);
+      if (anexoErro || !blob) throw new Error("Não foi possível confirmar o envio do anexo.");
+      validarArquivoReverso(blob);
+    }
     const { data: perfil } = await context.supabase.from("profiles").select("nome").eq("id", context.userId).maybeSingle();
     const { data, error } = await context.supabase.from("chamados").insert({
       solicitante_id: context.userId,
       solicitante: perfil?.nome || context.claims.email || "Usuário",
       pax_nome: c.paxNome, cpf: c.cpf, pax_id: c.paxId, id_delivery: c.idDelivery,
       destino: c.destino, ano: c.ano, responsavel: c.responsavel,
-      rastreio: original ? c.rastreio! : "—",
-      endereco: original ? formatarEndereco(c.endereco!) : `${c.tipoEnvio}: ${c.infoEnvio}`,
-      data_envio: original ? c.dataEnvio! : new Date().toISOString().slice(0, 10),
+      rastreio: original ? c.rastreio ?? "—" : "—",
+      endereco: original && c.endereco ? formatarEndereco(c.endereco) : `${c.tipoEnvio}: ${c.infoEnvio}`,
+      data_envio: original ? c.dataEnvio ?? "" : new Date().toISOString().slice(0, 10),
       motivos: c.motivos, motivo_outro: c.motivoOutro, motivo_correios: c.motivoCorreios, origem_solicitacao: c.origemSolicitacao,
-      observacao: c.observacao, anexos: c.anexos,
+      observacao: c.observacao, anexos: c.anexos, anexos_arquivos: c.anexosArquivos,
     }).select("numero").single();
     if (error) throw error;
     await notificarNovoChamadoSlack({

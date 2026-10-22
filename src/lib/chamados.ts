@@ -3,6 +3,8 @@ import type { LucideIcon } from "lucide-react";
 import { CheckCircle2, CircleDollarSign, Clock, Flag, Inbox, PackageCheck, Search, Truck, Users } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { confirmarEmailDoUsuario } from "@/lib/admin-users.functions";
+import { z } from "zod";
+import { anexoReversoSchema, type AnexoReverso } from "./reversos-schema";
 
 /** Status exclusivo do SAC (a Lojinha não vê nem seleciona). */
 export const STATUS_LIDERANCA = "ANÁLISE LIDERANÇA" as const;
@@ -90,6 +92,7 @@ export interface Chamado {
   origemSolicitacao: string;
   observacao?: string | null;
   anexos: string[];
+  anexosArquivos?: AnexoReverso[];
   confDados: boolean;
   confEnvio: boolean;
   confMotivo: boolean;
@@ -141,6 +144,7 @@ function fromRow(r: any): Chamado {
     origemSolicitacao: r.origem_solicitacao ?? "",
     observacao: r.observacao,
     anexos: r.anexos ?? [],
+    anexosArquivos: z.array(anexoReversoSchema).safeParse(r.anexos_arquivos ?? []).data ?? [],
     confDados: !!r.conf_dados,
     confEnvio: !!r.conf_envio,
     confMotivo: !!r.conf_motivo,
