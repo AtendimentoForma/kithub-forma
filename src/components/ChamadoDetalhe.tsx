@@ -6,6 +6,9 @@ import { FluxoChamado } from "@/components/FluxoChamado";
 import { STATUS_LIDERANCA, statusSelecionaveis, formatNumero, movimentacoesQuery, addMovimentacao, getMyRole, marcarChamadoVisto, chamadoNaoVisto, MARCA_NAO_LIDO, ultimasMovimentacoesQuery, leiturasQuery, mensagemDeErro, minhasPermissoesQuery, podeEditar, type Chamado, type Status } from "@/lib/chamados";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
+import { AnexoViewer, type AnexoVisualizacao } from "./AnexoViewer";
+import { abrirAnexoChamado } from "@/lib/chamados-anexos.functions";
+import type { AnexoReverso } from "@/lib/reversos-schema";
 
 export function ChamadoDetalhe({ chamado, onClose }: { chamado: Chamado; onClose: () => void }) {
   const qc = useQueryClient();
@@ -19,6 +22,15 @@ export function ChamadoDetalhe({ chamado, onClose }: { chamado: Chamado; onClose
   const [status, setStatus] = useState<Status>(chamado.status);
   const [erro, setErro] = useState("");
   const [enviando, setEnviando] = useState(false);
+  const [anexoAberto, setAnexoAberto] = useState<AnexoVisualizacao | null>(null);
+  const [abrindoAnexo, setAbrindoAnexo] = useState(false);
+  const [erroAnexo, setErroAnexo] = useState("");
+  async function abrirAnexo(a: AnexoReverso) {
+    setAbrindoAnexo(true); setErroAnexo("");
+    try { const url = await abrirAnexoChamado({ data: { numero: chamado.numero, caminho: a.caminho } }); setAnexoAberto({ ...a, url }); }
+    catch (e) { setErroAnexo(mensagemDeErro(e, "Não foi possível abrir o anexo.")); }
+    finally { setAbrindoAnexo(false); }
+  }
 
   useEffect(() => {
     const ultima = ultimas?.[chamado.numero];
@@ -77,7 +89,7 @@ export function ChamadoDetalhe({ chamado, onClose }: { chamado: Chamado; onClose
           <div className="col-span-2"><dt className="text-muted-foreground">Motivo</dt><dd className="font-medium">{chamado.motivos.join(", ")}{chamado.motivoOutro ? ` — ${chamado.motivoOutro}` : ""}{chamado.motivoCorreios && chamado.motivos.includes("Envio correios") ? ` — Envio correios: ${chamado.motivoCorreios}` : ""}</dd></div>
           {chamado.origemSolicitacao && <div className="col-span-2"><dt className="text-muted-foreground">Origem da solicitação</dt><dd className="font-medium">{chamado.origemSolicitacao}</dd></div>}
           {chamado.observacao && <div className="col-span-2"><dt className="text-muted-foreground">Observação</dt><dd>{chamado.observacao}</dd></div>}
-          {chamado.anexos.length > 0 && <div className="col-span-2"><dt className="text-muted-foreground">Anexos</dt><dd>{chamado.anexos.join(", ")}</dd></div>}
+          {chamado.anexos.length > 0 && <div className="col-span-2 min-w-0"><dt className="text-muted-foreground">Anexos</dt><dd className="mt-2 flex flex-col items-start gap-2">{(chamado.anexosArquivos ?? []).map(a => <Button key={a.caminho} variant="outline" disabled={abrindoAnexo} className="max-w-full" onClick={() => void abrirAnexo(a)}><span className="truncate">{a.nome}</span></Button>)}{chamado.anexos.filter(nome => !chamado.anexosArquivos?.some(a => a.nome === nome)).map((nome, i) => <span key={`${nome}-${i}`} className="break-all">{nome} — arquivo antigo não armazenado</span>)}{erroAnexo && <p role="alert" className="text-destructive">{erroAnexo}</p>}</dd></div>}
         </dl>
 
         <FluxoChamado key={`${chamado.numero}-${chamado.status}`} chamado={chamado} perfil={perfil} />
@@ -118,6 +130,7 @@ export function ChamadoDetalhe({ chamado, onClose }: { chamado: Chamado; onClose
           <Button variant="outline" onClick={onClose}>Fechar</Button>
         </div>
       </div>
+      {anexoAberto && <AnexoViewer key={anexoAberto.url} anexo={anexoAberto} onClose={() => setAnexoAberto(null)} />}
     </div>
   );
 }

@@ -9,6 +9,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { DESTINOS, MOTIVOS, addMovimentacao, formatNumero, mensagemDeErro, getMyRole, minhasPermissoesQuery, podeEditar, statusSelecionaveis, type Status } from "@/lib/chamados";
 import { criarChamado } from "@/lib/criar-chamado.functions";
 import { buscarCep, enderecoSchema, ESTADOS, mascararCep } from "@/lib/endereco";
+import { supabase } from "@/integrations/supabase/client";
+import { validarArquivoReverso, type AnexoReverso } from "@/lib/reversos-schema";
 
 const input = "mt-1.5 h-10 w-full rounded-lg border border-input bg-background px-3 py-2 text-sm outline-hidden focus:border-primary focus:ring-3 focus:ring-primary/15";
 
@@ -73,7 +75,13 @@ export function NovoChamadoForm({ listaPath }: { listaPath: "/lojinha/chamados" 
   }
 
   function atualizarAnexos(lista: FileList | null) {
-    setAnexos(lista ? Array.from(lista) : []);
+    if (!lista) return;
+    try {
+      const novos = Array.from(lista);
+      novos.forEach(validarArquivoReverso);
+      if (novos.length > 20) throw new Error("Anexe até 20 arquivos.");
+      setAnexos(novos); setErro("");
+    } catch (error) { setErro(mensagemDeErro(error, "Confira os arquivos.")); }
   }
 
   function removerAnexo(i: number) {
@@ -115,14 +123,24 @@ export function NovoChamadoForm({ listaPath }: { listaPath: "/lojinha/chamados" 
     setErro("");
     setEnviando(true);
     let novoNumero: number | null = null;
+    const enviados: AnexoReverso[] = [];
     try {
+      const { data: { user }, error: authErro } = await supabase.auth.getUser();
+      if (authErro || !user) throw new Error("Sessão expirada. Entre novamente.");
+      for (const file of anexos) {
+        validarArquivoReverso(file);
+        const caminho = `${user.id}/${crypto.randomUUID()}`;
+        const { error } = await supabase.storage.from("chamados-anexos").upload(caminho, file, { contentType: file.type });
+        if (error) throw error;
+        enviados.push({ nome: file.name, caminho, tipo: file.type, tamanho: file.size });
+      }
       const c = await criarChamado({ data: {
         statusInicial: status,
         paxNome: g("paxNome"), cpf: g("cpf"), paxId: g("paxId"), idDelivery: g("idDelivery"), destino: g("destino"), ano: g("ano"), responsavel: g("responsavel"),
         tipoEnvio: tipoEnvio as "Dados do envio original", infoEnvio: original ? null : g("infoEnvio"),
         rastreio: original ? g("rastreio") : undefined, endereco: enderecoValidado?.data, dataEnvio: original ? g("dataEnvio") : undefined,
         motivos, motivoOutro: g("motivoOutro") || null, motivoCorreios: g("motivoCorreios") || null, origemSolicitacao: origens.join(", "),
-        observacao: g("observacao") || null, anexos: nomesAnexos,
+        observacao: g("observacao") || null, anexos: nomesAnexos, anexosArquivos: enviados,
       } });
       novoNumero = c.numero;
       setCriado(c.numero);
@@ -131,6 +149,7 @@ export function NovoChamadoForm({ listaPath }: { listaPath: "/lojinha/chamados" 
         setStatusCriado(status);
       }
     } catch (err) {
+      if (novoNumero === null && enviados.length) await supabase.storage.from("chamados-anexos").remove(enviados.map(a => a.caminho));
       setErro(novoNumero !== null
         ? `O chamado ${formatNumero(novoNumero)} foi criado como NOVO CHAMADO, mas não foi possível alterar o status: ${mensagemDeErro(err, "Tente alterar o status na lista de chamados.")}`
         : mensagemDeErro(err, "Não foi possível enviar o chamado."));
@@ -262,7 +281,7 @@ export function NovoChamadoForm({ listaPath }: { listaPath: "/lojinha/chamados" 
             <Textarea name="observacao" rows={4} maxLength={1000} className="mt-1.5" />
           </label>
           <div className="mt-4">
-            <span className="block text-sm font-medium">Anexar fotos / documentos</span>
+            <span className="block text-sm font-medium">Anexar fotos / vídeos / documentos</span>
             <label
               htmlFor="anexos-input"
               className="mt-2 inline-flex cursor-pointer items-center gap-2 rounded-md border border-dashed border-border bg-muted/40 px-4 py-2.5 text-sm font-medium text-foreground transition-colors hover:border-primary hover:bg-accent/50"
@@ -276,7 +295,7 @@ export function NovoChamadoForm({ listaPath }: { listaPath: "/lojinha/chamados" 
               name="anexos"
               type="file"
               multiple
-              accept="image/*,.pdf"
+              accept="image/*,video/mp4,video/webm,video/quicktime,video/ogg,.pdf"
               onChange={(e) => atualizarAnexos(e.target.files)}
               className="hidden"
             />
