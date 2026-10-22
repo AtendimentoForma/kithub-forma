@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { Clock3, X } from "lucide-react";
 import { StatusBadge } from "@/components/Shell";
 import { FluxoChamado } from "@/components/FluxoChamado";
-import { STATUS_LIDERANCA, statusSelecionaveis, formatNumero, movimentacoesQuery, addMovimentacao, getMyRole, marcarChamadoVisto, MARCA_NAO_LIDO, ultimasMovimentacoesQuery, leiturasQuery, mensagemDeErro, minhasPermissoesQuery, podeEditar, type Chamado, type Status } from "@/lib/chamados";
+import { STATUS_LIDERANCA, statusSelecionaveis, formatNumero, movimentacoesQuery, addMovimentacao, getMyRole, marcarChamadoVisto, chamadoNaoVisto, MARCA_NAO_LIDO, ultimasMovimentacoesQuery, leiturasQuery, mensagemDeErro, minhasPermissoesQuery, podeEditar, type Chamado, type Status } from "@/lib/chamados";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 
@@ -22,21 +22,11 @@ export function ChamadoDetalhe({ chamado, onClose }: { chamado: Chamado; onClose
 
   useEffect(() => {
     const ultima = ultimas?.[chamado.numero];
-    const vistoEm = leituras?.vistos[chamado.numero];
-    const forcado = !!vistoEm && new Date(vistoEm).getTime() === 0;
-    if (forcado) {
-      marcarChamadoVisto(chamado.numero, new Date().toISOString())
-        .then(() => qc.invalidateQueries({ queryKey: ["chamado-leituras"] }))
-        .catch((error) => console.error("Não foi possível marcar o chamado como visto.", error));
-      return;
-    }
-    if (chamado.status === "CONCLUÍDO" || !ultima || !leituras || ultima.autorId === leituras.usuarioId || (vistoEm && new Date(vistoEm).getTime() >= new Date(ultima.criadoEm).getTime())) return;
-    let active = true;
-    marcarChamadoVisto(chamado.numero, ultima.criadoEm)
-      .then(() => { if (active) void qc.invalidateQueries({ queryKey: ["chamado-leituras"] }); })
+    if (!chamadoNaoVisto(chamado, ultima, leituras)) return;
+    marcarChamadoVisto(chamado.numero, ultima?.criadoEm ?? chamado.criadoEm)
+      .then(() => qc.invalidateQueries({ queryKey: ["chamado-leituras"] }))
       .catch((error) => console.error("Não foi possível marcar o chamado como visto.", error));
-    return () => { active = false; };
-  }, [chamado.numero, chamado.status, ultimas, leituras, qc]);
+  }, [chamado.numero, chamado.status, chamado.criadoEm, chamado.solicitanteId, ultimas, leituras, qc]);
 
   async function marcarNaoLido() {
     try {
