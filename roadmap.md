@@ -10,3 +10,5 @@
 - [x] Modernização visual completa do KitHub com identidade amarela, tema persistente e estrutura interna responsiva
 - [x] Reversos: card nos dois painéis, formulário próprio, registro compartilhado e anexos obrigatórios para Defeito
 - [ ] Validar registro e leitura de reverso com anexos no login real — aguarda usuário entrar na prévia; sessão de teste indisponível
+- [ ] Adicionar Objeto danificado com descrição obrigatória e Reverso concluído
+- [ ] Visualizar anexos internamente com Fechar e aceitar fotos e vídeos em chamados/reversos
