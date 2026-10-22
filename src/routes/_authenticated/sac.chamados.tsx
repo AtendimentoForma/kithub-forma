@@ -3,7 +3,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { Shell } from "@/components/Shell";
 import { ChamadoDetalhe } from "@/components/ChamadoDetalhe";
-import { STATUSES_SAC as STATUSES, STATUS_LABEL, STATUS_ICONE, chamadosQuery, formatNumero, updateStatus, type Status } from "@/lib/chamados";
+import { STATUSES_SAC as STATUSES, STATUS_LABEL, STATUS_ICONE, chamadosQuery, formatNumero, updateStatus, chamadoNaoVisto, leiturasQuery, ultimasMovimentacoesQuery, type Status } from "@/lib/chamados";
 import { EmptyState } from "@/components/kithub-ui";
 
 export const Route = createFileRoute("/_authenticated/sac/chamados")({
@@ -26,6 +26,8 @@ function Lista() {
   const qc = useQueryClient();
   const { status } = Route.useSearch();
   const { data: list = [], isLoading } = useQuery(chamadosQuery);
+  const { data: ultimas = {} } = useQuery(ultimasMovimentacoesQuery);
+  const { data: leituras } = useQuery(leiturasQuery);
   const [erro, setErro] = useState("");
   const [aberto, setAberto] = useState<number | null>(null);
   const abertoChamado = list.find((c) => c.numero === aberto);
@@ -79,8 +81,8 @@ function Lista() {
           </thead>
           <tbody>
             {filtrados.map((c) => (
-              <tr key={c.numero} onClick={() => setAberto(c.numero)} className="cursor-pointer border-b last:border-0 hover:bg-accent/45">
-                <td className="p-3 font-mono font-semibold">{formatNumero(c.numero)}</td>
+              <tr key={c.numero} onClick={() => setAberto(c.numero)} className={`cursor-pointer border-b last:border-0 hover:bg-accent/45 ${chamadoNaoVisto(c, ultimas[c.numero], leituras) ? "font-bold" : "font-normal"}`}>
+                <td className="p-3 font-mono">{formatNumero(c.numero)}</td>
                 <td className="p-3">{c.paxNome}</td>
                 <td className="p-3">{c.motivos.join(", ")}</td>
                 <td className="p-3">{c.solicitante}</td>
