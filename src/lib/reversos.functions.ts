@@ -1,7 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
-import { reversoSchema, anexoReversoSchema, validarArquivoReverso } from "./reversos-schema";
+import { reversoSchema, anexoReversoSchema, validarArquivoReverso, statusReversoSchema } from "./reversos-schema";
 
 export const listarReversos = createServerFn({ method: "GET" }).middleware([requireSupabaseAuth]).handler(async ({ context }) => {
   const { data, error } = await context.supabase.from("reversos").select("*").order("numero", { ascending: false });
@@ -26,7 +26,7 @@ export const criarReverso = createServerFn({ method: "POST" }).middleware([requi
     solicitante_id: context.userId, solicitante: perfil?.nome || context.claims.email || "Usuário", perfil_origem: data.perfil,
     origem_solicitacao: data.origens, pax_nome: data.paxNome, cpf: data.cpf, pax_id: data.paxId, id_delivery: data.idDelivery,
     responsavel: data.responsavel, destino: data.destino, ano: data.ano, autorizacao_mandae: data.autorizacaoMandae,
-    rastreamento_mandae: data.rastreamentoMandae, kit_outro_destino: data.kitOutroDestino || null, motivos: data.motivos, observacao: data.observacao || null, anexos: data.anexos,
+    rastreamento_mandae: data.rastreamentoMandae, kit_outro_destino: data.kitOutroDestino || null, objeto_danificado: data.objetoDanificado || null, motivos: data.motivos, observacao: data.observacao || null, anexos: data.anexos,
   }).select("numero").single();
   if (error) throw error;
   return registro;
@@ -34,7 +34,12 @@ export const criarReverso = createServerFn({ method: "POST" }).middleware([requi
 export const abrirAnexoReverso = createServerFn({ method: "POST" }).middleware([requireSupabaseAuth]).inputValidator(data => z.object({ numero: z.number().int().positive(), caminho: z.string().max(500) }).parse(data)).handler(async ({ context, data }) => {
   const { data: reverso, error } = await context.supabase.from("reversos").select("anexos").eq("numero", data.numero).single();
   if (error || !reverso || !z.array(anexoReversoSchema).parse(reverso.anexos).some(a => a.caminho === data.caminho)) throw new Error("Anexo não encontrado.");
-  const { data: url, error: urlErro } = await context.supabase.storage.from("reversos-anexos").createSignedUrl(data.caminho, 60);
+  const { data: url, error: urlErro } = await context.supabase.storage.from("reversos-anexos").createSignedUrl(data.caminho, 3600);
   if (urlErro || !url) throw new Error("Não foi possível abrir o anexo.");
   return url.signedUrl;
+});
+export const atualizarStatusReverso = createServerFn({ method: "POST" }).middleware([requireSupabaseAuth]).inputValidator(data => statusReversoSchema.parse(data)).handler(async ({ context, data }) => {
+  const { error } = await context.supabase.rpc("definir_status_reverso", { _numero: data.numero, _status: data.status });
+  if (error) throw error;
+  return { numero: data.numero, status: data.status };
 });

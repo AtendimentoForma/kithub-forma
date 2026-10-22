@@ -141,6 +141,13 @@
       "when": 1792591071442,
       "tag": "0019_reversos_motivos_kit_outro_destino",
       "breakpoints": true
+    },
+    {
+      "idx": 20,
+      "version": "7",
+      "when": 1792670659378,
+      "tag": "0020_reversos_danificados_conclusao_anexos_chamados",
+      "breakpoints": true
     }
   ]
 }

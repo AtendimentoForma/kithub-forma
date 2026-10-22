@@ -94,6 +94,7 @@ export type Database = {
       chamados: {
         Row: {
           anexos: string[]
+          anexos_arquivos: Json
           ano: string | null
           conf_dados: boolean
           conf_envio: boolean
@@ -127,6 +128,7 @@ export type Database = {
         }
         Insert: {
           anexos?: string[]
+          anexos_arquivos?: Json
           ano?: string | null
           conf_dados?: boolean
           conf_envio?: boolean
@@ -160,6 +162,7 @@ export type Database = {
         }
         Update: {
           anexos?: string[]
+          anexos_arquivos?: Json
           ano?: string | null
           conf_dados?: boolean
           conf_envio?: boolean
@@ -229,6 +232,7 @@ export type Database = {
           kit_outro_destino: string | null
           motivos: string[]
           numero: number
+          objeto_danificado: string | null
           observacao: string | null
           origem_solicitacao: string[]
           pax_id: string
@@ -251,6 +255,7 @@ export type Database = {
           kit_outro_destino?: string | null
           motivos: string[]
           numero?: number
+          objeto_danificado?: string | null
           observacao?: string | null
           origem_solicitacao: string[]
           pax_id: string
@@ -273,6 +278,7 @@ export type Database = {
           kit_outro_destino?: string | null
           motivos?: string[]
           numero?: number
+          objeto_danificado?: string | null
           observacao?: string | null
           origem_solicitacao?: string[]
           pax_id?: string
@@ -382,6 +388,10 @@ export type Database = {
           papeis: string[]
           permissoes: string[]
         }[]
+      }
+      definir_status_reverso: {
+        Args: { _numero: number; _status: string }
+        Returns: undefined
       }
       despachar_chamado: {
         Args: { _numero: number; _rastreio: string }
