@@ -18,3 +18,7 @@ New ticket submissions go through an authenticated server function with shared a
 All authenticated screens share the KitHub shell and semantic design tokens so navigation, theme, and responsive behavior stay consistent without changing business flows.
 
 Reverse shipments use a separate RLS-protected public.reversos table and profile-specific routes; authenticated server functions share validation with the form, while actual attachment files live in private storage and are verified before insertion, keeping existing ticket workflows unchanged.
+
+Ticket attachment bytes use private storage with metadata in anexos_arquivos; the legacy anexos filename column stays readable because historical tickets never stored attachment bytes. Authenticated functions verify record membership before signing URLs, and tickets and reverse shipments share the internal attachment viewer.
+
+Reverse shipment status changes use an authenticated RPC with server-side role and permission checks, not direct table update grants, to prevent unrelated field edits.
