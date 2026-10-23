@@ -12,3 +12,4 @@
 - [ ] Validar registro e leitura de reverso com anexos no login real — aguarda usuário entrar na prévia; sessão de teste indisponível
 - [x] Adicionar Objeto danificado com descrição obrigatória e Reverso concluído
 - [x] Visualizar anexos internamente com Fechar e aceitar fotos e vídeos em chamados/reversos
+- [ ] Corrigir campos de chamados e reversos com ícone de edição, validação e gravação protegida

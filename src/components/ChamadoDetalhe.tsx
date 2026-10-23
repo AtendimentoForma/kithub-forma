@@ -8,6 +8,13 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { AnexoViewer, type AnexoVisualizacao } from "./AnexoViewer";
 import { abrirAnexoChamado } from "@/lib/chamados-anexos.functions";
+import { CampoEditavel } from "./CampoEditavel";
+import { EnderecoEditavel } from "./EnderecoEditavel";
+import { MotivosEditaveis } from "./MotivosEditaveis";
+import { AnexosEditaveis } from "./AnexosEditaveis";
+import { editarRegistro } from "@/lib/editar-registro.functions";
+import { DESTINOS } from "@/lib/chamados";
+import { ORIGENS_REVERSO } from "@/lib/reversos-schema";
 import type { AnexoReverso } from "@/lib/reversos-schema";
 
 export function ChamadoDetalhe({ chamado, onClose }: { chamado: Chamado; onClose: () => void }) {
@@ -18,6 +25,14 @@ export function ChamadoDetalhe({ chamado, onClose }: { chamado: Chamado; onClose
   const { data: perfil = null } = useQuery({ queryKey: ["my-role"], queryFn: getMyRole });
   const { data: permissoes } = useQuery(minhasPermissoesQuery);
   const podeMovimentar = podeEditar(perfil, permissoes, "chamados") || podeEditar(perfil, permissoes, "reenvios") || podeEditar(perfil, permissoes, "pagamentos");
+  const podeCorrigir = podeEditar(perfil, permissoes, "chamados") || podeEditar(perfil, permissoes, "reenvios");
+  const [corrigido, setCorrigido] = useState<Partial<Chamado>>({});
+  const atual = { ...chamado, ...corrigido };
+  async function corrigir(patch: Record<string, unknown>, local: Partial<Chamado>) {
+    await editarRegistro({ data: { tipo: "chamado", numero: chamado.numero, patch } });
+    setCorrigido(p => ({ ...p, ...local }));
+    await Promise.all([qc.invalidateQueries({ queryKey: ["chamados"] }), qc.invalidateQueries({ queryKey: ["movimentacoes", chamado.numero] }), qc.invalidateQueries({ queryKey: ["ultimas-movimentacoes"] })]);
+  }
   const [texto, setTexto] = useState("");
   const [status, setStatus] = useState<Status>(chamado.status);
   const [erro, setErro] = useState("");
@@ -74,22 +89,15 @@ export function ChamadoDetalhe({ chamado, onClose }: { chamado: Chamado; onClose
           <div className="flex items-center gap-2"><StatusBadge status={chamado.status} /><Button variant="ghost" size="icon" onClick={onClose} aria-label="Fechar"><X /></Button></div>
         </div>
         <dl className="mt-5 grid gap-4 rounded-xl bg-muted/45 p-4 text-sm sm:grid-cols-2">
+          <div><dt className="text-xs text-muted-foreground">Aberto em</dt><dd>{new Date(chamado.criadoEm).toLocaleString("pt-BR")}</dd></div>
+          <div><dt className="text-xs text-muted-foreground">Solicitante</dt><dd>{chamado.solicitante}</dd></div>
           {([
-            ["Aberto em", new Date(chamado.criadoEm).toLocaleString("pt-BR")],
-            ["Solicitante", chamado.solicitante],
-            ["Passageiro", chamado.paxNome], ["CPF", chamado.cpf],
-            ["ID Pax", chamado.paxId], ["ID Delivery", chamado.idDelivery ?? "—"],
-            ["Responsável", chamado.responsavel],
-            ["Destino", chamado.destino ?? "—"], ["Ano", chamado.ano ?? "—"],
-            ["Rastreio Mandaê", chamado.rastreio], ["Data do envio", chamado.dataEnvio],
-          ] as const).map(([k, v]) => (
-            <div key={k}><dt className="text-muted-foreground">{k}</dt><dd className="font-medium">{v}</dd></div>
-          ))}
-          <div className="col-span-2"><dt className="text-muted-foreground">Endereço</dt><dd className="font-medium">{chamado.endereco}</dd></div>
-          <div className="col-span-2"><dt className="text-muted-foreground">Motivo</dt><dd className="font-medium">{chamado.motivos.join(", ")}{chamado.motivoOutro ? ` — ${chamado.motivoOutro}` : ""}{chamado.motivoCorreios && chamado.motivos.includes("Envio correios") ? ` — Envio correios: ${chamado.motivoCorreios}` : ""}</dd></div>
-          {chamado.origemSolicitacao && <div className="col-span-2"><dt className="text-muted-foreground">Origem da solicitação</dt><dd className="font-medium">{chamado.origemSolicitacao}</dd></div>}
-          {chamado.observacao && <div className="col-span-2"><dt className="text-muted-foreground">Observação</dt><dd>{chamado.observacao}</dd></div>}
-          {chamado.anexos.length > 0 && <div className="col-span-2 min-w-0"><dt className="text-muted-foreground">Anexos</dt><dd className="mt-2 flex flex-col items-start gap-2">{(chamado.anexosArquivos ?? []).map(a => <Button key={a.caminho} variant="outline" disabled={abrindoAnexo} className="max-w-full" onClick={() => void abrirAnexo(a)}><span className="truncate">{a.nome}</span></Button>)}{chamado.anexos.filter(nome => !chamado.anexosArquivos?.some(a => a.nome === nome)).map((nome, i) => <span key={`${nome}-${i}`} className="break-all">{nome} — arquivo antigo não armazenado</span>)}{erroAnexo && <p role="alert" className="text-destructive">{erroAnexo}</p>}</dd></div>}
+            ["Passageiro", "pax_nome", "paxNome"], ["CPF", "cpf", "cpf"], ["ID Pax", "pax_id", "paxId"], ["ID Delivery", "id_delivery", "idDelivery"], ["Responsável", "responsavel", "responsavel"], ["Destino", "destino", "destino"], ["Ano", "ano", "ano"], ["Rastreio Mandaê", "rastreio", "rastreio"], ["Data do envio", "data_envio", "dataEnvio"], ["Observação", "observacao", "observacao"], ["Motivo Outro", "motivo_outro", "motivoOutro"], ["Motivo do envio por correios", "motivo_correios", "motivoCorreios"],
+          ] as const).map(([label, campo, propriedade]) => <CampoEditavel key={campo} label={label} valor={String(atual[propriedade] ?? "")} permitido={podeCorrigir} opcoes={campo === "destino" ? DESTINOS : undefined} data={campo === "data_envio"} longo={["observacao", "motivo_outro", "motivo_correios"].includes(campo)} salvar={async valor => corrigir({ [campo]: valor }, { [propriedade]: valor })} />)}
+          <CampoEditavel label="Origem da solicitação" valor={atual.origemSolicitacao} permitido={podeCorrigir} opcoes={ORIGENS_REVERSO} multiplo salvar={async valor => corrigir({ origem_solicitacao: valor ? valor.split(", ") : [] }, { origemSolicitacao: valor })} />
+          <EnderecoEditavel valor={atual.endereco} permitido={podeCorrigir} salvar={async valor => { const resultado = await editarRegistro({ data: { tipo: "chamado", numero: chamado.numero, patch: { endereco: valor } } }); setCorrigido(p => ({ ...p, endereco: String(resultado.patch["endereco"]) })); await qc.invalidateQueries({ queryKey: ["chamados"] }); }} />
+          <MotivosEditaveis tipo="chamado" motivos={atual.motivos} detalhes={{ motivo_outro: atual.motivoOutro ?? "", motivo_correios: atual.motivoCorreios ?? "" }} permitido={podeCorrigir} salvar={async patch => { await corrigir(patch, { motivos: patch["motivos"] as string[], ...(typeof patch["motivo_outro"] === "string" ? { motivoOutro: patch["motivo_outro"] } : {}), ...(typeof patch["motivo_correios"] === "string" ? { motivoCorreios: patch["motivo_correios"] } : {}) }); }} />
+          <div className="sm:col-span-2 min-w-0"><dt className="text-xs text-muted-foreground">Anexos</dt><dd className="mt-2 flex flex-col items-start gap-2">{(atual.anexosArquivos ?? []).map(a => <Button key={a.caminho} variant="outline" disabled={abrindoAnexo} className="max-w-full" onClick={() => void abrirAnexo(a)}><span className="truncate">{a.nome}</span></Button>)}{atual.anexos.filter(nome => !atual.anexosArquivos?.some(a => a.nome === nome)).map((nome, i) => <span key={`${nome}-${i}`} className="break-all">{nome} — arquivo antigo não armazenado</span>)}{erroAnexo && <p role="alert" className="text-destructive">{erroAnexo}</p>}</dd><AnexosEditaveis tipo="chamado" anexos={atual.anexosArquivos ?? []} permitido={podeCorrigir} salvar={async anexos => { const nomes = [...atual.anexos.filter(nome => !atual.anexosArquivos?.some(a => a.nome === nome)), ...anexos.map(a => a.nome)]; await corrigir({ anexos: nomes, anexos_arquivos: anexos }, { anexos: nomes, anexosArquivos: anexos }); }} /></div>
         </dl>
 
         <FluxoChamado key={`${chamado.numero}-${chamado.status}`} chamado={chamado} perfil={perfil} />
