@@ -148,6 +148,13 @@
       "when": 1792670659378,
       "tag": "0020_reversos_danificados_conclusao_anexos_chamados",
       "breakpoints": true
+    },
+    {
+      "idx": 21,
+      "version": "7",
+      "when": 1792755971595,
+      "tag": "0021_editar_dados_registros",
+      "breakpoints": true
     }
   ]
 }

@@ -397,6 +397,10 @@ export type Database = {
         Args: { _numero: number; _rastreio: string }
         Returns: undefined
       }
+      editar_dados_registro: {
+        Args: { _numero: number; _patch: Json; _tipo: string }
+        Returns: undefined
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
