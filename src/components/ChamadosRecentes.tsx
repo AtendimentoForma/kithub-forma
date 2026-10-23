@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
-import { ArrowDown, ArrowUp, ArrowUpDown, Search } from "lucide-react";
-import { useMemo, useState } from "react";
+import { ArrowDown, ArrowUp, ArrowUpDown, ChevronLeft, ChevronRight, Search } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
 import { StatusBadge } from "@/components/Shell";
 import { ChamadoDetalhe } from "@/components/ChamadoDetalhe";
 import { Button } from "@/components/ui/button";
@@ -19,6 +19,8 @@ function correspondeBusca(c: Chamado, termo: string): boolean {
   const campos = [String(c.numero), c.paxNome, c.cpf, c.paxId, c.idDelivery ?? "", c.rastreio, c.novoRastreio ?? ""];
   return campos.some((v) => normaliza(v).includes(t));
 }
+
+const CHAMADOS_POR_PAGINA = 25;
 
 type Ordem = "num_desc" | "num_asc" | "tempo_maior" | "tempo_menor" | "status_asc" | "status_desc";
 
@@ -52,6 +54,7 @@ export function ChamadosRecentes() {
   const [busca, setBusca] = useState("");
   const [filtroStatus, setFiltroStatus] = useState("");
   const [filtroDestino, setFiltroDestino] = useState("");
+  const [pagina, setPagina] = useState(1);
   const abertoChamado = list.find((c) => c.numero === aberto);
 
   const ordenados = useMemo(() => {
@@ -66,6 +69,12 @@ export function ChamadosRecentes() {
     }
     return arr;
   }, [list, ultimas, ordem, busca, filtroStatus, filtroDestino]);
+
+  useEffect(() => { setPagina(1); }, [ordem, busca, filtroStatus, filtroDestino]);
+  const totalPaginas = Math.max(1, Math.ceil(ordenados.length / CHAMADOS_POR_PAGINA));
+  const paginaAtual = Math.min(pagina, totalPaginas);
+  const inicio = (paginaAtual - 1) * CHAMADOS_POR_PAGINA;
+  const visiveis = ordenados.slice(inicio, inicio + CHAMADOS_POR_PAGINA);
 
   function ciclarNumero() {
     setOrdem((o) => (o === "num_desc" ? "num_asc" : "num_desc"));
@@ -125,7 +134,7 @@ export function ChamadosRecentes() {
               </Button>
               <span className="justify-self-center">Destino</span>
             </div>
-            {ordenados.map((c) => {
+            {visiveis.map((c) => {
               const ultima = ultimas[c.numero];
               const desde = ultima?.criadoEm ?? c.criadoEm;
               const naoVisto = chamadoNaoVisto(c, ultima, leituras);
@@ -153,6 +162,16 @@ export function ChamadosRecentes() {
                 </Button>
               );
             })}
+            {totalPaginas > 1 && (
+              <nav aria-label="Paginação dos chamados" className="flex flex-wrap items-center justify-between gap-3 border-t bg-muted/30 px-5 py-3 text-sm">
+                <span className="text-muted-foreground">Mostrando {inicio + 1}–{inicio + visiveis.length} de {ordenados.length} chamados</span>
+                <div className="flex items-center gap-2">
+                  <Button variant="outline" size="sm" onClick={() => setPagina(paginaAtual - 1)} disabled={paginaAtual <= 1}><ChevronLeft /> Anterior</Button>
+                  <span className="min-w-24 text-center font-medium tabular-nums">Página {paginaAtual} de {totalPaginas}</span>
+                  <Button variant="outline" size="sm" onClick={() => setPagina(paginaAtual + 1)} disabled={paginaAtual >= totalPaginas}>Próxima <ChevronRight /></Button>
+                </div>
+              </nav>
+            )}
           </>
         )}
       </div>
