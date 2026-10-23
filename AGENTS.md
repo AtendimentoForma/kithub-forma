@@ -22,3 +22,5 @@ Reverse shipments use a separate RLS-protected public.reversos table and profile
 Ticket attachment bytes use private storage with metadata in anexos_arquivos; the legacy anexos filename column stays readable because historical tickets never stored attachment bytes. Authenticated functions verify record membership before signing URLs, and tickets and reverse shipments share the internal attachment viewer.
 
 Reverse shipment status changes use an authenticated RPC with server-side role and permission checks, not direct table update grants, to prevent unrelated field edits.
+
+Corrections use a shared allowlisted authenticated edit function and atomic permission-checked RPC; original identifiers, authors and workflow status stay immutable through corrections, and field-only validation lets legacy records be corrected without requiring unrelated missing data.
