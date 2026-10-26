@@ -151,7 +151,7 @@ export function ChamadosRecentes() {
                     <span className="truncate">{c.paxNome}</span>
                   </div>
                     <span className="justify-self-center">
-                      {c.status !== "CONCLUÍDO" && (
+                      {c.status !== "CONCLUÍDO" && c.status !== "PRIORIDADE FINALIZADA" && (
                         <span className={`rounded-md px-2 py-0.5 text-xs font-semibold ${tempoClasse(esperaMs(c, ultimas))}`} title={`Última movimentação: ${new Date(desde).toLocaleString("pt-BR")}`}>
                           {tempoEspera(desde)}
                         </span>
