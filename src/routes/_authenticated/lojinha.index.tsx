@@ -29,7 +29,7 @@ function Dashboard() {
   const { data: leituras } = useQuery(leiturasQuery);
   return (
     <Shell title="Visão Geral Lojinha">
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-8">
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-6">
         {STATUSES.map((s) => {
           const Icone = STATUS_ICONE[s];
           const total = list.filter((c) => c.status === s && chamadoNaoVisto(c, ultimas[c.numero], leituras)).length;
