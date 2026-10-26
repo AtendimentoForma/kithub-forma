@@ -5,7 +5,7 @@ import { Input } from "./ui/input";
 import { Textarea } from "./ui/textarea";
 import { mensagemDeErro } from "@/lib/chamados";
 
-export type CampoEditorProps = { label: string; valor: string; permitido: boolean; salvar: (valor: string) => Promise<void>; opcoes?: readonly string[]; multiplo?: boolean; longo?: boolean; data?: boolean; children?: ReactNode };
+export type CampoEditorProps = { label: string; valor: string; permitido: boolean; salvar: (valor: string) => Promise<void>; opcoes?: readonly string[] | undefined; multiplo?: boolean; longo?: boolean; data?: boolean; children?: ReactNode };
 export function CampoEditavel({ label, valor, permitido, salvar, opcoes, multiplo, longo, data, children }: CampoEditorProps) {
   const [editando, setEditando] = useState(false);
   const [rascunho, setRascunho] = useState(valor);

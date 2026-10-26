@@ -22,5 +22,5 @@ export const editarRegistro = createServerFn({ method: "POST" }).middleware([req
   }
   const { error: salvarErro } = await context.supabase.rpc("editar_dados_registro", { _tipo: data.tipo, _numero: data.numero, _patch: patch as never });
   if (salvarErro) throw salvarErro;
-  return { numero: data.numero, patch };
+  return { numero: data.numero, patchJson: JSON.stringify(patch) };
 });
