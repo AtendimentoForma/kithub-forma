@@ -36,7 +36,7 @@ function Dashboard() {
           const existe = list.some((c) => c.status === s);
           const prioridade = s === STATUS_PRIO_ENTREGA;
           return (
-            <StatCard key={s} to="/lojinha/chamados" search={{ status: s }} icon={Icone} value={total} label={STATUS_LABEL[s]} featured={s === "NOVO CHAMADO"} urgente={prioridade && existe} centralizado={prioridade} />
+            <StatCard key={s} to="/lojinha/chamados" search={{ status: s }} icon={Icone} value={total} label={STATUS_LABEL[s]} featured={s === "NOVO CHAMADO"} urgente={prioridade && existe} centralizado={prioridade} acao={s === "NOVO CHAMADO" ? <Button asChild size="sm" className="w-full justify-center"><Link to="/lojinha/novo"><Plus /> Novo chamado</Link></Button> : undefined} />
           );
         })}
         <StatCard to="/lojinha/reversos" search={{}} icon={PackageOpen} value={0} label="Reversos" />
