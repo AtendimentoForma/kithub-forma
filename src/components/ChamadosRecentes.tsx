@@ -20,7 +20,7 @@ function correspondeBusca(c: Chamado, termo: string): boolean {
   return campos.some((v) => normaliza(v).includes(t));
 }
 
-const CHAMADOS_POR_PAGINA = 25;
+const CHAMADOS_POR_PAGINA = 10;
 
 type Ordem = "num_desc" | "num_asc" | "tempo_maior" | "tempo_menor" | "status_asc" | "status_desc";
 
