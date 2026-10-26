@@ -66,7 +66,7 @@ export function StatCard({ label, value, icon: Icon, to, search, featured = fals
         </span>
         <p className={cn("mt-5 text-sm font-semibold leading-snug text-foreground", urgente && "text-destructive")}>{label}</p>
       </Link>
-      {acao && <div className="mt-4">{acao}</div>}
+      {acao && (revelado ? <div className="mt-4 motion-safe:animate-in motion-safe:fade-in motion-safe:slide-in-from-bottom-1 motion-safe:duration-200">{acao}</div> : <p className="mt-4 text-xs font-medium text-muted-foreground">Clique para novas opções</p>)}
     </div>
   );
 }
