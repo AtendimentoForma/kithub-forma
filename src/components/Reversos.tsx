@@ -46,7 +46,8 @@ export function Reversos({ perfil, numero }: { perfil: "sac" | "lojinha"; numero
   async function corrigir(patch: Record<string, unknown>) {
     if (!selecionado) return;
     const resultado = await editarRegistro({ data: { tipo: "reverso", numero: selecionado.numero, patch } });
-    setSelecionado(p => p ? { ...p, ...resultado.patch } as Reverso : p);
+    const patchSalvo = JSON.parse(resultado.patchJson) as Partial<Reverso>;
+    setSelecionado(p => p ? { ...p, ...patchSalvo } : p);
     await qc.invalidateQueries({ queryKey: ["reversos"] });
   }
   async function mudarStatus(status: typeof STATUS_REVERSO[number]) {
