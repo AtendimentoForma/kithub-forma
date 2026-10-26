@@ -49,17 +49,18 @@ export function PageIntro({ title, description, action }: { title: string; descr
   );
 }
 
-export function StatCard({ label, value, icon: Icon, to, search, featured = false, urgente = false, centralizado = false }: { label: string; value: number; icon: LucideIcon; to: "/lojinha/chamados" | "/sac/chamados" | "/lojinha/reversos" | "/sac/reversos"; search: Record<string, string>; featured?: boolean; urgente?: boolean; centralizado?: boolean }) {
+export function StatCard({ label, value, icon: Icon, to, search, featured = false, urgente = false, centralizado = false, acao }: { label: string; value: number; icon: LucideIcon; to: "/lojinha/chamados" | "/sac/chamados" | "/lojinha/reversos" | "/sac/reversos"; search: Record<string, string>; featured?: boolean; urgente?: boolean; centralizado?: boolean; acao?: ReactNode }) {
   return (
-    <Link to={to} search={search} className={cn("group min-h-36 rounded-xl border bg-card p-5 shadow-xs transition duration-200 hover:-translate-y-0.5 hover:border-primary hover:shadow-sm", featured && "border-primary bg-primary/8", urgente && "border-destructive bg-destructive/10 hover:border-destructive motion-safe:animate-pulse", centralizado && "flex flex-col items-center text-center")}>
-      <div className={cn("flex items-start justify-between gap-3", centralizado && "w-full flex-col items-center")}>
+    <div className={cn("group flex min-h-36 flex-col rounded-xl border bg-card p-5 shadow-xs transition duration-200 hover:-translate-y-0.5 hover:border-primary hover:shadow-sm", featured && "border-primary bg-primary/8", urgente && "border-destructive bg-destructive/10 hover:border-destructive motion-safe:animate-pulse")}>
+      <Link to={to} search={search} className={cn("flex flex-1 flex-col", centralizado && "items-center text-center")}>
         <span className={cn("relative grid h-10 w-10 place-items-center rounded-lg bg-muted text-muted-foreground transition group-hover:bg-primary group-hover:text-primary-foreground", featured && "bg-primary text-primary-foreground", urgente && "bg-destructive text-destructive-foreground group-hover:bg-destructive group-hover:text-destructive-foreground")}>
           <Icon className="h-5 w-5" />
           {value > 0 && <span className="absolute -right-2 -top-2 grid h-5 min-w-5 place-items-center rounded-full border-2 border-card bg-destructive px-1 text-[10px] font-bold leading-none text-destructive-foreground" aria-label={`${value} chamado(s) novo(s)`} title={`${value} chamado(s) novo(s)`}>{value > 99 ? "99+" : value}</span>}
         </span>
-      </div>
-      <p className={cn("mt-5 text-sm font-semibold leading-snug text-foreground", urgente && "text-destructive")}>{label}</p>
-    </Link>
+        <p className={cn("mt-5 text-sm font-semibold leading-snug text-foreground", urgente && "text-destructive")}>{label}</p>
+      </Link>
+      {acao && <div className="mt-4">{acao}</div>}
+    </div>
   );
 }
 

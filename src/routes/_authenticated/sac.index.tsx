@@ -29,7 +29,6 @@ function Dashboard() {
   const { data: leituras } = useQuery(leiturasQuery);
   return (
     <Shell title="Visão Geral SAC" perfil="sac">
-      <div className="mb-6 flex justify-end"><Button asChild><Link to="/sac/novo"><Plus /> Novo chamado</Link></Button></div>
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-8">
         {STATUSES.map((s) => {
           const Icone = STATUS_ICONE[s];
@@ -37,7 +36,7 @@ function Dashboard() {
           const existe = list.some((c) => c.status === s);
           const prioridade = s === STATUS_PRIO_ENTREGA;
           return (
-            <StatCard key={s} to="/sac/chamados" search={{ status: s }} icon={Icone} value={total} label={STATUS_LABEL[s]} featured={s === "NOVO CHAMADO"} urgente={prioridade && existe} centralizado={prioridade} />
+            <StatCard key={s} to="/sac/chamados" search={{ status: s }} icon={Icone} value={total} label={STATUS_LABEL[s]} featured={s === "NOVO CHAMADO"} urgente={prioridade && existe} centralizado={prioridade} acao={s === "NOVO CHAMADO" ? <Button asChild size="sm" className="w-full justify-center" title="Novo chamado"><Link to="/sac/novo" aria-label="Novo chamado"><Plus /><span className="xl:hidden"> Novo chamado</span></Link></Button> : undefined} />
           );
         })}
         <StatCard to="/sac/reversos" search={{}} icon={PackageOpen} value={0} label="Reversos" />
