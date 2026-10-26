@@ -38,9 +38,10 @@ function ResetPassword() {
       // The client may already have consumed the recovery hash before this page mounts.
       supabase.auth.getUser().then(({ data: usuario, error }) => {
         if (!ativo) return;
-        setPronto(!error && !!usuario.user);
+        const linkRecuperacao = recovery || sessionStorage.getItem("kithub-password-recovery") === "true";
+        setPronto(!error && !!usuario.user && linkRecuperacao);
         setVerificando(false);
-        if (error || !usuario.user) setErro(recovery ? "Não foi possível validar o link. Solicite um novo link." : "Abra o link enviado ao seu e-mail para redefinir a senha.");
+        if (error || !usuario.user || !linkRecuperacao) setErro(recovery ? "Não foi possível validar o link. Solicite um novo link." : "Abra o link enviado ao seu e-mail para redefinir a senha.");
       });
     }
     return () => { ativo = false; data.subscription.unsubscribe(); };
