@@ -6,7 +6,6 @@ import { definirUsuario, getMyRole, listarUsuarios, PERMISSOES, type Perfil, typ
 import { Button } from "@/components/ui/button";
 import { ChevronDown, KeyRound, Eye, EyeOff } from "lucide-react";
 import { useServerFn } from "@tanstack/react-start";
-import { toast } from "sonner";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { alterarSenhaDoUsuario } from "@/lib/admin-users.functions";
 
@@ -125,10 +124,11 @@ function AlterarSenha({ u }: { u: UsuarioAdmin }) {
   const [ver, setVer] = useState(false);
   const [erro, setErro] = useState("");
   const [salvando, setSalvando] = useState(false);
+  const [ok, setOk] = useState("");
 
   function fechar(v: boolean) {
     setAberto(v);
-    if (!v) { setSenha(""); setConfirma(""); setErro(""); setVer(false); }
+    if (!v) { setSenha(""); setConfirma(""); setErro(""); setVer(false); setOk(""); }
   }
 
   async function salvar() {
@@ -138,8 +138,7 @@ function AlterarSenha({ u }: { u: UsuarioAdmin }) {
     setSalvando(true);
     try {
       await alterar({ data: { userId: u.id, senha } });
-      toast.success(`Senha de ${u.nome || u.email} alterada.`);
-      fechar(false);
+      setOk("Senha alterada com sucesso. Informe a nova senha ao usuário."); setSenha(""); setConfirma("");
     } catch (e) {
       setErro(e instanceof Error ? e.message : "Erro ao alterar a senha.");
     } finally { setSalvando(false); }
@@ -169,6 +168,7 @@ function AlterarSenha({ u }: { u: UsuarioAdmin }) {
             <input type={ver ? "text" : "password"} value={confirma} onChange={(e) => setConfirma(e.target.value)} className={`mt-1.5 ${campo}`} autoComplete="new-password" />
           </label>
           {erro && <p className="text-sm text-destructive">{erro}</p>}
+          {ok && <p className="text-sm font-medium text-primary">{ok}</p>}
         </div>
         <DialogFooter>
           <Button variant="outline" onClick={() => fechar(false)}>Cancelar</Button>
