@@ -4,7 +4,10 @@ import { useEffect, useRef, useState } from "react";
 import { Shell } from "@/components/Shell";
 import { definirUsuario, getMyRole, listarUsuarios, PERMISSOES, type Perfil, type Permissao, type UsuarioAdmin } from "@/lib/chamados";
 import { Button } from "@/components/ui/button";
-import { ChevronDown } from "lucide-react";
+import { ChevronDown, KeyRound, Eye, EyeOff } from "lucide-react";
+import { useServerFn } from "@tanstack/react-start";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { alterarSenhaDoUsuario } from "@/lib/admin-users.functions";
 
 export const Route = createFileRoute("/_authenticated/admin")({
   beforeLoad: async () => {
@@ -106,9 +109,73 @@ function Linha({ u }: { u: UsuarioAdmin }) {
           ) : (
             <Button size="sm" disabled={salvando} onClick={() => salvar(true)}>Aprovar</Button>
           )}
+          <AlterarSenha u={u} />
         </div>
       </td>
     </tr>
+  );
+}
+
+function AlterarSenha({ u }: { u: UsuarioAdmin }) {
+  const alterar = useServerFn(alterarSenhaDoUsuario);
+  const [aberto, setAberto] = useState(false);
+  const [senha, setSenha] = useState("");
+  const [confirma, setConfirma] = useState("");
+  const [ver, setVer] = useState(false);
+  const [erro, setErro] = useState("");
+  const [salvando, setSalvando] = useState(false);
+  const [ok, setOk] = useState("");
+
+  function fechar(v: boolean) {
+    setAberto(v);
+    if (!v) { setSenha(""); setConfirma(""); setErro(""); setVer(false); setOk(""); }
+  }
+
+  async function salvar() {
+    setErro("");
+    if (senha.length < 6) return setErro("A senha deve ter ao menos 6 caracteres.");
+    if (senha !== confirma) return setErro("As senhas não conferem.");
+    setSalvando(true);
+    try {
+      await alterar({ data: { userId: u.id, senha } });
+      setOk("Senha alterada com sucesso. Informe a nova senha ao usuário."); setSenha(""); setConfirma("");
+    } catch (e) {
+      setErro(e instanceof Error ? e.message : "Erro ao alterar a senha.");
+    } finally { setSalvando(false); }
+  }
+
+  const campo = "h-10 w-full rounded-lg border border-input bg-background px-3 text-sm outline-hidden focus:border-primary focus:ring-3 focus:ring-primary/15";
+  return (
+    <Dialog open={aberto} onOpenChange={fechar}>
+      <DialogTrigger asChild>
+        <Button size="sm" variant="outline"><KeyRound className="h-3.5 w-3.5" /> Alterar senha</Button>
+      </DialogTrigger>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Alterar senha</DialogTitle>
+          <DialogDescription>Defina uma nova senha para {u.nome || u.email}. Informe a nova senha ao usuário.</DialogDescription>
+        </DialogHeader>
+        <div className="space-y-3">
+          <label className="block text-sm font-medium">Nova senha
+            <div className="relative mt-1.5">
+              <input type={ver ? "text" : "password"} value={senha} onChange={(e) => setSenha(e.target.value)} className={campo} autoComplete="new-password" />
+              <button type="button" onClick={() => setVer((v) => !v)} aria-label={ver ? "Ocultar senha" : "Mostrar senha"} className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground">
+                {ver ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+              </button>
+            </div>
+          </label>
+          <label className="block text-sm font-medium">Confirmar nova senha
+            <input type={ver ? "text" : "password"} value={confirma} onChange={(e) => setConfirma(e.target.value)} className={`mt-1.5 ${campo}`} autoComplete="new-password" />
+          </label>
+          {erro && <p className="text-sm text-destructive">{erro}</p>}
+          {ok && <p className="text-sm font-medium text-primary">{ok}</p>}
+        </div>
+        <DialogFooter>
+          <Button variant="outline" onClick={() => fechar(false)}>Cancelar</Button>
+          <Button disabled={salvando} onClick={salvar}>{salvando ? "Salvando..." : "Salvar senha"}</Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 }
 
