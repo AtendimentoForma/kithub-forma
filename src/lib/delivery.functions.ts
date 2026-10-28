@@ -47,9 +47,14 @@ export const buscarPedidoDelivery = createServerFn({ method: "POST" })
     try {
       const response = await fetch(`${base}/pedidos/${data.idDelivery}`, {
         headers: { Authorization: `Bearer ${token}`, Accept: "application/json" },
-        signal: controle.signal, redirect: "error",
+        // O runtime publicado (Workers) não suporta redirect: "error"; usamos "manual" e recusamos 3xx.
+        signal: controle.signal, redirect: "manual",
       });
       http = response.status;
+      if (response.status >= 300 && response.status < 400) {
+        console.warn("Delivery lookup recebeu redirecionamento", { idDelivery: data.idDelivery, status: response.status });
+        setResponseStatus(502); return erroHttpDelivery(503);
+      }
       if (!response.ok) {
         const erro = erroHttpDelivery(response.status);
         setResponseStatus(erro.codigo === "NOT_FOUND" ? 404 : 502); return erro;
