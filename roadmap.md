@@ -1,5 +1,9 @@
 # Roadmap
 
+- [ ] Busca autenticada do Delivery no Novo chamado SAC, transformação validada e testes
+- [ ] Preenchimento automático editável, avisos e checagem de chamados existentes
+- [ ] Validar consulta real no ambiente configurado e comportamento no navegador
+
 - [x] Login vinculado ao perfil: cartões Lojinha/SAC abrem o login daquele perfil; acesso bloqueado se a conta for de outro perfil
 - [x] Perfil Administrador (julia.sales@formaturismo.com.br): entra por qualquer cartão e movimenta os dois painéis
 - [x] Etapa 3: análise do SAC (conferência, contato, requer reenvio?, atualização de dados)
