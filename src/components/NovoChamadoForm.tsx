@@ -56,8 +56,8 @@ export function NovoChamadoForm({ listaPath }: { listaPath: "/lojinha/chamados" 
 
   const cepBusca = useRef<AbortController | null>(null);
   const [cepMsg, setCepMsg] = useState("");
-  const delivery = useDeliveryLookup(listaPath === "/sac/chamados", setTipoEnvio);
-  const usaDelivery = listaPath === "/sac/chamados";
+  const delivery = useDeliveryLookup(true, setTipoEnvio);
+  const usaDelivery = true;
 
   async function aoDigitarCep(e: ChangeEvent<HTMLInputElement>) {
     const input = e.currentTarget;

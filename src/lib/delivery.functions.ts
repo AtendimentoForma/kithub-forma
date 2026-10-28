@@ -1,5 +1,5 @@
 import { createMiddleware, createServerFn } from "@tanstack/react-start";
-import { getRequest, getRequestHeader, setResponseHeader, setResponseStatus } from "@tanstack/react-start/server";
+import { getRequestHeader, setResponseHeader, setResponseStatus } from "@tanstack/react-start/server";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { DELIVERY_TIMEOUT_MS, erroHttpDelivery, mapearPedidoDelivery, registro, validarIdDelivery, type ResultadoDelivery } from "./delivery-mapping";
 
@@ -45,7 +45,8 @@ export const buscarPedidoDelivery = createServerFn({ method: "POST" })
     try {
       const response = await fetch(`${base}/pedidos/${data.idDelivery}`, {
         headers: { Authorization: `Bearer ${token}`, Accept: "application/json" },
-        signal: AbortSignal.any([getRequest().signal, timeout]), redirect: "error",
+        // AbortSignal.any não existe no runtime publicado; o timeout de 10s é o limite da chamada.
+        signal: timeout, redirect: "error",
       });
       http = response.status;
       if (!response.ok) {
