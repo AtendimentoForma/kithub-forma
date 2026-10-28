@@ -1,7 +1,7 @@
 import { useNavigate } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { useRef, useState, type ChangeEvent, type FormEvent } from "react";
-import { ChevronUp, Paperclip, X } from "lucide-react";
+import { createContext, useContext, useRef, useState, type ChangeEvent, type FormEvent, type ReactNode } from "react";
+import { ChevronUp, LoaderCircle, Paperclip, X } from "lucide-react";
 import { Shell } from "@/components/Shell";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -11,14 +11,25 @@ import { criarChamado } from "@/lib/criar-chamado.functions";
 import { buscarCep, enderecoSchema, ESTADOS, mascararCep } from "@/lib/endereco";
 import { supabase } from "@/integrations/supabase/client";
 import { validarArquivoReverso, type AnexoReverso } from "@/lib/reversos-schema";
+import { useDeliveryLookup } from "@/hooks/use-delivery-lookup";
 
 const input = "mt-1.5 h-10 w-full rounded-lg border border-input bg-background px-3 py-2 text-sm outline-hidden focus:border-primary focus:ring-3 focus:ring-primary/15";
 
-function Field({ label, name, type = "text", required = true, placeholder, maxLength = 255, inputMode, onChange, disabled }: { label: string; name: string; type?: string; required?: boolean; placeholder?: string; maxLength?: number; inputMode?: "numeric"; onChange?: (e: ChangeEvent<HTMLInputElement>) => void; disabled?: boolean }) {
+const DeliveryContext = createContext<{ selos: Record<string, string>; dicas: (nome: string) => string[] } | null>(null);
+function DeliveryHint({ name }: { name: string }) {
+  const delivery = useContext(DeliveryContext);
+  return <>{delivery?.dicas(name).map((dica, i) => <p key={i} className="mt-1.5 text-xs font-normal text-muted-foreground" role="status">{dica}</p>)}</>;
+}
+function DeliveryLabel({ name }: { name: string }) {
+  const delivery = useContext(DeliveryContext);
+  return delivery?.selos[name] ? <span className="ml-2 rounded border border-border px-1.5 py-0.5 text-[10px] font-normal text-muted-foreground">Delivery</span> : null;
+}
+function Field({ label, name, type = "text", required = true, placeholder, maxLength = 255, inputMode, onChange, disabled, children }: { label: string; name: string; type?: string; required?: boolean; placeholder?: string; maxLength?: number; inputMode?: "numeric"; onChange?: (e: ChangeEvent<HTMLInputElement>) => void; disabled?: boolean; children?: ReactNode }) {
   return (
     <label className="block text-sm font-medium">
-      {label}{required && " *"}
+      {label}{required && " *"}<DeliveryLabel name={name} />
       <Input name={name} type={type} required={required} placeholder={placeholder} maxLength={maxLength} inputMode={inputMode} onChange={onChange} disabled={disabled} className="mt-1.5" />
+      <DeliveryHint name={name} />{children}
     </label>
   );
 }
@@ -44,6 +55,8 @@ export function NovoChamadoForm({ listaPath }: { listaPath: "/lojinha/chamados" 
 
   const cepBusca = useRef<AbortController | null>(null);
   const [cepMsg, setCepMsg] = useState("");
+  const delivery = useDeliveryLookup(listaPath === "/sac/chamados", setTipoEnvio);
+  const usaDelivery = listaPath === "/sac/chamados";
 
   async function aoDigitarCep(e: ChangeEvent<HTMLInputElement>) {
     const input = e.currentTarget;
@@ -66,6 +79,7 @@ export function NovoChamadoForm({ listaPath }: { listaPath: "/lojinha/chamados" 
       preencher("bairro", end.bairro);
       preencher("cidade", end.cidade);
       preencher("estado", end.estado);
+      ["logradouro", "bairro", "cidade", "estado"].forEach(delivery.aoEditar);
       setCepMsg("");
       (form.elements.namedItem(end.logradouro ? "numero" : "logradouro") as HTMLInputElement | null)?.focus();
     } catch (err) {
@@ -187,7 +201,19 @@ export function NovoChamadoForm({ listaPath }: { listaPath: "/lojinha/chamados" 
 
   return (
     <Shell title="Novo chamado de reenvio" perfil={listaPath === "/sac/chamados" ? "sac" : "lojinha"}>
-      <form onSubmit={submit} className="space-y-6">
+      <DeliveryContext.Provider value={usaDelivery ? delivery : null}>
+      <form ref={delivery.formRef} onSubmit={submit} className="space-y-6" onChange={(e) => {
+        const el = e.target;
+        if (el instanceof HTMLInputElement || el instanceof HTMLSelectElement || el instanceof HTMLTextAreaElement) {
+          delivery.aoEditar(el.name);
+          if (usaDelivery && el.name === "idDelivery") { cepBusca.current?.abort(); setCepMsg(""); delivery.aoMudarId(el.value); }
+        }
+      }} onBlur={(e) => {
+        if (e.target.name === "idDelivery") delivery.buscarAgora();
+        if (e.target.name === "paxId") void delivery.checarDuplicados();
+      }} onKeyDown={(e) => {
+        if (usaDelivery && e.key === "Enter" && e.target instanceof HTMLInputElement && e.target.name === "idDelivery") { e.preventDefault(); delivery.buscarAgora(); }
+      }}>
         <section className="kithub-surface p-5 sm:p-6">
           <h2 className="mb-4 font-semibold">Origem da solicitação *</h2>
           <div className="flex flex-wrap gap-4">
@@ -204,18 +230,24 @@ export function NovoChamadoForm({ listaPath }: { listaPath: "/lojinha/chamados" 
             <Field label="Nome" name="paxNome" />
             <Field label="CPF" name="cpf" placeholder="000.000.000-00" />
             <Field label="ID do Pax" name="paxId" />
-            <Field label="ID Delivery" name="idDelivery" />
+            <Field label="ID Delivery" name="idDelivery" {...(usaDelivery ? { inputMode: "numeric" as const, maxLength: 12 } : {})}>
+              {usaDelivery && <div aria-live="polite" className="mt-1.5 text-xs font-normal text-muted-foreground">
+                {delivery.buscando ? <span className="inline-flex items-center gap-1.5"><LoaderCircle className="h-3.5 w-3.5 animate-spin motion-reduce:animate-none" />Buscando no Delivery...</span> : delivery.mensagem}
+                {delivery.erroDuplicados && <p className="mt-1">{delivery.erroDuplicados}</p>}
+              </div>}
+            </Field>
             <Field label="Nome do responsável" name="responsavel" />
           </div>
         </section>
         <section className="kithub-surface p-5 sm:p-6">
           <h2 className="mb-4 font-semibold">Viagem</h2>
           <div className="grid gap-4 sm:grid-cols-2">
-            <label className="block text-sm font-medium">Destino *
+            <label className="block text-sm font-medium">Destino *<DeliveryLabel name="destino" />
               <select name="destino" required defaultValue="" className={input}>
                 <option value="" disabled>Selecione o destino</option>
                 {DESTINOS.map((d) => <option key={d} value={d}>{d}</option>)}
               </select>
+              <DeliveryHint name="destino" />
             </label>
             <Field label="Ano" name="ano" />
           </div>
@@ -234,10 +266,14 @@ export function NovoChamadoForm({ listaPath }: { listaPath: "/lojinha/chamados" 
               <Textarea name="infoEnvio" rows={3} maxLength={1000} required className="mt-1.5" placeholder="Informações adicionais" />
             </label>
           )}
-          {tipoEnvio === "Dados do envio original" && (<>
+          <fieldset disabled={tipoEnvio !== "Dados do envio original"} hidden={tipoEnvio !== "Dados do envio original"}>
           <div className="mt-4 grid gap-4 sm:grid-cols-2">
-            <Field label="Nº rastreio Mandaê" name="rastreio" />
-            <Field label="Data do envio" name="dataEnvio" type="date" />
+            <Field label="Nº rastreio Mandaê" name="rastreio">
+              {delivery.sugestoes.urlRastreio && <a href={delivery.sugestoes.urlRastreio} target="_blank" rel="noopener noreferrer" className="mt-1.5 block text-xs text-muted-foreground underline">Ver rastreio no Delivery</a>}
+            </Field>
+            <Field label="Data do envio" name="dataEnvio" type="date">
+              {delivery.sugestoes.dataTransmissao && <p className="mt-1.5 text-xs font-normal text-muted-foreground">Delivery transmitiu em {new Date(delivery.sugestoes.dataTransmissao).toLocaleDateString("pt-BR", { timeZone: "UTC" })}</p>}
+            </Field>
           </div>
           <h3 className="mb-4 mt-6 font-semibold">Endereço utilizado</h3>
           <div className="grid gap-4 sm:grid-cols-2">
@@ -250,18 +286,19 @@ export function NovoChamadoForm({ listaPath }: { listaPath: "/lojinha/chamados" 
             <Field label="Complemento" name="complemento" required={false} maxLength={60} />
             <Field label="Bairro" name="bairro" maxLength={40} />
             <Field label="Cidade" name="cidade" maxLength={40} />
-            <label className="block text-sm font-medium">Estado *
+            <label className="block text-sm font-medium">Estado *<DeliveryLabel name="estado" />
               <select name="estado" required defaultValue="" className={input}>
                 <option value="" disabled>Selecione o estado</option>
                 {ESTADOS.map((estado) => <option key={estado} value={estado}>{estado}</option>)}
               </select>
+              <DeliveryHint name="estado" />
             </label>
             <label className="block text-sm font-medium">País *
               <input name="pais" required defaultValue="Brasil" maxLength={40} className={input} />
             </label>
             <Field label="Ponto de referência" name="referencia" required={false} maxLength={100} />
           </div>
-          </>)}
+          </fieldset>
         </section>
         <section className="kithub-surface p-5 sm:p-6">
           <h2 className="mb-4 font-semibold">Motivo da solicitação *</h2>
@@ -279,6 +316,7 @@ export function NovoChamadoForm({ listaPath }: { listaPath: "/lojinha/chamados" 
           <h2 className="mb-4 font-semibold">Informações adicionais (opcional)</h2>
           <label className="block text-sm font-medium">Observação / descrição
             <Textarea name="observacao" rows={4} maxLength={1000} className="mt-1.5" />
+            {delivery.sugestoes.observacaoDelivery && <p className="mt-1.5 break-words text-xs font-normal text-muted-foreground">Delivery: {delivery.sugestoes.observacaoDelivery}</p>}
           </label>
           <div className="mt-4">
             <span className="block text-sm font-medium">Anexar fotos / vídeos / documentos</span>
@@ -343,6 +381,7 @@ export function NovoChamadoForm({ listaPath }: { listaPath: "/lojinha/chamados" 
           )}
         </div>
       </form>
+      </DeliveryContext.Provider>
     </Shell>
   );
 }
