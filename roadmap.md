@@ -12,5 +12,8 @@
 - [x] Abertura de chamados com endereço completo obrigatório (complemento e ponto de referência opcionais), validado antes de salvar
 - [x] Modernização visual completa do KitHub com identidade amarela, tema persistente e estrutura interna responsiva
 - [x] Reversos: card nos dois painéis, formulário próprio, registro compartilhado e anexos obrigatórios para Defeito
+- [x] Adicionar Objeto danificado com descrição obrigatória e Reverso concluído
+- [x] Visualizar anexos internamente com Fechar e aceitar fotos e vídeos em chamados/reversos
+- [x] Corrigir campos de chamados e reversos com ícone de edição, validação e gravação protegida
 - [x] Validar registro e leitura de reverso com anexos no login real — conferido na prévia com sessão de teste
 - [x] Validar correção e leitura após salvar no login real — conferido em chamado e reverso, com restauração dos valores
