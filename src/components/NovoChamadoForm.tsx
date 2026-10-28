@@ -210,7 +210,6 @@ export function NovoChamadoForm({ listaPath }: { listaPath: "/lojinha/chamados" 
           if (usaDelivery && el.name === "idDelivery") { cepBusca.current?.abort(); setCepMsg(""); delivery.aoMudarId(el.value); }
         }
       }} onBlur={(e) => {
-        if (e.target.name === "idDelivery") delivery.buscarAgora();
         if (e.target.name === "paxId") void delivery.checarDuplicados();
       }} onKeyDown={(e) => {
         if (usaDelivery && e.key === "Enter" && e.target instanceof HTMLInputElement && e.target.name === "idDelivery") { e.preventDefault(); delivery.buscarAgora(); }
@@ -231,7 +230,11 @@ export function NovoChamadoForm({ listaPath }: { listaPath: "/lojinha/chamados" 
             <Field label="Nome" name="paxNome" />
             <Field label="CPF" name="cpf" placeholder="000.000.000-00" />
             <Field label="ID do Pax" name="paxId" />
-            <Field label="ID Delivery" name="idDelivery" {...(usaDelivery ? { inputMode: "numeric" as const, maxLength: 12 } : {})}>
+            <Field label="ID Delivery" name="idDelivery" {...(usaDelivery ? { inputMode: "numeric" as const, maxLength: 12 } : {})} action={usaDelivery ? (
+              <Button type="button" onClick={() => delivery.buscarAgora()} disabled={!delivery.podeBuscar} aria-label="Buscar pedido no Delivery" title="Buscar pedido no Delivery" variant="ghost" size="icon" className="absolute right-1 top-[calc(50%-0.5rem)] z-10 h-8 w-8 text-muted-foreground hover:text-foreground">
+                {delivery.buscando ? <LoaderCircle className="h-4 w-4 animate-spin motion-reduce:animate-none" /> : <Search className="h-4 w-4" />}
+              </Button>
+            ) : undefined}>
               {usaDelivery && <div aria-live="polite" className="mt-1.5 text-xs font-normal text-muted-foreground">
                 {delivery.buscando ? <span className="inline-flex items-center gap-1.5"><LoaderCircle className="h-3.5 w-3.5 animate-spin motion-reduce:animate-none" />Buscando no Delivery...</span> : delivery.mensagem}
                 {delivery.erroDuplicados && <p className="mt-1">{delivery.erroDuplicados}</p>}
