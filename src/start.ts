@@ -25,7 +25,14 @@ const csrfMiddleware = createCsrfMiddleware({
   filter: (ctx) => ctx.handlerType === "serverFn",
 });
 
+// Authenticated RPC results, including serialized errors, must never be cached.
+const rpcNoStoreMiddleware = createMiddleware().server(async ({ next, handlerType }) => {
+  const result = await next();
+  if (handlerType === "serverFn") result.response.headers.set("Cache-Control", "no-store");
+  return result;
+});
+
 export const startInstance = createStart(() => ({
   functionMiddleware: [attachSupabaseAuth],
-  requestMiddleware: [errorMiddleware, csrfMiddleware],
+  requestMiddleware: [rpcNoStoreMiddleware, errorMiddleware, csrfMiddleware],
 }));

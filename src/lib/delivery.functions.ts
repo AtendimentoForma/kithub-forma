@@ -6,9 +6,9 @@ import { DELIVERY_TIMEOUT_MS, erroHttpDelivery, mapearPedidoDelivery, registro, 
 // This boundary preserves 401 for the generated auth middleware's plain errors.
 const deliverySessionBoundary = createMiddleware({ type: "function" }).server(async ({ next }) => {
   setResponseHeader("Cache-Control", "no-store");
-  if (!getRequestHeader("authorization")) throw Object.assign(new Error("Sessão expirada. Entre novamente."), { statusCode: 401 });
+  if (!getRequestHeader("authorization")) { setResponseStatus(401); throw Object.assign(new Error("Sessão expirada. Entre novamente."), { statusCode: 401 }); }
   try { return await next(); } catch (error) {
-    if (error instanceof Error && error.message.startsWith("Unauthorized")) throw Object.assign(new Error("Sessão expirada. Entre novamente."), { statusCode: 401 });
+    if (error instanceof Error && error.message.startsWith("Unauthorized")) { setResponseStatus(401); throw Object.assign(new Error("Sessão expirada. Entre novamente."), { statusCode: 401 }); }
     throw error;
   }
 });
@@ -20,6 +20,7 @@ const deliveryAccess = createMiddleware({ type: "function" }).middleware([delive
   ]);
   const admin = papeis?.some(p => p.role === "admin");
   if (erroAprovacao || erroPapeis || erroPermissoes || !aprovado || (!admin && !(papeis?.some(p => p.role === "sac" || p.role === "lojinha") && permissoes?.some(p => p.permissao === "chamados" || p.permissao === "reenvios")))) {
+    setResponseStatus(403);
     throw Object.assign(new Error("Você não tem permissão para buscar pedidos."), { statusCode: 403 });
   }
   return next();
