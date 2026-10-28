@@ -56,7 +56,7 @@ export function useDeliveryLookup(enabled: boolean, setTipoEnvio: (v: string) =>
     try {
       const r = await buscar({ data: { idDelivery: id }, signal: ctrl.signal });
       if (ctrl.signal.aborted || versao !== revisao.current || idAtual.current !== id) return;
-      if (!r.ok) { setMensagem(r.mensagem); return; }
+      if (!r.ok) { ultimoId.current = ""; setMensagem(r.mensagem); return; }
       const novos = { ...r.campos, ...r.campos.endereco } as Record<string, unknown>;
       delete novos["endereco"];
       const s = { ...selosRef.current };
@@ -77,6 +77,7 @@ export function useDeliveryLookup(enabled: boolean, setTipoEnvio: (v: string) =>
       void checarDuplicados(id, r.campos.paxId ?? elemento("paxId")?.value ?? "");
     } catch (error) {
       if (ctrl.signal.aborted || versao !== revisao.current) return;
+      ultimoId.current = "";
       setMensagem(error instanceof Error && error.message.includes("Sessão expirada") ? "Sessão expirada. Entre novamente." : "Delivery indisponível no momento. Preencha manualmente ou tente novamente.");
     } finally { if (!ctrl.signal.aborted && versao === revisao.current) setBuscando(false); }
   };
