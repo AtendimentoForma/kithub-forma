@@ -1,6 +1,8 @@
 # Roadmap
 
 - [x] Busca Delivery disparada só por botão de lupa ou Enter; digitação não consulta
+- [x] Busca Delivery habilitada também no login Lojinha (mesmo formulário e mesmas permissões do SAC)
+- [x] Corrigida falha da busca no site publicado (AbortSignal.any inexistente no runtime; substituído por timeout simples)
 - [ ] Publicar as alterações da busca Delivery para valerem no site publicado
 
 - [x] Login vinculado ao perfil: cartões Lojinha/SAC abrem o login daquele perfil; acesso bloqueado se a conta for de outro perfil

@@ -1,5 +1,7 @@
 # Verificação da busca Delivery
 
+- A busca está habilitada nos dois perfis (SAC e Lojinha); o servidor exige perfil aprovado de SAC/Lojinha/admin com permissão "chamados" ou "reenvios".
+- No site publicado, `AbortSignal.any` não existe no runtime e derrubava toda busca com "Delivery indisponível" (log com status null, duração 0); a chamada usa apenas `AbortSignal.timeout(10000)`.
 - Consultas reais no SAC da conta solicitante: IDs 365177 e 365178 preenchidos, campos manuais preservados, CPF com 11 dígitos e endereço separado.
 - ID 999999999999: o Delivery respondeu HTTP 200 com pedido ausente; KitHub devolveu NOT_FOUND / HTTP 404.
 - Sem sessão: HTTP 401. ID inválido autenticado: HTTP 400. Resultados e erros com Cache-Control: no-store.
