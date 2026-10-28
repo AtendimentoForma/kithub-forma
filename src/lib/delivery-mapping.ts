@@ -28,6 +28,7 @@ const identificador = (v: unknown) => typeof v === "string" ? v.trim() : typeof 
 export function urlSegura(v: unknown): string | undefined {
   if (typeof v !== "string" || v.length > 2048) return;
   try { const url = new URL(v); if (url.protocol === "https:" && !url.username && !url.password) return url.href; } catch { /* URL inválida não é exposta. */ }
+  return undefined;
 }
 
 export function mapearPedidoDelivery(valor: unknown): SucessoDelivery {
@@ -53,16 +54,16 @@ export function mapearPedidoDelivery(valor: unknown): SucessoDelivery {
     else if (v.length > 255) aviso(campo, "COMPRIMENTO_EXCEDIDO", "Identificador muito longo. Preencha manualmente.");
     else campos[campo] = v;
   }
-  const cpfOriginal = identificador(p.cpfNotaFiscal);
+  const cpfOriginal = identificador(p["cpfNotaFiscal"]);
   const cpf = cpfOriginal.replace(/\D/g, "").padStart(11, "0");
   if (cpfOriginal && /\d/.test(cpfOriginal) && /^\d{11}$/.test(cpf)) campos.cpf = cpf;
   else aviso("cpf", "CPF_INVALIDO", "CPF inválido no Delivery. Preencha manualmente.");
 
   const nomes = new Set<string>();
   let desconhecido = false;
-  const itens = Array.isArray(p.produtosPedidoEntrega) ? p.produtosPedidoEntrega : [];
+  const itens = Array.isArray(p["produtosPedidoEntrega"]) ? p["produtosPedidoEntrega"] : [];
   for (const item of itens) {
-    const id = registro(registro(item).brinde).destinoId;
+    const id = registro(registro(item)["brinde"])["destinoId"];
     if (id === null || id === undefined) continue;
     const chave = typeof id === "number" ? id : typeof id === "string" && /^\d+$/.test(id) ? Number(id) : NaN;
     const nome = DESTINO_DELIVERY_PARA_KITHUB[chave];
@@ -70,31 +71,31 @@ export function mapearPedidoDelivery(valor: unknown): SucessoDelivery {
     else { desconhecido = true; aviso("destino", "DESTINO_NAO_MAPEADO", `Destino ${Number.isSafeInteger(chave) ? chave : "desconhecido"} não tem equivalente no KitHub: selecione manualmente.`, Number.isSafeInteger(chave) ? chave : undefined); }
   }
   if (nomes.size > 1) aviso("destino", "DESTINO_MULTIPLO", "O pedido contém destinos diferentes. Selecione manualmente.");
-  else if (!desconhecido && nomes.size === 1) campos.destino = [...nomes][0];
+  else if (!desconhecido && nomes.size === 1) { const nome = [...nomes][0]; if (nome) campos.destino = nome; }
   else if (!desconhecido) aviso("destino", "DESTINO_NAO_MAPEADO", "O pedido não informa um destino equivalente. Selecione manualmente.");
 
   const essenciais = ["logradouro", "cep", "bairro", "numero", "cidade", "uf"];
   const presente = (v: unknown) => v !== null && v !== undefined && String(v).trim() !== "";
   if (essenciais.some(k => presente(p[k]))) {
     const end: NonNullable<CamposDelivery["endereco"]> = {};
-    const cepOriginal = identificador(p.cep);
+    const cepOriginal = identificador(p["cep"]);
     const cep = cepOriginal.padStart(8, "0");
     if (cepOriginal && /^\d{8}$/.test(cep)) end.cep = cep;
     else aviso("cep", "CEP_INVALIDO", "CEP inválido no Delivery. Preencha manualmente.");
     for (const [campo, max] of [["logradouro", 80], ["numero", 20], ["complemento", 60], ["bairro", 40], ["cidade", 40]] as const) {
       const v = validarTexto(campo, p[campo], max, campo === "complemento"); if (v) end[campo] = v;
     }
-    const estado = UF_PARA_ESTADO[texto(p.uf).toUpperCase()];
+    const estado = UF_PARA_ESTADO[texto(p["uf"]).toUpperCase()];
     if (estado) end.estado = estado;
     else aviso("estado", "UF_INVALIDA", "Estado inválido no Delivery. Selecione manualmente.");
     if (essenciais.every(k => presente(p[k]))) { campos.endereco = end; sugestoes.tipoEnvio = "Dados do envio original"; }
   }
-  const url = urlSegura(p.urlRastreio); if (url) sugestoes.urlRastreio = url;
-  const data = texto(p.dataTransmissao);
+  const url = urlSegura(p["urlRastreio"]); if (url) sugestoes.urlRastreio = url;
+  const data = texto(p["dataTransmissao"]);
   if (/^\d{4}-\d{2}-\d{2}T/.test(data) && Number.isFinite(Date.parse(data))) sugestoes.dataTransmissao = data;
-  const obs = texto(p.observacao); if (obs && obs.length <= 1000) sugestoes.observacaoDelivery = obs;
-  const provedor = texto(registro(p.provedorEntrega).nome);
-  const status = texto(p.statusTransmissao);
+  const obs = texto(p["observacao"]); if (obs && obs.length <= 1000) sugestoes.observacaoDelivery = obs;
+  const provedor = texto(registro(p["provedorEntrega"])["nome"]);
+  const status = texto(p["statusTransmissao"]);
   return { ok: true, campos, avisos, sugestoes, pedido: {
     ...(campos.idDelivery ? { idDelivery: campos.idDelivery } : {}),
     ...(provedor && provedor.length <= 255 ? { provedor } : {}),

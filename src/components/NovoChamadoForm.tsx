@@ -230,7 +230,7 @@ export function NovoChamadoForm({ listaPath }: { listaPath: "/lojinha/chamados" 
             <Field label="Nome" name="paxNome" />
             <Field label="CPF" name="cpf" placeholder="000.000.000-00" />
             <Field label="ID do Pax" name="paxId" />
-            <Field label="ID Delivery" name="idDelivery" inputMode={usaDelivery ? "numeric" : undefined} maxLength={usaDelivery ? 12 : 255}>
+            <Field label="ID Delivery" name="idDelivery" {...(usaDelivery ? { inputMode: "numeric" as const, maxLength: 12 } : {})}>
               {usaDelivery && <div aria-live="polite" className="mt-1.5 text-xs font-normal text-muted-foreground">
                 {delivery.buscando ? <span className="inline-flex items-center gap-1.5"><LoaderCircle className="h-3.5 w-3.5 animate-spin motion-reduce:animate-none" />Buscando no Delivery...</span> : delivery.mensagem}
                 {delivery.erroDuplicados && <p className="mt-1">{delivery.erroDuplicados}</p>}

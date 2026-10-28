@@ -1,5 +1,5 @@
 import { createMiddleware, createServerFn } from "@tanstack/react-start";
-import { getRequestHeader, setResponseHeader, setResponseStatus } from "@tanstack/react-start/server";
+import { getRequest, getRequestHeader, setResponseHeader, setResponseStatus } from "@tanstack/react-start/server";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { DELIVERY_TIMEOUT_MS, erroHttpDelivery, mapearPedidoDelivery, registro, validarIdDelivery, type ResultadoDelivery } from "./delivery-mapping";
 
@@ -28,7 +28,7 @@ const deliveryAccess = createMiddleware({ type: "function" }).middleware([delive
 export const buscarPedidoDelivery = createServerFn({ method: "POST" })
   .middleware([deliveryAccess])
   .inputValidator((input: { idDelivery: string }) => input)
-  .handler(async ({ data, context, signal }): Promise<ResultadoDelivery> => {
+  .handler(async ({ data, context }): Promise<ResultadoDelivery> => {
     if (!validarIdDelivery(data?.idDelivery)) {
       setResponseStatus(400);
       return { ok: false, codigo: "INVALID_ID", mensagem: "Informe apenas números no ID Delivery." };
@@ -44,7 +44,7 @@ export const buscarPedidoDelivery = createServerFn({ method: "POST" })
     try {
       const response = await fetch(`${base}/pedidos/${data.idDelivery}`, {
         headers: { Authorization: `Bearer ${token}`, Accept: "application/json" },
-        signal: AbortSignal.any([signal, timeout]), redirect: "error",
+        signal: AbortSignal.any([getRequest().signal, timeout]), redirect: "error",
       });
       http = response.status;
       if (!response.ok) {
@@ -52,7 +52,7 @@ export const buscarPedidoDelivery = createServerFn({ method: "POST" })
         setResponseStatus(erro.codigo === "NOT_FOUND" ? 404 : 502); return erro;
       }
       const body: unknown = await response.json();
-      const pedido = registro(registro(body).data).pedido;
+      const pedido = registro(registro(body)["data"])["pedido"];
       if (!pedido || !Object.keys(registro(pedido)).length) {
         setResponseStatus(404); return erroHttpDelivery(404);
       }

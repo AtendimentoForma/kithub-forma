@@ -1,5 +1,5 @@
 import { useServerFn } from "@tanstack/react-start";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { buscarPedidoDelivery, verificarChamadosDelivery } from "@/lib/delivery.functions";
 import { DELIVERY_DEBOUNCE_MS, validarIdDelivery, type AvisoDelivery, type SucessoDelivery } from "@/lib/delivery-mapping";
 import { mascararCep } from "@/lib/endereco";
@@ -58,7 +58,7 @@ export function useDeliveryLookup(enabled: boolean, setTipoEnvio: (v: string) =>
       if (ctrl.signal.aborted || versao !== revisao.current || idAtual.current !== id) return;
       if (!r.ok) { setMensagem(r.mensagem); return; }
       const novos = { ...r.campos, ...r.campos.endereco } as Record<string, unknown>;
-      delete novos.endereco;
+      delete novos["endereco"];
       const s = { ...selosRef.current };
       // Clear only old auto-filled values that have not been manually edited.
       for (const [nome, valor] of Object.entries(s)) {
@@ -94,7 +94,7 @@ export function useDeliveryLookup(enabled: boolean, setTipoEnvio: (v: string) =>
   const aoEditar = (nome: string) => {
     removerSelo(nome);
     setAvisos(a => a.filter(v => v.campo !== nome));
-    if (nome === "paxId") { duplicateRevision.current++; setDuplicados(d => ({ deliveryNumero: d.deliveryNumero })); }
+    if (nome === "paxId") { duplicateRevision.current++; setDuplicados(d => d.deliveryNumero === undefined ? {} : { deliveryNumero: d.deliveryNumero }); }
   };
   useEffect(() => () => { request.current?.abort(); if (timer.current) clearTimeout(timer.current); }, []);
   const dicas = (nome: string) => [
