@@ -1,6 +1,6 @@
 import { queryOptions } from "@tanstack/react-query";
 import type { LucideIcon } from "lucide-react";
-import { CheckCircle2, CircleDollarSign, Clock, Flag, Inbox, PackageCheck, Search, Truck, Users } from "lucide-react";
+import { CheckCircle2, CircleDollarSign, Clock, Flag, Inbox, PackageCheck, Search, Truck, UserCheck, Users } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { confirmarEmailDoUsuario } from "@/lib/admin-users.functions";
 import { z } from "zod";
@@ -8,6 +8,8 @@ import { anexoReversoSchema, type AnexoReverso } from "./reversos-schema";
 
 /** Status exclusivo do SAC (a Lojinha não vê nem seleciona). */
 export const STATUS_LIDERANCA = "ANÁLISE LIDERANÇA" as const;
+/** Conclusão da análise da liderança, marcada só pelo SAC (a Lojinha não vê nem seleciona). */
+export const STATUS_LIDERANCA_CONCLUIDA = "ANÁLISE LIDERANÇA CONCLUÍDA" as const;
 /** Selecionável só pelo SAC; card visível para ambos. */
 export const STATUS_PRIO_ENTREGA = "PRIORIDADE DE ENTREGA" as const;
 /** Selecionável só pela Lojinha; card visível para ambos. */
@@ -24,7 +26,7 @@ export const STATUSES = [
   "CONCLUÍDO",
 ] as const;
 
-export const STATUSES_SAC = [...STATUSES.slice(0, 5), STATUS_LIDERANCA, STATUS_PRIO_ENTREGA, STATUS_PRIO_FINALIZADA, "CONCLUÍDO"] as const;
+export const STATUSES_SAC = [...STATUSES.slice(0, 5), STATUS_LIDERANCA, STATUS_LIDERANCA_CONCLUIDA, STATUS_PRIO_ENTREGA, STATUS_PRIO_FINALIZADA, "CONCLUÍDO"] as const;
 export type Status = (typeof STATUSES_SAC)[number];
 
 /** Status que cada perfil pode escolher ao movimentar. */
@@ -41,6 +43,7 @@ export const STATUS_LABEL: Record<Status, string> = {
   "AGUARDANDO PAGAMENTO": "Aguardando pagamento",
   "REENVIO AUTORIZADO": "Reenvio autorizado",
   "ANÁLISE LIDERANÇA": "Análise Liderança",
+  "ANÁLISE LIDERANÇA CONCLUÍDA": "Análise Liderança Concluída",
   "PRIORIDADE DE ENTREGA": "Prioridade de entrega",
   "PRIORIDADE FINALIZADA": "Prioridade finalizada",
   "CONCLUÍDO": "Concluídos",
@@ -54,6 +57,7 @@ export const STATUS_ICONE: Record<Status, LucideIcon> = {
   "AGUARDANDO PAGAMENTO": CircleDollarSign,
   "REENVIO AUTORIZADO": PackageCheck,
   "ANÁLISE LIDERANÇA": Users,
+  "ANÁLISE LIDERANÇA CONCLUÍDA": UserCheck,
   "PRIORIDADE DE ENTREGA": Truck,
   "PRIORIDADE FINALIZADA": Flag,
   "CONCLUÍDO": CheckCircle2,
@@ -246,7 +250,7 @@ export const leiturasQuery = queryOptions({
 export const MARCA_NAO_LIDO = new Date(0).toISOString();
 
 /** Ordem de exibição dos chamados por status. */
-export const ORDEM_STATUS = ["NOVO CHAMADO", "PRIORIDADE DE ENTREGA", "ANÁLISE LIDERANÇA", "PRIORIDADE FINALIZADA", "EM ANÁLISE", "AGUARDANDO CLIENTE", "AGUARDANDO PAGAMENTO", "REENVIO AUTORIZADO", "CONCLUÍDO"];
+export const ORDEM_STATUS = ["NOVO CHAMADO", "PRIORIDADE DE ENTREGA", "ANÁLISE LIDERANÇA", "ANÁLISE LIDERANÇA CONCLUÍDA", "PRIORIDADE FINALIZADA", "EM ANÁLISE", "AGUARDANDO CLIENTE", "AGUARDANDO PAGAMENTO", "REENVIO AUTORIZADO", "CONCLUÍDO"];
 export function posicaoStatus(s: string) { const i = ORDEM_STATUS.indexOf(s); return i < 0 ? ORDEM_STATUS.length : i; }
 
 export async function marcarChamadoVisto(numero: number, vistoEm: string) {

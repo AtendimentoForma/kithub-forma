@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { Clock3, X } from "lucide-react";
 import { StatusBadge } from "@/components/Shell";
 import { FluxoChamado } from "@/components/FluxoChamado";
-import { STATUS_LIDERANCA, statusSelecionaveis, formatNumero, movimentacoesQuery, addMovimentacao, getMyRole, marcarChamadoVisto, chamadoNaoVisto, MARCA_NAO_LIDO, ultimasMovimentacoesQuery, leiturasQuery, mensagemDeErro, minhasPermissoesQuery, podeEditar, type Chamado, type Status } from "@/lib/chamados";
+import { STATUS_LIDERANCA, STATUS_LIDERANCA_CONCLUIDA, statusSelecionaveis, formatNumero, movimentacoesQuery, addMovimentacao, getMyRole, marcarChamadoVisto, chamadoNaoVisto, MARCA_NAO_LIDO, ultimasMovimentacoesQuery, leiturasQuery, mensagemDeErro, minhasPermissoesQuery, podeEditar, type Chamado, type Status } from "@/lib/chamados";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { AnexoViewer, type AnexoVisualizacao } from "./AnexoViewer";
@@ -65,7 +65,7 @@ export function ChamadoDetalhe({ chamado, onClose }: { chamado: Chamado; onClose
 
   async function enviar() {
     setErro("");
-    if (["CONCLUÍDO", "REENVIO AUTORIZADO", "AGUARDANDO CLIENTE", STATUS_LIDERANCA].includes(status) && !texto.trim()) { setErro(`Para marcar como "${status}", escreva uma movimentação explicando o motivo.`); return; }
+    if (["CONCLUÍDO", "REENVIO AUTORIZADO", "AGUARDANDO CLIENTE", STATUS_LIDERANCA, STATUS_LIDERANCA_CONCLUIDA].includes(status) && !texto.trim()) { setErro(`Para marcar como "${status}", escreva uma movimentação explicando o motivo.`); return; }
     if (!texto.trim() && status === chamado.status) { setErro("Escreva uma mensagem ou altere o status."); return; }
     setEnviando(true);
     try {

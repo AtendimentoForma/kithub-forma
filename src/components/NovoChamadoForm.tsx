@@ -133,7 +133,7 @@ export function NovoChamadoForm({ listaPath }: { listaPath: "/lojinha/chamados" 
     if (enderecoValidado && !enderecoValidado.success) return setErro(enderecoValidado.error.issues[0]?.message ?? "Confira os dados do endereço.");
     if (motivos.includes("Outro") && !g("motivoOutro")) return setErro("Descreva o motivo \"Outro\".");
     if (motivos.includes("Envio correios") && !g("motivoCorreios")) return setErro("Descreva o motivo do envio por correios.");
-    if (["CONCLUÍDO", "REENVIO AUTORIZADO", "AGUARDANDO CLIENTE", "ANÁLISE LIDERANÇA"].includes(status) && !g("observacao")) return setErro(`Para enviar como "${status}", preencha a observação.`);
+    if (["CONCLUÍDO", "REENVIO AUTORIZADO", "AGUARDANDO CLIENTE", "ANÁLISE LIDERANÇA", "ANÁLISE LIDERANÇA CONCLUÍDA"].includes(status) && !g("observacao")) return setErro(`Para enviar como "${status}", preencha a observação.`);
     const nomesAnexos = anexos.map((x) => x.name);
     setErro("");
     setEnviando(true);

@@ -11,7 +11,7 @@ const opcional = (max: number) => z.string().trim().max(max).nullable();
 const chamadoSchema = z.object({
   statusInicial: z.enum([
     "NOVO CHAMADO", "EM ANÁLISE", "AGUARDANDO CLIENTE", "AGUARDANDO PAGAMENTO",
-    "REENVIO AUTORIZADO", "ANÁLISE LIDERANÇA", "PRIORIDADE DE ENTREGA",
+    "REENVIO AUTORIZADO", "ANÁLISE LIDERANÇA", "ANÁLISE LIDERANÇA CONCLUÍDA", "PRIORIDADE DE ENTREGA",
     "PRIORIDADE FINALIZADA", "CONCLUÍDO",
   ]).optional(),
   paxNome: texto(255), cpf: texto(20), paxId: texto(255), idDelivery: texto(255),
