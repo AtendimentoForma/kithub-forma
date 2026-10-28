@@ -26,3 +26,5 @@ Reverse shipment status changes use an authenticated RPC with server-side role a
 Corrections use a shared allowlisted authenticated edit function and atomic permission-checked RPC; original identifiers, authors and workflow status stay immutable through corrections, and field-only validation lets legacy records be corrected without requiring unrelated missing data.
 
 Password recovery uses Cloud Auth email links with a same-origin public reset-password page; recovery state is captured before session hydration consumes the URL, and normal signed-in sessions never enable the recovery form.
+
+Delivery lookups use approved, permission-checked authenticated server functions with strict output mapping and server-only credentials; the SAC form uses a cancellable lookup hook and keeps address fields mounted to preserve manual values across shipment choices.
