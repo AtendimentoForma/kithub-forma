@@ -37,7 +37,7 @@ function Lista() {
 
   async function mudar(numero: number, novoStatus: Status) {
     setErro("");
-    if (["CONCLUÍDO", "REENVIO AUTORIZADO", "AGUARDANDO CLIENTE", "ANÁLISE LIDERANÇA"].includes(novoStatus)) {
+    if (["CONCLUÍDO", "REENVIO AUTORIZADO", "AGUARDANDO CLIENTE", "ANÁLISE LIDERANÇA", "ANÁLISE LIDERANÇA CONCLUÍDA"].includes(novoStatus)) {
       setErro(`Para marcar como "${novoStatus}", abra o chamado e escreva a observação.`);
       setAberto(numero);
       return;

@@ -19,6 +19,7 @@ const statusTone: Partial<Record<Status, string>> = {
   "AGUARDANDO PAGAMENTO": "border-chart-2/30 bg-chart-2/10 text-chart-2",
   "REENVIO AUTORIZADO": "border-urgency-low/30 bg-urgency-low/10 text-urgency-low",
   "ANÁLISE LIDERANÇA": "border-chart-4/30 bg-chart-4/10 text-chart-4",
+  "ANÁLISE LIDERANÇA CONCLUÍDA": "border-urgency-low/30 bg-urgency-low/10 text-urgency-low",
   "PRIORIDADE DE ENTREGA": "border-destructive/30 bg-destructive/10 text-destructive",
   "PRIORIDADE FINALIZADA": "border-primary/50 bg-primary/15 text-foreground",
   "CONCLUÍDO": "border-border bg-muted text-muted-foreground",
