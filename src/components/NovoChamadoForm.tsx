@@ -1,7 +1,7 @@
 import { useNavigate } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { createContext, useContext, useRef, useState, type ChangeEvent, type FormEvent, type ReactNode } from "react";
-import { ChevronUp, LoaderCircle, Paperclip, X } from "lucide-react";
+import { ChevronUp, LoaderCircle, Paperclip, Search, X } from "lucide-react";
 import { Shell } from "@/components/Shell";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -24,11 +24,12 @@ function DeliveryLabel({ name }: { name: string }) {
   const delivery = useContext(DeliveryContext);
   return delivery?.selos[name] ? <span className="ml-2 rounded border border-border px-1.5 py-0.5 text-[10px] font-normal text-muted-foreground">Delivery</span> : null;
 }
-function Field({ label, name, type = "text", required = true, placeholder, maxLength = 255, inputMode, onChange, disabled, children }: { label: string; name: string; type?: string; required?: boolean; placeholder?: string; maxLength?: number; inputMode?: "numeric"; onChange?: (e: ChangeEvent<HTMLInputElement>) => void; disabled?: boolean; children?: ReactNode }) {
+function Field({ label, name, type = "text", required = true, placeholder, maxLength = 255, inputMode, onChange, disabled, children, action }: { label: string; name: string; type?: string; required?: boolean; placeholder?: string; maxLength?: number; inputMode?: "numeric"; onChange?: (e: ChangeEvent<HTMLInputElement>) => void; disabled?: boolean; children?: ReactNode; action?: ReactNode }) {
   return (
     <label className="block text-sm font-medium">
       {label}{required && " *"}<DeliveryLabel name={name} />
       <Input name={name} type={type} required={required} placeholder={placeholder} maxLength={maxLength} inputMode={inputMode} onChange={onChange} disabled={disabled} className="mt-1.5" />
+      {action}
       <DeliveryHint name={name} />{children}
     </label>
   );
