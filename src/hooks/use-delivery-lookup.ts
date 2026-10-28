@@ -1,7 +1,7 @@
 import { useServerFn } from "@tanstack/react-start";
 import { useEffect, useRef, useState } from "react";
 import { buscarPedidoDelivery, verificarChamadosDelivery } from "@/lib/delivery.functions";
-import { DELIVERY_DEBOUNCE_MS, validarIdDelivery, type AvisoDelivery, type SucessoDelivery } from "@/lib/delivery-mapping";
+import { validarIdDelivery, type AvisoDelivery, type SucessoDelivery } from "@/lib/delivery-mapping";
 import { mascararCep } from "@/lib/endereco";
 import { formatNumero } from "@/lib/chamados";
 
@@ -14,6 +14,7 @@ export function useDeliveryLookup(enabled: boolean, setTipoEnvio: (v: string) =>
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const ultimoId = useRef("");
   const idAtual = useRef("");
+  const [idAtualState, setIdAtualState] = useState("");
   const revisao = useRef(0);
   const duplicateRevision = useRef(0);
   const [mensagem, setMensagem] = useState("");
@@ -81,15 +82,14 @@ export function useDeliveryLookup(enabled: boolean, setTipoEnvio: (v: string) =>
       setMensagem(error instanceof Error && error.message.includes("Sessão expirada") ? "Sessão expirada. Entre novamente." : "Delivery indisponível no momento. Preencha manualmente ou tente novamente.");
     } finally { if (!ctrl.signal.aborted && versao === revisao.current) setBuscando(false); }
   };
+  // A busca automática foi removida: digitar não dispara nenhuma chamada.
   const aoMudarId = (raw: string) => {
     if (!enabled) return;
     request.current?.abort();
     if (timer.current) clearTimeout(timer.current);
     revisao.current++; duplicateRevision.current++;
-    idAtual.current = raw; ultimoId.current = "";
+    idAtual.current = raw; setIdAtualState(raw); ultimoId.current = "";
     setBuscando(false); setMensagem(""); setAvisos([]); setSugestoes({}); setDuplicados({}); setErroDuplicados("");
-    if (validarIdDelivery(raw)) timer.current = setTimeout(() => iniciar.current(raw), DELIVERY_DEBOUNCE_MS);
-    else if (raw) setMensagem("Informe apenas números no ID Delivery.");
   };
   const buscarAgora = () => iniciar.current(idAtual.current);
   const aoEditar = (nome: string) => {
@@ -103,5 +103,5 @@ export function useDeliveryLookup(enabled: boolean, setTipoEnvio: (v: string) =>
     ...(nome === "paxId" && duplicados.paxNumero !== undefined ? [`Já existe o chamado ${formatNumero(duplicados.paxNumero)} em aberto para este ID do Pax. Conclua-o antes de abrir outro.`] : []),
     ...(nome === "idDelivery" && duplicados.deliveryNumero !== undefined ? [`Este ID Delivery já está no chamado ${formatNumero(duplicados.deliveryNumero)}.`] : []),
   ];
-  return { formRef, buscando, mensagem, dicas, selos, sugestoes, aoMudarId, buscarAgora, aoEditar, checarDuplicados, erroDuplicados };
+  return { formRef, buscando, mensagem, dicas, selos, sugestoes, idAtual: idAtualState, podeBuscar: enabled && validarIdDelivery(idAtualState) && !buscando, aoMudarId, buscarAgora, aoEditar, checarDuplicados, erroDuplicados };
 }

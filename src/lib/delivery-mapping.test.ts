@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { DELIVERY_DEBOUNCE_MS, DELIVERY_TIMEOUT_MS, DESTINO_DELIVERY_PARA_KITHUB, erroHttpDelivery, mapearPedidoDelivery, validarIdDelivery } from "./delivery-mapping";
+import * as deliveryMapping from "./delivery-mapping";
+import { DELIVERY_TIMEOUT_MS, DESTINO_DELIVERY_PARA_KITHUB, erroHttpDelivery, mapearPedidoDelivery, validarIdDelivery } from "./delivery-mapping";
 
 const pedido = {
   id: 365177, idPax: 1074447, nomeDestinatario: " PAX TESTE ", nomeNotaFiscal: " RESPONSAVEL TESTE ",
@@ -64,5 +65,5 @@ describe("Delivery: contrato e transformação", () => {
     expect(erroHttpDelivery(401).codigo).toBe("DELIVERY_AUTH"); expect(erroHttpDelivery(403).codigo).toBe("DELIVERY_AUTH");
     expect(erroHttpDelivery(404).codigo).toBe("NOT_FOUND"); expect(erroHttpDelivery(422).codigo).toBe("NOT_FOUND"); expect(erroHttpDelivery(500).codigo).toBe("DELIVERY_UNAVAILABLE");
   });
-  it("mantém timeout 10s e debounce 600ms", () => { expect(DELIVERY_TIMEOUT_MS).toBe(10000); expect(DELIVERY_DEBOUNCE_MS).toBe(600); });
+  it("mantém timeout 10s e não possui busca automática", () => { expect(DELIVERY_TIMEOUT_MS).toBe(10000); expect(deliveryMapping).not.toHaveProperty("DELIVERY_DEBOUNCE_MS"); });
 });

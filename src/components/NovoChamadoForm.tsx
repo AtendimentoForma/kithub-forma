@@ -1,7 +1,7 @@
 import { useNavigate } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { createContext, useContext, useRef, useState, type ChangeEvent, type FormEvent, type ReactNode } from "react";
-import { ChevronUp, LoaderCircle, Paperclip, X } from "lucide-react";
+import { ChevronUp, LoaderCircle, Paperclip, Search, X } from "lucide-react";
 import { Shell } from "@/components/Shell";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -24,11 +24,12 @@ function DeliveryLabel({ name }: { name: string }) {
   const delivery = useContext(DeliveryContext);
   return delivery?.selos[name] ? <span className="ml-2 rounded border border-border px-1.5 py-0.5 text-[10px] font-normal text-muted-foreground">Delivery</span> : null;
 }
-function Field({ label, name, type = "text", required = true, placeholder, maxLength = 255, inputMode, onChange, disabled, children }: { label: string; name: string; type?: string; required?: boolean; placeholder?: string; maxLength?: number; inputMode?: "numeric"; onChange?: (e: ChangeEvent<HTMLInputElement>) => void; disabled?: boolean; children?: ReactNode }) {
+function Field({ label, name, type = "text", required = true, placeholder, maxLength = 255, inputMode, onChange, disabled, children, action, className }: { label: string; name: string; type?: string; required?: boolean; placeholder?: string; maxLength?: number; inputMode?: "numeric"; onChange?: (e: ChangeEvent<HTMLInputElement>) => void; disabled?: boolean; children?: ReactNode; action?: ReactNode; className?: string }) {
   return (
-    <label className="block text-sm font-medium">
+    <label className="relative block text-sm font-medium">
       {label}{required && " *"}<DeliveryLabel name={name} />
-      <Input name={name} type={type} required={required} placeholder={placeholder} maxLength={maxLength} inputMode={inputMode} onChange={onChange} disabled={disabled} className="mt-1.5" />
+      <Input name={name} type={type} required={required} placeholder={placeholder} maxLength={maxLength} inputMode={inputMode} onChange={onChange} disabled={disabled} className={className ?? "mt-1.5"} />
+      {action}
       <DeliveryHint name={name} />{children}
     </label>
   );
@@ -209,7 +210,6 @@ export function NovoChamadoForm({ listaPath }: { listaPath: "/lojinha/chamados" 
           if (usaDelivery && el.name === "idDelivery") { cepBusca.current?.abort(); setCepMsg(""); delivery.aoMudarId(el.value); }
         }
       }} onBlur={(e) => {
-        if (e.target.name === "idDelivery") delivery.buscarAgora();
         if (e.target.name === "paxId") void delivery.checarDuplicados();
       }} onKeyDown={(e) => {
         if (usaDelivery && e.key === "Enter" && e.target instanceof HTMLInputElement && e.target.name === "idDelivery") { e.preventDefault(); delivery.buscarAgora(); }
@@ -230,7 +230,11 @@ export function NovoChamadoForm({ listaPath }: { listaPath: "/lojinha/chamados" 
             <Field label="Nome" name="paxNome" />
             <Field label="CPF" name="cpf" placeholder="000.000.000-00" />
             <Field label="ID do Pax" name="paxId" />
-            <Field label="ID Delivery" name="idDelivery" {...(usaDelivery ? { inputMode: "numeric" as const, maxLength: 12 } : {})}>
+            <Field label="ID Delivery" name="idDelivery" {...(usaDelivery ? { inputMode: "numeric" as const, maxLength: 12, className: "mt-1.5 pr-10" } : {})} action={usaDelivery ? (
+              <Button type="button" onClick={() => delivery.buscarAgora()} disabled={!delivery.podeBuscar} aria-label="Buscar pedido no Delivery" title="Buscar pedido no Delivery" variant="ghost" size="icon" className="absolute right-1 top-7 z-10 h-8 w-8 text-muted-foreground hover:text-foreground">
+                {delivery.buscando ? <LoaderCircle className="h-4 w-4 animate-spin motion-reduce:animate-none" /> : <Search className="h-4 w-4" />}
+              </Button>
+            ) : undefined}>
               {usaDelivery && <div aria-live="polite" className="mt-1.5 text-xs font-normal text-muted-foreground">
                 {delivery.buscando ? <span className="inline-flex items-center gap-1.5"><LoaderCircle className="h-3.5 w-3.5 animate-spin motion-reduce:animate-none" />Buscando no Delivery...</span> : delivery.mensagem}
                 {delivery.erroDuplicados && <p className="mt-1">{delivery.erroDuplicados}</p>}
