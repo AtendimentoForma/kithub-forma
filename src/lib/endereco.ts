@@ -28,7 +28,7 @@ export function formatarEndereco(e: Endereco) {
   return `${e.logradouro}, ${e.numero}${e.complemento ? `, ${e.complemento}` : ""} — ${e.bairro}, ${e.cidade} - ${e.estado}, ${e.pais} — CEP ${cep.slice(0, 5)}-${cep.slice(5)}${e.referencia ? ` — Referência: ${e.referencia}` : ""}`;
 }
 
-const UF_PARA_ESTADO: Record<string, (typeof ESTADOS)[number]> = {
+export const UF_PARA_ESTADO: Record<string, (typeof ESTADOS)[number]> = {
   AC: "Acre", AL: "Alagoas", AP: "Amapá", AM: "Amazonas", BA: "Bahia", CE: "Ceará", DF: "Distrito Federal",
   ES: "Espírito Santo", GO: "Goiás", MA: "Maranhão", MT: "Mato Grosso", MS: "Mato Grosso do Sul",
   MG: "Minas Gerais", PA: "Pará", PB: "Paraíba", PR: "Paraná", PE: "Pernambuco", PI: "Piauí",
