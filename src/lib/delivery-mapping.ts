@@ -8,7 +8,6 @@ export const DESTINO_DELIVERY_PARA_KITHUB: Record<number, string> = {
   101: "Camp SP", 128: "Camp Sul", 164: "Alexânia",
 };
 export const DELIVERY_TIMEOUT_MS = 10_000;
-export const DELIVERY_DEBOUNCE_MS = 600;
 export const validarIdDelivery = (id: unknown): id is string => typeof id === "string" && /^\d{1,12}$/.test(id);
 export type AvisoDelivery = { campo: string; codigo: string; mensagem: string; valorOriginal?: number };
 export type CamposDelivery = Partial<Record<"paxNome" | "cpf" | "paxId" | "idDelivery" | "responsavel" | "destino", string>> & { endereco?: Partial<Record<"cep" | "logradouro" | "numero" | "complemento" | "bairro" | "cidade" | "estado", string>> };
