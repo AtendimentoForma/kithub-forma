@@ -41,12 +41,13 @@ export const buscarPedidoDelivery = createServerFn({ method: "POST" })
     }
     const inicio = Date.now();
     let http: number | null = null;
-    const timeout = AbortSignal.timeout(DELIVERY_TIMEOUT_MS);
+    // AbortSignal.timeout/any não existem no runtime publicado; timeout manual com AbortController.
+    const controle = new AbortController();
+    const temporizador = setTimeout(() => controle.abort(), DELIVERY_TIMEOUT_MS);
     try {
       const response = await fetch(`${base}/pedidos/${data.idDelivery}`, {
         headers: { Authorization: `Bearer ${token}`, Accept: "application/json" },
-        // AbortSignal.any não existe no runtime publicado; o timeout de 10s é o limite da chamada.
-        signal: timeout, redirect: "error",
+        signal: controle.signal, redirect: "error",
       });
       http = response.status;
       if (!response.ok) {
@@ -59,9 +60,11 @@ export const buscarPedidoDelivery = createServerFn({ method: "POST" })
         setResponseStatus(404); return erroHttpDelivery(404);
       }
       return mapearPedidoDelivery(pedido);
-    } catch {
-      setResponseStatus(timeout.aborted ? 504 : 502); return erroHttpDelivery(503);
+    } catch (error) {
+      console.warn("Delivery lookup falhou", { idDelivery: data.idDelivery, erro: error instanceof Error ? `${error.name}: ${error.message}` : String(error) });
+      setResponseStatus(controle.signal.aborted ? 504 : 502); return erroHttpDelivery(503);
     } finally {
+      clearTimeout(temporizador);
       console.info("Delivery lookup", { idDelivery: data.idDelivery, userId: context.userId, status: http, duration: Date.now() - inicio });
     }
   });
