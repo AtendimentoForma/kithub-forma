@@ -3,6 +3,9 @@
 
 const GATEWAY_URL = "https://connector-gateway.lovable.dev/slack/api/chat.postMessage";
 const CANAL_CHAMADOS = "C0C8JFM4M6K"; // #chamados-kits-viagens
+// Menção que faz o Slack disparar o alerta (som/push), não só a mensagem no canal.
+// "<!here>" avisa quem está online; "<!channel>" avisa todos do canal.
+const MENCAO_ALERTA = "<!here>";
 
 export type AvisoNovoChamado = {
   numero: number;
@@ -31,7 +34,7 @@ export async function notificarNovoChamadoSlack(a: AvisoNovoChamado): Promise<vo
     : [...a.motivos];
   if (a.motivoCorreios && a.motivos.includes("Envio correios")) motivos.push(`Envio correios: ${a.motivoCorreios}`);
   const texto = [
-    `:inbox_tray: *Novo chamado ${String(a.numero).padStart(5, "0")} — KitHub*`,
+    `${MENCAO_ALERTA} :inbox_tray: *Novo chamado ${String(a.numero).padStart(5, "0")} — KitHub*`,
     `• Aberto por: ${a.solicitante}`,
     `• Passageiro: ${a.paxNome}`,
     `• ID Pax: ${a.paxId} | ID Delivery: ${a.idDelivery}`,
