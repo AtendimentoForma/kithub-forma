@@ -1,7 +1,8 @@
 import { useState, type FormEvent } from "react";
 import { Link, useNavigate } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { Paperclip, X } from "lucide-react";
+import { LoaderCircle, Paperclip, Search, X } from "lucide-react";
+import { useDeliveryLookup } from "@/hooks/use-delivery-lookup";
 import { Shell } from "./Shell";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
@@ -25,6 +26,7 @@ export function ReversoForm({ perfil }: { perfil: "sac" | "lojinha" }) {
   const [files, setFiles] = useState<File[]>([]);
   const [erro, setErro] = useState("");
   const [enviando, setEnviando] = useState(false);
+  const delivery = useDeliveryLookup(true, () => {});
   const path = perfil === "sac" ? "/sac/reversos" : "/lojinha/reversos";
   const toggle = (v: string, lista: string[], set: (v: string[]) => void) => set(lista.includes(v) ? lista.filter(x => x !== v) : [...lista, v]);
   function adicionar(lista: FileList | null) {
@@ -67,10 +69,10 @@ export function ReversoForm({ perfil }: { perfil: "sac" | "lojinha" }) {
   }
   if (!podeEditar(role, permissoes, "chamados") && !podeEditar(role, permissoes, "reenvios")) return <Shell title="Novo reverso" perfil={perfil}><p className="text-muted-foreground">Seu acesso é somente de consulta.</p></Shell>;
   return <Shell title="Novo reverso" perfil={perfil}>
-    <form onSubmit={submit} className="space-y-6">
+    <form ref={delivery.formRef} onSubmit={submit} className="space-y-6" onChange={e => { const el = e.target; if (!(el instanceof HTMLInputElement || el instanceof HTMLSelectElement)) return; delivery.aoEditar(el.name); if (el.name === "idDelivery") delivery.aoMudarId(el.value); }} onKeyDown={e => { if (e.key === "Enter" && e.target instanceof HTMLInputElement && e.target.name === "idDelivery") { e.preventDefault(); delivery.buscarAgora(); } }}>
       <fieldset disabled={enviando} className="space-y-6">
         <section className="kithub-surface p-5 sm:p-6"><h2 className="mb-4 font-semibold">Origem da solicitação *</h2><div className="flex flex-wrap gap-4">{ORIGENS_REVERSO.map(o => <label key={o} className="flex items-center gap-2 text-sm"><input type="checkbox" className="h-4 w-4 accent-primary" checked={origens.includes(o)} onChange={() => toggle(o, origens, setOrigens)} />{o}</label>)}</div></section>
-        <section className="kithub-surface p-5 sm:p-6"><h2 className="mb-4 font-semibold">Dados do passageiro</h2><div className="grid gap-4 sm:grid-cols-2"><Campo label="Nome" name="paxNome" /><Campo label="CPF" name="cpf" /><Campo label="ID do Pax" name="paxId" /><Campo label="ID Delivery" name="idDelivery" /><Campo label="Nome do responsável" name="responsavel" /></div></section>
+        <section className="kithub-surface p-5 sm:p-6"><h2 className="mb-4 font-semibold">Dados do passageiro</h2><div className="grid gap-4 sm:grid-cols-2"><Campo label="Nome" name="paxNome" /><Campo label="CPF" name="cpf" /><Campo label="ID do Pax" name="paxId" /><div><label className="relative block text-sm font-medium">ID Delivery *<Input className="mt-1.5 pr-10" name="idDelivery" required maxLength={255} inputMode="numeric" /><Button type="button" onClick={() => delivery.buscarAgora()} disabled={!delivery.podeBuscar} aria-label="Buscar pedido no Delivery" title="Buscar pedido no Delivery" variant="ghost" size="icon" className="absolute right-1 top-7 h-8 w-8 text-muted-foreground">{delivery.buscando ? <LoaderCircle className="h-4 w-4 animate-spin" /> : <Search className="h-4 w-4" />}</Button></label>{(delivery.buscando || delivery.mensagem) && <p aria-live="polite" className="mt-1.5 text-xs text-muted-foreground">{delivery.buscando ? "Buscando no Delivery..." : delivery.mensagem}</p>}</div><Campo label="Nome do responsável" name="responsavel" /></div></section>
         <section className="kithub-surface p-5 sm:p-6"><h2 className="mb-4 font-semibold">Viagem</h2><div className="grid gap-4 sm:grid-cols-2"><label className="block text-sm font-medium">Destino *<select name="destino" required defaultValue="" className="mt-1.5 h-10 w-full rounded-lg border border-input bg-background px-3 text-sm"><option value="" disabled>Selecione o destino</option>{DESTINOS.map(d => <option key={d}>{d}</option>)}</select></label><Campo label="Ano" name="ano" /></div></section>
         <section className="kithub-surface p-5 sm:p-6"><h2 className="mb-4 font-semibold">Informações do reverso *</h2><label className="flex items-center gap-2 text-sm"><input type="checkbox" className="h-4 w-4 accent-primary" checked={dados} onChange={e => setDados(e.target.checked)} />Dados do reverso</label>{dados && <div className="mt-4 grid gap-4 sm:grid-cols-2"><Campo label="Autorização Mandaê" name="autorizacaoMandae" /><Campo label="Rastreamento Mandaê" name="rastreamentoMandae" /></div>}</section>
         <section className="kithub-surface p-5 sm:p-6"><h2 className="mb-4 font-semibold">Motivo da solicitação *</h2><div className="flex flex-wrap gap-4">{MOTIVOS_REVERSO.map(m => <label key={m} className="flex items-center gap-2 text-sm"><input type="checkbox" className="h-4 w-4 accent-primary" checked={motivos.includes(m)} onChange={() => toggle(m, motivos, setMotivos)} />{m}</label>)}</div>{motivos.includes("Kit de outro destino") && <div className="mt-4"><Campo label="Descreva qual kit de qual destino foi recebido" name="kitOutroDestino" /></div>}{motivos.includes("Objeto danificado") && <label className="mt-4 block text-sm font-medium">Descreva o que aconteceu com o objeto danificado *<Textarea name="objetoDanificado" required rows={3} maxLength={1000} className="mt-1.5" /></label>}</section>
