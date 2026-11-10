@@ -43,12 +43,6 @@ export const criarChamado = createServerFn({ method: "POST" })
       throw new Error("Você não tem permissão para abrir chamados.");
     }
 
-    const { data: abertos, error: consultaErro } = await context.supabase.from("chamados")
-      .select("numero, pax_id").neq("status", "CONCLUÍDO");
-    if (consultaErro) throw consultaErro;
-    const duplicado = abertos?.find((item) => item.pax_id.trim().toLocaleLowerCase("pt-BR") === c.paxId.toLocaleLowerCase("pt-BR"));
-    if (duplicado) throw new Error(`Já existe o chamado #${String(duplicado.numero).padStart(5, "0")} em aberto para o ID do Pax ${c.paxId}. Conclua-o antes de abrir outro.`);
-
     const original = c.tipoEnvio === "Dados do envio original";
     if (original && (!c.endereco || !c.rastreio || !c.dataEnvio)) throw new Error("Preencha os dados do envio original.");
     for (const anexo of c.anexosArquivos) {
@@ -80,4 +74,24 @@ export const criarChamado = createServerFn({ method: "POST" })
       status: c.statusInicial ?? "NOVO CHAMADO",
     });
     return { numero: data.numero };
+  });
+const normalizar = (v: string | null | undefined) => (v ?? "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim().toLocaleLowerCase("pt-BR").replace(/\s+/g, " ");
+const soDigitos = (v: string | null | undefined) => (v ?? "").replace(/\D/g, "");
+
+export const buscarChamadosSemelhantes = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d) => z.object({ paxNome: z.string().max(255), cpf: z.string().max(20), paxId: z.string().max(255), idDelivery: z.string().max(255) }).parse(d))
+  .handler(async ({ context, data }) => {
+    const { data: chamados, error } = await context.supabase.from("chamados")
+      .select("numero, pax_nome, cpf, pax_id, id_delivery, status, criado_em").order("numero", { ascending: false }).limit(5000);
+    if (error) throw new Error("Não foi possível verificar chamados existentes.");
+    const nome = normalizar(data.paxNome), cpf = soDigitos(data.cpf), pax = normalizar(data.paxId), delivery = normalizar(data.idDelivery);
+    return (chamados ?? []).map((c) => {
+      const iguais: string[] = [];
+      if (delivery && normalizar(c.id_delivery) === delivery) iguais.push("ID Delivery");
+      if (pax && normalizar(c.pax_id) === pax) iguais.push("ID do Pax");
+      if (cpf.length === 11 && soDigitos(c.cpf) === cpf) iguais.push("CPF");
+      if (nome && normalizar(c.pax_nome) === nome) iguais.push("Nome");
+      return { numero: c.numero, paxNome: c.pax_nome, paxId: c.pax_id, idDelivery: c.id_delivery, status: c.status, criadoEm: c.criado_em, iguais };
+    }).filter((c) => c.iguais.length > 0).slice(0, 10);
   });

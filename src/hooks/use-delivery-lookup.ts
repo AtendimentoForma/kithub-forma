@@ -100,7 +100,7 @@ export function useDeliveryLookup(enabled: boolean, setTipoEnvio: (v: string) =>
   useEffect(() => () => { request.current?.abort(); if (timer.current) clearTimeout(timer.current); }, []);
   const dicas = (nome: string) => [
     ...avisos.filter(a => a.campo === nome).map(a => a.mensagem),
-    ...(nome === "paxId" && duplicados.paxNumero !== undefined ? [`Já existe o chamado ${formatNumero(duplicados.paxNumero)} em aberto para este ID do Pax. Conclua-o antes de abrir outro.`] : []),
+    ...(nome === "paxId" && duplicados.paxNumero !== undefined ? [`Já existe o chamado ${formatNumero(duplicados.paxNumero)} em aberto para este ID do Pax. Ao enviar, você poderá confirmar se é outro assunto.`] : []),
     ...(nome === "idDelivery" && duplicados.deliveryNumero !== undefined ? [`Este ID Delivery já está no chamado ${formatNumero(duplicados.deliveryNumero)}.`] : []),
   ];
   return { formRef, buscando, mensagem, dicas, selos, sugestoes, idAtual: idAtualState, podeBuscar: enabled && validarIdDelivery(idAtualState) && !buscando, aoMudarId, buscarAgora, aoEditar, checarDuplicados, erroDuplicados };
