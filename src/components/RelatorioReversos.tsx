@@ -92,34 +92,34 @@ export function RelatorioReversos({ perfil }: { perfil: "sac" | "lojinha" }) {
         <div className="grid gap-4 lg:grid-cols-2">
           <Painel titulo="Status dos pedidos">
             <ResponsiveContainer width="100%" height={260}><PieChart>
-              <Pie data={porStatus} dataKey="total" nameKey="nome" innerRadius={60} outerRadius={95} paddingAngle={2}>{porStatus.map(p => <Cell key={p.st} fill={COR_STATUS[p.st]} />)}</Pie>
-              <Tooltip {...tip} formatter={(v: number) => tipPct(v)} />
+              <Pie data={porStatus} dataKey="total" nameKey="nome" innerRadius={60} outerRadius={95} paddingAngle={2}>{porStatus.map(p => <Cell key={p.st} fill={COR_STATUS[p.st] ?? "var(--color-primary)"} />)}</Pie>
+              <Tooltip {...tip} formatter={(v) => tipPct(Number(v))} />
               <Legend formatter={(v: string) => { const p = porStatus.find(x => x.nome === v); return `${v}: ${num(p?.total ?? 0)} (${pct(p ? (p.total / f.length) * 100 : 0)})`; }} />
             </PieChart></ResponsiveContainer>
           </Painel>
           <Painel titulo="Principais motivos" nota={NOTA}>
             <ResponsiveContainer width="100%" height={altura(motivos.length)}><BarChart data={motivos} layout="vertical" margin={{ left: 10, right: 30 }}>
               <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border)" horizontal={false} /><XAxis type="number" allowDecimals={false} /><YAxis type="category" dataKey="nome" width={130} tick={{ fontSize: 12 }} />
-              <Tooltip {...tip} formatter={(v: number) => tipPct(v)} /><Bar dataKey="total" fill="var(--color-primary)" radius={[0, 6, 6, 0]} />
+              <Tooltip {...tip} formatter={(v) => tipPct(Number(v))} /><Bar dataKey="total" fill="var(--color-primary)" radius={[0, 6, 6, 0]} />
             </BarChart></ResponsiveContainer>
           </Painel>
           <Painel titulo="Pedidos por local">
             <ResponsiveContainer width="100%" height={altura(porLocal.length)}><BarChart data={porLocal} layout="vertical" margin={{ left: 10, right: 30 }}>
               <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border)" horizontal={false} /><XAxis type="number" allowDecimals={false} /><YAxis type="category" dataKey="nome" width={130} tick={{ fontSize: 12 }} />
-              <Tooltip {...tip} formatter={(v: number) => tipPct(v)} /><Bar dataKey="total" fill="var(--color-chart-2)" radius={[0, 6, 6, 0]} />
+              <Tooltip {...tip} formatter={(v) => tipPct(Number(v))} /><Bar dataKey="total" fill="var(--color-chart-2)" radius={[0, 6, 6, 0]} />
             </BarChart></ResponsiveContainer>
           </Painel>
           <Painel titulo="Local x motivo" nota={NOTA}>
             <ResponsiveContainer width="100%" height={altura(lxm.length) + 40}><BarChart data={lxm} layout="vertical" margin={{ left: 10, right: 30 }}>
               <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border)" horizontal={false} /><XAxis type="number" allowDecimals={false} /><YAxis type="category" dataKey="nome" width={130} tick={{ fontSize: 12 }} />
-              <Tooltip {...tip} formatter={(v: number, n: string, item: { payload?: Record<string, unknown> }) => { const t = porLocal.find(l => l.nome === item.payload?.["nome"])?.total ?? 0; return [`${num(v)} (${pct(t ? (v / t) * 100 : 0)} do local)`, n]; }} />
+              <Tooltip {...tip} formatter={(valor, nome, item) => { const v = Number(valor); const n = String(nome); const t = porLocal.find(l => l.nome === (item.payload as Record<string, unknown> | undefined)?.["nome"])?.total ?? 0; return [`${num(v)} (${pct(t ? (v / t) * 100 : 0)} do local)`, n]; }} />
               <Legend />{MOTIVOS_REVERSO.map((m, i) => <Bar key={m} dataKey={m} stackId="a" fill={COR_MOTIVO[i % COR_MOTIVO.length]} />)}
             </BarChart></ResponsiveContainer>
           </Painel>
           <Painel titulo={`Evolução no tempo (pedidos abertos por ${evol.semanal ? "semana" : "dia"})`}>
             <ResponsiveContainer width="100%" height={260}><LineChart data={evol.pontos} margin={{ right: 20 }}>
               <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border)" /><XAxis dataKey="rotulo" tick={{ fontSize: 11 }} minTickGap={16} /><YAxis allowDecimals={false} />
-              <Tooltip {...tip} formatter={(v: number) => tipPct(v)} /><Line type="monotone" dataKey="total" stroke="var(--color-primary)" strokeWidth={2} dot={false} />
+              <Tooltip {...tip} formatter={(v) => tipPct(Number(v))} /><Line type="monotone" dataKey="total" stroke="var(--color-primary)" strokeWidth={2} dot={false} />
             </LineChart></ResponsiveContainer>
           </Painel>
           <Painel titulo="Produtos com mais pedidos">
