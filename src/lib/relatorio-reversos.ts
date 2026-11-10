@@ -70,7 +70,7 @@ export function serie(lista: ReversoRel[], inicio: Date, fim: Date) {
 
 export function csv(lista: ReversoRel[], rotuloStatus: (s: string) => string) {
   const esc = (v: string) => `"${v.replace(/"/g, '""')}"`;
-  const linhas = [["Número", "Cliente", "Local", "Motivos", "Status", "Data de abertura", "Data de finalização"].map(esc).join(";")];
+  const linhas = [["Número", "Cliente", "Destino", "Motivos", "Status", "Data de abertura", "Data de finalização"].map(esc).join(";")];
   for (const r of lista) linhas.push([String(r.numero), r.pax_nome, r.destino, r.motivos.join(", "), rotuloStatus(r.status), new Date(r.criado_em).toLocaleDateString("pt-BR"), r.data_finalizacao ? new Date(r.data_finalizacao).toLocaleDateString("pt-BR") : "—"].map(esc).join(";"));
   return "\uFEFF" + linhas.join("\r\n");
 }

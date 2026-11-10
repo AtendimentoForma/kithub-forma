@@ -67,7 +67,7 @@ export function RelatorioReversos({ perfil }: { perfil: "sac" | "lojinha" }) {
             <label className="grid gap-1 text-sm">De<input type="date" className={sel} value={de} onChange={e => setDe(e.target.value)} /></label>
             <label className="grid gap-1 text-sm">Até<input type="date" className={sel} value={ate} onChange={e => setAte(e.target.value)} /></label>
           </>}
-          <label className="grid gap-1 text-sm">Local<select className={sel} value={local} onChange={e => setLocal(e.target.value)}><option value="">Todos</option>{locais.map(l => <option key={l}>{l}</option>)}</select></label>
+          <label className="grid gap-1 text-sm">Destino<select className={sel} value={local} onChange={e => setLocal(e.target.value)}><option value="">Todos</option>{locais.map(l => <option key={l}>{l}</option>)}</select></label>
           <label className="grid gap-1 text-sm">Motivo<select className={sel} value={motivo} onChange={e => setMotivo(e.target.value)}><option value="">Todos</option>{MOTIVOS_REVERSO.map(m => <option key={m}>{m}</option>)}</select></label>
           <label className="grid gap-1 text-sm">Status<select className={sel} value={status} onChange={e => setStatus(e.target.value)}><option value="">Todos</option>{STATUS_REVERSO.map(st => <option key={st} value={st}>{rotulo(st)}</option>)}</select></label>
           <div className="ml-auto flex gap-2">
@@ -103,16 +103,16 @@ export function RelatorioReversos({ perfil }: { perfil: "sac" | "lojinha" }) {
               <Tooltip {...tip} formatter={(v) => tipPct(Number(v))} /><Bar dataKey="total" fill="var(--color-primary)" radius={[0, 6, 6, 0]} />
             </BarChart></ResponsiveContainer>
           </Painel>
-          <Painel titulo="Pedidos por local">
+          <Painel titulo="Pedidos por destino">
             <ResponsiveContainer width="100%" height={altura(porLocal.length)}><BarChart data={porLocal} layout="vertical" margin={{ left: 10, right: 30 }}>
               <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border)" horizontal={false} /><XAxis type="number" allowDecimals={false} /><YAxis type="category" dataKey="nome" width={130} tick={{ fontSize: 12 }} />
               <Tooltip {...tip} formatter={(v) => tipPct(Number(v))} /><Bar dataKey="total" fill="var(--color-chart-2)" radius={[0, 6, 6, 0]} />
             </BarChart></ResponsiveContainer>
           </Painel>
-          <Painel titulo="Local x motivo" nota={NOTA}>
+          <Painel titulo="Destino x motivo" nota={NOTA}>
             <ResponsiveContainer width="100%" height={altura(lxm.length) + 40}><BarChart data={lxm} layout="vertical" margin={{ left: 10, right: 30 }}>
               <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border)" horizontal={false} /><XAxis type="number" allowDecimals={false} /><YAxis type="category" dataKey="nome" width={130} tick={{ fontSize: 12 }} />
-              <Tooltip {...tip} formatter={(valor, nome, item) => { const v = Number(valor); const n = String(nome); const t = porLocal.find(l => l.nome === (item.payload as Record<string, unknown> | undefined)?.["nome"])?.total ?? 0; return [`${num(v)} (${pct(t ? (v / t) * 100 : 0)} do local)`, n]; }} />
+              <Tooltip {...tip} formatter={(valor, nome, item) => { const v = Number(valor); const n = String(nome); const t = porLocal.find(l => l.nome === (item.payload as Record<string, unknown> | undefined)?.["nome"])?.total ?? 0; return [`${num(v)} (${pct(t ? (v / t) * 100 : 0)} do destino)`, n]; }} />
               <Legend />{MOTIVOS_REVERSO.map((m, i) => <Bar key={m} dataKey={m} stackId="a" fill={COR_MOTIVO[i % COR_MOTIVO.length]} />)}
             </BarChart></ResponsiveContainer>
           </Painel>
@@ -130,7 +130,7 @@ export function RelatorioReversos({ perfil }: { perfil: "sac" | "lojinha" }) {
         <Painel titulo={`Pedidos em aberto (${num(abertos.length)})`}>
           {!abertos.length ? <p className="text-sm text-muted-foreground">Nenhum pedido em aberto neste filtro.</p> : (
             <div className="overflow-x-auto"><table className="w-full text-sm">
-              <thead><tr className="border-b border-border text-left text-muted-foreground"><th className="p-2">Nº</th><th className="p-2">Cliente</th><th className="p-2">Local</th><th className="p-2">Motivo(s)</th><th className="p-2">Produto(s)</th><th className="p-2">Abertura</th><th className="p-2 text-right">Dias em aberto</th></tr></thead>
+              <thead><tr className="border-b border-border text-left text-muted-foreground"><th className="p-2">Nº</th><th className="p-2">Cliente</th><th className="p-2">Destino</th><th className="p-2">Motivo(s)</th><th className="p-2">Produto(s)</th><th className="p-2">Abertura</th><th className="p-2 text-right">Dias em aberto</th></tr></thead>
               <tbody>{abertos.map(r => { const d = diasEntre(r.criado_em, new Date()); return (
                 <tr key={r.numero} onClick={() => navigate({ to: perfil === "sac" ? "/sac/reversos" : "/lojinha/reversos", search: { numero: r.numero } })} className={`cursor-pointer border-b border-border hover:bg-muted/50 ${d > 7 ? "bg-urgency-medium/10 text-urgency-medium font-medium" : ""}`}>
                   <td className="p-2">{String(r.numero).padStart(5, "0")}</td><td className="p-2">{r.pax_nome}</td><td className="p-2">{r.destino}</td><td className="p-2">{r.motivos.join(", ")}</td><td className="p-2">—</td><td className="p-2">{data(r.criado_em)}</td><td className="p-2 text-right">{num(d)}</td>
