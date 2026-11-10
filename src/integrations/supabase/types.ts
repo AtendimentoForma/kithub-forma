@@ -263,6 +263,7 @@ export type Database = {
           autorizacao_mandae: string
           cpf: string
           criado_em: string
+          data_finalizacao: string | null
           destino: string
           finalizacao: string | null
           id_delivery: string
@@ -287,6 +288,7 @@ export type Database = {
           autorizacao_mandae: string
           cpf: string
           criado_em?: string
+          data_finalizacao?: string | null
           destino: string
           finalizacao?: string | null
           id_delivery: string
@@ -311,6 +313,7 @@ export type Database = {
           autorizacao_mandae?: string
           cpf?: string
           criado_em?: string
+          data_finalizacao?: string | null
           destino?: string
           finalizacao?: string | null
           id_delivery?: string
