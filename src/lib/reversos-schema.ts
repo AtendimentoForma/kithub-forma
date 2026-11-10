@@ -2,8 +2,10 @@ import { z } from "zod";
 
 export const ORIGENS_REVERSO = ["Cliente entrou em contato", "Identificado internamente"] as const;
 export const MOTIVOS_REVERSO = ["Troca de tamanho", "Defeito", "Kit de outro destino", "Objeto danificado"] as const;
-export const STATUS_REVERSO = ["NOVO REVERSO", "REVERSO CONCLUÍDO"] as const;
-export const statusReversoSchema = z.object({ numero: z.number().int().positive(), status: z.enum(STATUS_REVERSO) });
+export const STATUS_REVERSO = ["NOVO REVERSO", "REVERSO CONCLUÍDO", "FINALIZADO"] as const;
+export const STATUS_REVERSO_LABEL: Record<typeof STATUS_REVERSO[number], string> = { "NOVO REVERSO": "Novo reverso", "REVERSO CONCLUÍDO": "Reverso concluído", "FINALIZADO": "Finalizado" };
+export const statusReversoSchema = z.object({ numero: z.number().int().positive(), status: z.enum(STATUS_REVERSO), finalizacao: z.string().trim().max(1000).default("") })
+  .refine(v => v.status !== "FINALIZADO" || v.finalizacao.length > 0, { message: "Para finalizar, preencha a descrição da finalização.", path: ["finalizacao"] });
 const texto = z.string().trim().min(1, "Preencha os campos obrigatórios.").max(255);
 export const anexoReversoSchema = z.object({ nome: texto, caminho: z.string().min(1).max(500), tipo: z.string().max(100), tamanho: z.number().positive().max(10 * 1024 * 1024) });
 export const reversoSchema = z.object({
