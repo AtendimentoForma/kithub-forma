@@ -119,7 +119,7 @@ export function RelatorioReversos({ perfil }: { perfil: "sac" | "lojinha" }) {
           <Painel titulo={`Evolução no tempo (pedidos abertos por ${evol.semanal ? "semana" : "dia"})`}>
             <ResponsiveContainer width="100%" height={260}><LineChart data={evol.pontos} margin={{ right: 20 }}>
               <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border)" /><XAxis dataKey="rotulo" tick={{ fontSize: 11 }} minTickGap={16} /><YAxis allowDecimals={false} />
-              <Tooltip {...tip} formatter={(v) => tipPct(Number(v))} /><Line type="monotone" dataKey="total" stroke="var(--color-primary)" strokeWidth={2} dot={false} />
+              <Tooltip {...tip} formatter={(v) => tipPct(Number(v))} /><Line type="linear" dataKey="total" stroke="var(--color-primary)" strokeWidth={2} dot={false} />
             </LineChart></ResponsiveContainer>
           </Painel>
           <Painel titulo="Produtos com mais pedidos">
