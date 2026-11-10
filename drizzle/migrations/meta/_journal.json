@@ -176,6 +176,13 @@
       "when": 1794340707200,
       "tag": "0024_reverso_historico_status",
       "breakpoints": true
+    },
+    {
+      "idx": 25,
+      "version": "7",
+      "when": 1794350000000,
+      "tag": "0025_permitir_pax_repetido_confirmado",
+      "breakpoints": true
     }
   ]
 }

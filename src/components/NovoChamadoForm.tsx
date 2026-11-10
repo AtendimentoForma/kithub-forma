@@ -7,7 +7,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { DESTINOS, MOTIVOS, addMovimentacao, formatNumero, mensagemDeErro, getMyRole, minhasPermissoesQuery, podeEditar, statusSelecionaveis, type Status } from "@/lib/chamados";
-import { criarChamado } from "@/lib/criar-chamado.functions";
+import { criarChamado, buscarChamadosSemelhantes } from "@/lib/criar-chamado.functions";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { buscarCep, enderecoSchema, ESTADOS, mascararCep } from "@/lib/endereco";
 import { supabase } from "@/integrations/supabase/client";
 import { validarArquivoReverso, type AnexoReverso } from "@/lib/reversos-schema";
@@ -115,6 +116,9 @@ export function NovoChamadoForm({ listaPath }: { listaPath: "/lojinha/chamados" 
     setOrigens((p) => (p.includes(o) ? p.filter((x) => x !== o) : [...p, o]));
   }
 
+  type Semelhante = Awaited<ReturnType<typeof buscarChamadosSemelhantes>>[number];
+  const [semelhantes, setSemelhantes] = useState<Semelhante[] | null>(null);
+  const confirmado = useRef(false);
   async function submit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
     const f = new FormData(e.currentTarget);
@@ -136,6 +140,16 @@ export function NovoChamadoForm({ listaPath }: { listaPath: "/lojinha/chamados" 
     if (["CONCLUÍDO", "REENVIO AUTORIZADO", "AGUARDANDO CLIENTE", "ANÁLISE LIDERANÇA", "ANÁLISE LIDERANÇA CONCLUÍDA"].includes(status) && !g("observacao")) return setErro(`Para enviar como "${status}", preencha a observação.`);
     const nomesAnexos = anexos.map((x) => x.name);
     setErro("");
+    if (!confirmado.current) {
+      setEnviando(true);
+      try {
+        const lista = await buscarChamadosSemelhantes({ data: { paxNome: g("paxNome"), cpf: g("cpf"), paxId: g("paxId"), idDelivery: g("idDelivery") } });
+        if (lista.length) { setSemelhantes(lista); return; }
+      } catch (err) {
+        return setErro(mensagemDeErro(err, "Não foi possível verificar chamados existentes."));
+      } finally { setEnviando(false); }
+    }
+    confirmado.current = false;
     setEnviando(true);
     let novoNumero: number | null = null;
     const enviados: AnexoReverso[] = [];
@@ -203,6 +217,31 @@ export function NovoChamadoForm({ listaPath }: { listaPath: "/lojinha/chamados" 
   return (
     <Shell title="Novo chamado de reenvio" perfil={listaPath === "/sac/chamados" ? "sac" : "lojinha"}>
       <DeliveryContext.Provider value={usaDelivery ? delivery : null}>
+      <Dialog open={semelhantes !== null} onOpenChange={(o) => { if (!o) setSemelhantes(null); }}>
+        <DialogContent className="max-w-lg">
+          <DialogHeader>
+            <DialogTitle>Já existem chamados deste passageiro</DialogTitle>
+            <DialogDescription>Confira se não é o mesmo atendimento. Se for outro assunto do mesmo cliente, você pode continuar.</DialogDescription>
+          </DialogHeader>
+          <ul className="max-h-72 space-y-2 overflow-y-auto">
+            {semelhantes?.map((c) => (
+              <li key={c.numero} className="rounded-lg border border-border p-3 text-sm">
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <span className="font-mono font-semibold">{formatNumero(c.numero)}</span>
+                  <span className="text-xs text-muted-foreground">{c.status} · {new Date(c.criadoEm).toLocaleDateString("pt-BR")}</span>
+                </div>
+                <div className="mt-1">{c.paxNome}</div>
+                <div className="text-xs text-muted-foreground">ID Pax {c.paxId} · ID Delivery {c.idDelivery}</div>
+                <div className="mt-1 text-xs font-medium text-destructive">Igual em: {c.iguais.join(", ")}</div>
+              </li>
+            ))}
+          </ul>
+          <DialogFooter>
+            <Button type="button" variant="outline" onClick={() => setSemelhantes(null)}>Voltar e revisar</Button>
+            <Button type="button" onClick={() => { setSemelhantes(null); confirmado.current = true; delivery.formRef.current?.requestSubmit(); }}>Continuar e abrir chamado</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
       <form ref={delivery.formRef} onSubmit={submit} className="space-y-6" onChange={(e) => {
         const el = e.target;
         if (el instanceof HTMLInputElement || el instanceof HTMLSelectElement || el instanceof HTMLTextAreaElement) {
