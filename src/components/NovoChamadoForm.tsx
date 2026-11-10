@@ -121,8 +121,7 @@ export function NovoChamadoForm({ listaPath }: { listaPath: "/lojinha/chamados" 
   const confirmado = useRef(false);
   async function submit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    const form = e.currentTarget;
-    const f = new FormData(form);
+    const f = new FormData(e.currentTarget);
     const g = (k: string) => String(f.get(k) ?? "").trim();
     if (!g("idDelivery")) return setErro("Preencha o ID Delivery.");
     if (motivos.length === 0) return setErro("Selecione ao menos um motivo.");
