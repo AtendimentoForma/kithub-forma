@@ -43,3 +43,8 @@ export const atualizarStatusReverso = createServerFn({ method: "POST" }).middlew
   if (error) throw error;
   return { numero: data.numero, status: data.status };
 });
+export const historicoReverso = createServerFn({ method: "POST" }).middleware([requireSupabaseAuth]).inputValidator(data => z.object({ numero: z.number().int().positive() }).parse(data)).handler(async ({ context, data }) => {
+  const { data: lista, error } = await context.supabase.from("reverso_movimentacoes").select("id, criado_em, autor_nome, perfil, status_anterior, status_novo, texto").eq("reverso_numero", data.numero).order("criado_em", { ascending: true });
+  if (error) throw error;
+  return lista ?? [];
+});

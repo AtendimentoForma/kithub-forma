@@ -220,6 +220,42 @@ export type Database = {
         }
         Relationships: []
       }
+      reverso_movimentacoes: {
+        Row: {
+          autor_id: string
+          autor_nome: string
+          criado_em: string
+          id: string
+          perfil: string
+          reverso_numero: number
+          status_anterior: string | null
+          status_novo: string
+          texto: string | null
+        }
+        Insert: {
+          autor_id: string
+          autor_nome?: string
+          criado_em?: string
+          id?: string
+          perfil?: string
+          reverso_numero: number
+          status_anterior?: string | null
+          status_novo: string
+          texto?: string | null
+        }
+        Update: {
+          autor_id?: string
+          autor_nome?: string
+          criado_em?: string
+          id?: string
+          perfil?: string
+          reverso_numero?: number
+          status_anterior?: string | null
+          status_novo?: string
+          texto?: string | null
+        }
+        Relationships: []
+      }
       reversos: {
         Row: {
           anexos: Json
