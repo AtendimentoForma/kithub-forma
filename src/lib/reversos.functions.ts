@@ -39,7 +39,7 @@ export const abrirAnexoReverso = createServerFn({ method: "POST" }).middleware([
   return url.signedUrl;
 });
 export const atualizarStatusReverso = createServerFn({ method: "POST" }).middleware([requireSupabaseAuth]).inputValidator(data => statusReversoSchema.parse(data)).handler(async ({ context, data }) => {
-  const { error } = await context.supabase.rpc("definir_status_reverso", { _numero: data.numero, _status: data.status });
+  const { error } = await context.supabase.rpc("definir_status_reverso_v2", { _numero: data.numero, _status: data.status, _finalizacao: data.finalizacao });
   if (error) throw error;
   return { numero: data.numero, status: data.status };
 });

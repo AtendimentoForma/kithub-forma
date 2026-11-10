@@ -162,6 +162,13 @@
       "when": 1793190875982,
       "tag": "0022_sql",
       "breakpoints": true
+    },
+    {
+      "idx": 23,
+      "version": "7",
+      "when": 1794327118183,
+      "tag": "0023_reverso_status_finalizado",
+      "breakpoints": true
     }
   ]
 }

@@ -228,6 +228,7 @@ export type Database = {
           cpf: string
           criado_em: string
           destino: string
+          finalizacao: string | null
           id_delivery: string
           kit_outro_destino: string | null
           motivos: string[]
@@ -251,6 +252,7 @@ export type Database = {
           cpf: string
           criado_em?: string
           destino: string
+          finalizacao?: string | null
           id_delivery: string
           kit_outro_destino?: string | null
           motivos: string[]
@@ -274,6 +276,7 @@ export type Database = {
           cpf?: string
           criado_em?: string
           destino?: string
+          finalizacao?: string | null
           id_delivery?: string
           kit_outro_destino?: string | null
           motivos?: string[]
@@ -391,6 +394,10 @@ export type Database = {
       }
       definir_status_reverso: {
         Args: { _numero: number; _status: string }
+        Returns: undefined
+      }
+      definir_status_reverso_v2: {
+        Args: { _finalizacao: string; _numero: number; _status: string }
         Returns: undefined
       }
       despachar_chamado: {
