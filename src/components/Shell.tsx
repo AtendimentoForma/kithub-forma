@@ -54,6 +54,7 @@ export function Shell({ title, children, perfil = "lojinha" }: { title: string; 
     { label: "Lojinha", to: "/lojinha" as const, icon: Store, show: perfil === "lojinha" || isAdmin },
     { label: "SAC", to: "/sac" as const, icon: Headphones, show: perfil === "sac" || isAdmin },
     { label: "Relatórios", to: "/sac/relatorios" as const, icon: BarChart3, show: perfil === "sac" || isAdmin },
+    { label: "Relatórios de reversos", to: (perfil === "lojinha" ? "/lojinha/relatorios-reversos" : "/sac/relatorios-reversos") as "/sac/relatorios-reversos" | "/lojinha/relatorios-reversos", icon: BarChart3, show: true },
     { label: "Usuários", to: "/admin" as const, icon: Users, show: isAdmin },
   ].filter((item) => item.show);
 
