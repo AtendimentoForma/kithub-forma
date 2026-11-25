@@ -71,6 +71,7 @@ export const MOTIVOS = [
   "Venda mochila",
   "Venda camiseta",
   "Envio correios",
+  "Alteração de endereço",
   "Outro",
 ] as const;
 
@@ -93,6 +94,7 @@ export interface Chamado {
   motivos: string[];
   motivoOutro?: string | null;
   motivoCorreios?: string | null;
+  coletaStatus?: string | null;
   origemSolicitacao: string;
   observacao?: string | null;
   anexos: string[];
@@ -145,6 +147,7 @@ function fromRow(r: any): Chamado {
     motivos: r.motivos ?? [],
     motivoOutro: r.motivo_outro,
     motivoCorreios: r.motivo_correios,
+    coletaStatus: r.coleta_status ?? null,
     origemSolicitacao: r.origem_solicitacao ?? "",
     observacao: r.observacao,
     anexos: r.anexos ?? [],

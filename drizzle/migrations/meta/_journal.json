@@ -190,6 +190,13 @@
       "when": 1794350000001,
       "tag": "0026_reverso_data_finalizacao",
       "breakpoints": true
+    },
+    {
+      "idx": 27,
+      "version": "7",
+      "when": 1795619807785,
+      "tag": "0027_chamados_coleta_status",
+      "breakpoints": true
     }
   ]
 }

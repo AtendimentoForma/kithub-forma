@@ -96,6 +96,7 @@ export type Database = {
           anexos: string[]
           anexos_arquivos: Json
           ano: string | null
+          coleta_status: string | null
           conf_dados: boolean
           conf_envio: boolean
           conf_motivo: boolean
@@ -130,6 +131,7 @@ export type Database = {
           anexos?: string[]
           anexos_arquivos?: Json
           ano?: string | null
+          coleta_status?: string | null
           conf_dados?: boolean
           conf_envio?: boolean
           conf_motivo?: boolean
@@ -164,6 +166,7 @@ export type Database = {
           anexos?: string[]
           anexos_arquivos?: Json
           ano?: string | null
+          coleta_status?: string | null
           conf_dados?: boolean
           conf_envio?: boolean
           conf_motivo?: boolean

@@ -136,6 +136,7 @@ export function NovoChamadoForm({ listaPath }: { listaPath: "/lojinha/chamados" 
     }) : null;
     if (enderecoValidado && !enderecoValidado.success) return setErro(enderecoValidado.error.issues[0]?.message ?? "Confira os dados do endereço.");
     if (motivos.includes("Outro") && !g("motivoOutro")) return setErro("Descreva o motivo \"Outro\".");
+    if (motivos.includes("Alteração de endereço") && !g("coletaStatus")) return setErro("Informe se o pedido já foi coletado ou não coletado.");
     if (motivos.includes("Envio correios") && !g("motivoCorreios")) return setErro("Descreva o motivo do envio por correios.");
     if (["CONCLUÍDO", "REENVIO AUTORIZADO", "AGUARDANDO CLIENTE", "ANÁLISE LIDERANÇA", "ANÁLISE LIDERANÇA CONCLUÍDA"].includes(status) && !g("observacao")) return setErro(`Para enviar como "${status}", preencha a observação.`);
     const nomesAnexos = anexos.map((x) => x.name);
@@ -168,7 +169,7 @@ export function NovoChamadoForm({ listaPath }: { listaPath: "/lojinha/chamados" 
         paxNome: g("paxNome"), cpf: g("cpf"), paxId: g("paxId"), idDelivery: g("idDelivery"), destino: g("destino"), ano: g("ano"), responsavel: g("responsavel"),
         tipoEnvio: tipoEnvio as "Dados do envio original", infoEnvio: original ? null : g("infoEnvio"),
         rastreio: original ? g("rastreio") : undefined, endereco: enderecoValidado?.data, dataEnvio: original ? g("dataEnvio") : undefined,
-        motivos, motivoOutro: g("motivoOutro") || null, motivoCorreios: g("motivoCorreios") || null, origemSolicitacao: origens.join(", "),
+        motivos, motivoOutro: g("motivoOutro") || null, motivoCorreios: g("motivoCorreios") || null, coletaStatus: motivos.includes("Alteração de endereço") ? (g("coletaStatus") as "Coletado" | "Não coletado") : null, origemSolicitacao: origens.join(", "),
         observacao: g("observacao") || null, anexos: nomesAnexos, anexosArquivos: enviados,
       } });
       novoNumero = c.numero;
@@ -354,6 +355,7 @@ export function NovoChamadoForm({ listaPath }: { listaPath: "/lojinha/chamados" 
           </div>
           {motivos.includes("Outro") && <div className="mt-4"><Field label="Descreva o motivo" name="motivoOutro" /></div>}
           {motivos.includes("Envio correios") && <div className="mt-4"><Field label="Descreva o motivo do envio por correios" name="motivoCorreios" maxLength={255} /></div>}
+          {motivos.includes("Alteração de endereço") && <label className="mt-4 block text-sm font-medium">O pedido já foi coletado? *<select name="coletaStatus" required defaultValue="" className="mt-1.5 h-10 w-full rounded-lg border border-input bg-background px-3 text-sm sm:max-w-xs"><option value="" disabled>Selecione</option><option>Coletado</option><option>Não coletado</option></select></label>}
         </section>
         <section className="kithub-surface p-5 sm:p-6">
           <h2 className="mb-4 font-semibold">Informações adicionais (opcional)</h2>

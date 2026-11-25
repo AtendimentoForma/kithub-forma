@@ -18,6 +18,7 @@ export type AvisoNovoChamado = {
   motivos: string[];
   motivoOutro: string | null;
   motivoCorreios: string | null;
+  coletaStatus?: string | null;
   origem: string;
   status: string;
 };
@@ -33,6 +34,7 @@ export async function notificarNovoChamadoSlack(a: AvisoNovoChamado): Promise<vo
     ? [...a.motivos.filter((m) => m !== "Outro"), `Outro: ${a.motivoOutro}`]
     : [...a.motivos];
   if (a.motivoCorreios && a.motivos.includes("Envio correios")) motivos.push(`Envio correios: ${a.motivoCorreios}`);
+  if (a.coletaStatus && a.motivos.includes("Alteração de endereço")) motivos.push(`Alteração de endereço: ${a.coletaStatus}`);
   const texto = [
     `${MENCAO_ALERTA} :inbox_tray: *Novo chamado ${String(a.numero).padStart(5, "0")} — KitHub*`,
     `• Aberto por: ${a.solicitante}`,

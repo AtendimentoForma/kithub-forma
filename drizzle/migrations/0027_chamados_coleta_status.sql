@@ -1,0 +1,1 @@
+ALTER TABLE public.chamados ADD COLUMN coleta_status text CHECK (coleta_status IS NULL OR coleta_status IN ('Coletado','Não coletado'));
