@@ -28,3 +28,5 @@ Corrections use a shared allowlisted authenticated edit function and atomic perm
 Password recovery uses Cloud Auth email links with a same-origin public reset-password page; recovery state is captured before session hydration consumes the URL, and normal signed-in sessions never enable the recovery form.
 
 Delivery lookups use approved, permission-checked authenticated server functions with strict output mapping and server-only credentials; the SAC form uses a cancellable lookup hook and keeps address fields mounted to preserve manual values across shipment choices.
+
+Zendesk tickets for new chamados are created server-side through the Zendesk connector gateway after the insert; all Zendesk IDs live only in src/lib/zendesk-config.ts so they can be changed without touching the flow, and the stored ticket id prevents duplicate tickets/e-mails.

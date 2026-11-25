@@ -44,7 +44,6 @@ export async function criarTicketZendesk(d: DadosTicket): Promise<{ id: number; 
   if (d.enviarEmail) {
     await zd(`/api/v2/tickets/${id}`, { method: "PUT", body: JSON.stringify({ ticket: { comment: { body: d.notaInterna, public: false } } }) });
   }
-  const sub = process.env["ZENDESK_SUBDOMAIN"];
-  const url = typeof res.ticket.url === "string" && sub ? `https://${sub}.zendesk.com/agent/tickets/${id}` : String(res.ticket.url ?? "").replace("/api/v2/tickets/", "/agent/tickets/").replace(/\.json$/, "");
+  const url = `https://ajudaformaturismo.zendesk.com/agent/tickets/${id}`;
   return { id, url };
 }
