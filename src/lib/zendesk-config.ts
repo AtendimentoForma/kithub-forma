@@ -9,7 +9,7 @@ export const ZENDESK_CONFIG = {
   campoDestino: { nome: "Destino", id: 360055228453 as number | null }, // valor = tag da opção do destino (ver destinoTag)
 };
 
-// Agente cuja assinatura (configurada na Zendesk) é aplicada ao e-mail. null = ainda não informado.
+// Opcional: autor do comentário público. A assinatura vem do "signature_template" da marca, lido na hora do envio.
 export const AGENTE_ASSINATURA_ID: number | null = null;
 
 // Tags do ticket: "chamado_kithub" sempre; "chamado_kithub_enviado" só quando o e-mail foi marcado.

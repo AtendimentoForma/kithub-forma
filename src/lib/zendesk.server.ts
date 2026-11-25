@@ -19,6 +19,16 @@ function textoParaHtml(t: string) {
   return t.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/\r?\n/g, "<br>");
 }
 
+async function assinaturaDaMarca(): Promise<string> {
+  try {
+    const r = await zd(`/api/v2/brands/${Z.marca.id}`);
+    const t: string = r.brand?.signature_template ?? "";
+    if (!t.trim()) return "";
+    const esc = textoParaHtml(t.replace(/\{\{[^}]*\}\}/g, "").trim());
+    return esc.replace(/!\[([^\]]*)\]\((https:\/\/[^)\s]+)\)/g, '<img src="$2" alt="$1">');
+  } catch (e) { console.error("Assinatura da marca indisponível:", e); return ""; }
+}
+
 export type DadosTicket = {
   numero: number; paxId: string; responsavelEmail: string; responsavel: string; destino: string;
   notaInterna: string; enviarEmail: boolean; emailTexto: string | null;
@@ -31,6 +41,7 @@ export async function criarTicketZendesk(d: DadosTicket): Promise<{ id: number; 
     { id: Z.campoMotivo.id, value: Z.campoMotivo.valor },
     { id: Z.campoDestino.id, value: DESTINO_TAG[d.destino] ?? d.destino },
   ];
+  const assinatura = d.enviarEmail ? await assinaturaDaMarca() : "";
   const ticket = {
     subject: `CHAMADO KITHUB - ${d.paxId}`,
     status: "pending", priority: "normal",
@@ -39,7 +50,7 @@ export async function criarTicketZendesk(d: DadosTicket): Promise<{ id: number; 
     via: { channel: "email" },
     tags: tagsDoTicket(d.enviarEmail),
     custom_fields,
-    comment: d.enviarEmail ? { html_body: textoParaHtml(d.emailTexto ?? ""), public: true, ...(AGENTE_ASSINATURA_ID ? { author_id: AGENTE_ASSINATURA_ID } : {}) } : { body: d.notaInterna, public: false },
+    comment: d.enviarEmail ? { html_body: textoParaHtml(d.emailTexto ?? "") + (assinatura ? `<br><br>${assinatura}` : ""), public: true, ...(AGENTE_ASSINATURA_ID ? { author_id: AGENTE_ASSINATURA_ID } : {}) } : { body: d.notaInterna, public: false },
   };
   const res = await zd("/api/v2/tickets", {
     method: "POST", body: JSON.stringify({ ticket }),
