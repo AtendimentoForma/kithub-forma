@@ -1,4 +1,4 @@
-import { ZENDESK_CONFIG as Z, DESTINO_TAG, idsFaltando, tagsDoTicket } from "./zendesk-config";
+import { AGENTE_ASSINATURA_ID, ZENDESK_CONFIG as Z, DESTINO_TAG, idsFaltando, tagsDoTicket } from "./zendesk-config";
 
 const GATEWAY = "https://connector-gateway.lovable.dev/zendesk";
 
@@ -13,6 +13,10 @@ async function zd(path: string, init: RequestInit = {}) {
   const txt = await r.text();
   if (!r.ok) { console.error(`Zendesk [${r.status}] ${path}: ${txt}`); throw new Error(`Zendesk recusou a criação do ticket (${r.status}): ${txt.slice(0, 300)}`); }
   return txt ? JSON.parse(txt) : {};
+}
+
+function textoParaHtml(t: string) {
+  return t.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/\r?\n/g, "<br>");
 }
 
 export type DadosTicket = {
@@ -35,7 +39,7 @@ export async function criarTicketZendesk(d: DadosTicket): Promise<{ id: number; 
     via: { channel: "email" },
     tags: tagsDoTicket(d.enviarEmail),
     custom_fields,
-    comment: d.enviarEmail ? { body: d.emailTexto, public: true } : { body: d.notaInterna, public: false },
+    comment: d.enviarEmail ? { html_body: textoParaHtml(d.emailTexto ?? ""), public: true, ...(AGENTE_ASSINATURA_ID ? { author_id: AGENTE_ASSINATURA_ID } : {}) } : { body: d.notaInterna, public: false },
   };
   const res = await zd("/api/v2/tickets", {
     method: "POST", body: JSON.stringify({ ticket }),
