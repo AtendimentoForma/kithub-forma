@@ -204,6 +204,13 @@
       "when": 1795620017871,
       "tag": "0028_profiles_leitura_propria",
       "breakpoints": true
+    },
+    {
+      "idx": 29,
+      "version": "7",
+      "when": 1795635666376,
+      "tag": "0029_chamados_zendesk",
+      "breakpoints": true
     }
   ]
 }

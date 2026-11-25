@@ -105,7 +105,9 @@ export type Database = {
           data_envio: string
           despachado_em: string | null
           destino: string | null
+          email_texto: string | null
           endereco: string
+          enviar_email: boolean
           id_delivery: string | null
           motivo_cancelamento: string | null
           motivo_correios: string | null
@@ -121,11 +123,17 @@ export type Database = {
           requer_pagamento: boolean | null
           requer_reenvio: boolean | null
           responsavel: string
+          responsavel_email: string | null
           solicitante: string
           solicitante_id: string
           status: string
           status_pagamento: string | null
           valor_frete: number | null
+          zendesk_email_enviado: boolean
+          zendesk_enviado_em: string | null
+          zendesk_erro: string | null
+          zendesk_ticket_id: number | null
+          zendesk_ticket_url: string | null
         }
         Insert: {
           anexos?: string[]
@@ -140,7 +148,9 @@ export type Database = {
           data_envio: string
           despachado_em?: string | null
           destino?: string | null
+          email_texto?: string | null
           endereco: string
+          enviar_email?: boolean
           id_delivery?: string | null
           motivo_cancelamento?: string | null
           motivo_correios?: string | null
@@ -156,11 +166,17 @@ export type Database = {
           requer_pagamento?: boolean | null
           requer_reenvio?: boolean | null
           responsavel: string
+          responsavel_email?: string | null
           solicitante?: string
           solicitante_id?: string
           status?: string
           status_pagamento?: string | null
           valor_frete?: number | null
+          zendesk_email_enviado?: boolean
+          zendesk_enviado_em?: string | null
+          zendesk_erro?: string | null
+          zendesk_ticket_id?: number | null
+          zendesk_ticket_url?: string | null
         }
         Update: {
           anexos?: string[]
@@ -175,7 +191,9 @@ export type Database = {
           data_envio?: string
           despachado_em?: string | null
           destino?: string | null
+          email_texto?: string | null
           endereco?: string
+          enviar_email?: boolean
           id_delivery?: string | null
           motivo_cancelamento?: string | null
           motivo_correios?: string | null
@@ -191,11 +209,17 @@ export type Database = {
           requer_pagamento?: boolean | null
           requer_reenvio?: boolean | null
           responsavel?: string
+          responsavel_email?: string | null
           solicitante?: string
           solicitante_id?: string
           status?: string
           status_pagamento?: string | null
           valor_frete?: number | null
+          zendesk_email_enviado?: boolean
+          zendesk_enviado_em?: string | null
+          zendesk_erro?: string | null
+          zendesk_ticket_id?: number | null
+          zendesk_ticket_url?: string | null
         }
         Relationships: []
       }

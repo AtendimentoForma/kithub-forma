@@ -3,6 +3,7 @@ import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { enderecoSchema, formatarEndereco } from "@/lib/endereco";
 import { notificarNovoChamadoSlack } from "./slack.server";
+import { enviarChamadoParaZendesk } from "./zendesk-chamado.server";
 import { anexoReversoSchema, validarArquivoReverso } from "./reversos-schema";
 
 const texto = (max: number) => z.string().trim().min(1).max(max);
@@ -15,7 +16,8 @@ const chamadoSchema = z.object({
     "PRIORIDADE FINALIZADA", "CONCLUÍDO",
   ]).optional(),
   paxNome: texto(255), cpf: texto(20), paxId: texto(255), idDelivery: texto(255),
-  destino: texto(255), ano: texto(255), responsavel: texto(255),
+  destino: texto(255), ano: texto(255), responsavel: texto(255), responsavelEmail: z.string().trim().email().max(255),
+  enviarEmail: z.boolean().default(false), emailTexto: opcional(5000).optional(),
   tipoEnvio: z.enum(["Dados do envio original", "Retirada Torre Forma", "Envio para análise"]).default("Dados do envio original"),
   infoEnvio: opcional(1000).optional(),
   rastreio: z.string().trim().max(255).optional(), dataEnvio: z.string().optional(),
@@ -24,7 +26,8 @@ const chamadoSchema = z.object({
   origemSolicitacao: texto(255), observacao: opcional(1000),
   anexos: z.array(texto(255)).max(20), endereco: enderecoSchema.optional(),
   anexosArquivos: z.array(anexoReversoSchema).max(20).default([]),
-}).refine((c) => c.cpf.replace(/\D/g, "").length === 11, { message: "CPF deve ter 11 dígitos." })
+}).refine((c) => !c.enviarEmail || !!c.emailTexto?.trim(), { message: "Escreva a mensagem do e-mail." })
+  .refine((c) => c.cpf.replace(/\D/g, "").length === 11, { message: "CPF deve ter 11 dígitos." })
   .refine((c) => c.tipoEnvio !== "Dados do envio original" || (!!c.rastreio && /^\d{4}-\d{2}-\d{2}$/.test(c.dataEnvio ?? "") && !!c.endereco), { message: "Preencha os dados do envio original." })
   .refine((c) => c.tipoEnvio === "Dados do envio original" || !!c.infoEnvio?.trim(), { message: "Preencha a observação das informações de envio." })
   .refine((c) => !c.motivos.includes("Envio correios") || !!c.motivoCorreios?.trim(), { message: "Descreva o motivo do envio por correios." })
@@ -58,7 +61,8 @@ export const criarChamado = createServerFn({ method: "POST" })
       solicitante_id: context.userId,
       solicitante: perfil?.nome || context.claims.email || "Usuário",
       pax_nome: c.paxNome, cpf: c.cpf, pax_id: c.paxId, id_delivery: c.idDelivery,
-      destino: c.destino, ano: c.ano, responsavel: c.responsavel,
+      destino: c.destino, ano: c.ano, responsavel: c.responsavel, responsavel_email: c.responsavelEmail,
+      enviar_email: c.enviarEmail, email_texto: c.enviarEmail ? c.emailTexto ?? null : null,
       rastreio: original ? c.rastreio ?? "—" : "—",
       endereco: original && c.endereco ? formatarEndereco(c.endereco) : `${c.tipoEnvio}: ${c.infoEnvio}`,
       data_envio: original ? c.dataEnvio ?? "" : new Date().toISOString().slice(0, 10),
@@ -85,7 +89,8 @@ export const criarChamado = createServerFn({ method: "POST" })
       origem: c.origemSolicitacao,
       status: c.statusInicial ?? "NOVO CHAMADO",
     });
-    return { numero: data.numero };
+    const zendesk = await enviarChamadoParaZendesk(context.supabase, data.numero);
+    return { numero: data.numero, zendesk };
   });
 const normalizar = (v: string | null | undefined) => (v ?? "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim().toLocaleLowerCase("pt-BR").replace(/\s+/g, " ");
 const soDigitos = (v: string | null | undefined) => (v ?? "").replace(/\D/g, "");

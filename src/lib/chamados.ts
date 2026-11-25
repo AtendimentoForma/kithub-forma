@@ -85,6 +85,8 @@ export interface Chamado {
   cpf: string;
   paxId: string;
   idDelivery: string | null;
+  responsavelEmail?: string | null;
+  zendesk?: { ticketId: number | null; ticketUrl: string | null; emailEnviado: boolean; emailTexto: string | null; erro: string | null };
   destino: string | null;
   ano: string | null;
   responsavel: string;
@@ -138,6 +140,8 @@ function fromRow(r: any): Chamado {
     cpf: r.cpf,
     paxId: r.pax_id,
     idDelivery: r.id_delivery ?? null,
+    responsavelEmail: r.responsavel_email ?? null,
+    zendesk: { ticketId: r.zendesk_ticket_id ?? null, ticketUrl: r.zendesk_ticket_url ?? null, emailEnviado: !!r.zendesk_email_enviado, emailTexto: r.email_texto ?? null, erro: r.zendesk_erro ?? null },
     destino: r.destino ?? null,
     ano: r.ano ?? null,
     responsavel: r.responsavel,

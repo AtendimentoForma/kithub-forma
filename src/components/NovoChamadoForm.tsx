@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { DESTINOS, MOTIVOS, addMovimentacao, formatNumero, mensagemDeErro, getMyRole, minhasPermissoesQuery, podeEditar, statusSelecionaveis, type Status } from "@/lib/chamados";
 import { criarChamado, buscarChamadosSemelhantes } from "@/lib/criar-chamado.functions";
+import { ZendeskResultado, type ResultadoZd } from "@/components/ZendeskStatus";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { buscarCep, enderecoSchema, ESTADOS, mascararCep } from "@/lib/endereco";
 import { supabase } from "@/integrations/supabase/client";
@@ -44,6 +45,8 @@ export function NovoChamadoForm({ listaPath }: { listaPath: "/lojinha/chamados" 
   const [erro, setErro] = useState("");
   const [enviando, setEnviando] = useState(false);
   const [criado, setCriado] = useState<number | null>(null);
+  const [enviarEmail, setEnviarEmail] = useState(false);
+  const [zendesk, setZendesk] = useState<ResultadoZd | null>(null);
   const [status, setStatus] = useState<Status>("NOVO CHAMADO");
   const [statusCriado, setStatusCriado] = useState<Status>("NOVO CHAMADO");
   const [menuAberto, setMenuAberto] = useState(false);
@@ -137,6 +140,9 @@ export function NovoChamadoForm({ listaPath }: { listaPath: "/lojinha/chamados" 
     if (enderecoValidado && !enderecoValidado.success) return setErro(enderecoValidado.error.issues[0]?.message ?? "Confira os dados do endereço.");
     if (motivos.includes("Outro") && !g("motivoOutro")) return setErro("Descreva o motivo \"Outro\".");
     if (motivos.includes("Alteração de endereço") && !g("coletaStatus")) return setErro("Informe se o pedido já foi coletado ou não coletado.");
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(g("responsavelEmail"))) return setErro("Informe um e-mail do responsável válido.");
+    if (!g("destino")) return setErro("Selecione o destino.");
+    if (enviarEmail && !g("emailTexto")) return setErro("Escreva a mensagem do e-mail ao solicitante.");
     if (motivos.includes("Envio correios") && !g("motivoCorreios")) return setErro("Descreva o motivo do envio por correios.");
     if (["CONCLUÍDO", "REENVIO AUTORIZADO", "AGUARDANDO CLIENTE", "ANÁLISE LIDERANÇA", "ANÁLISE LIDERANÇA CONCLUÍDA"].includes(status) && !g("observacao")) return setErro(`Para enviar como "${status}", preencha a observação.`);
     const nomesAnexos = anexos.map((x) => x.name);
@@ -166,7 +172,8 @@ export function NovoChamadoForm({ listaPath }: { listaPath: "/lojinha/chamados" 
       }
       const c = await criarChamado({ data: {
         statusInicial: status,
-        paxNome: g("paxNome"), cpf: g("cpf"), paxId: g("paxId"), idDelivery: g("idDelivery"), destino: g("destino"), ano: g("ano"), responsavel: g("responsavel"),
+        paxNome: g("paxNome"), cpf: g("cpf"), paxId: g("paxId"), idDelivery: g("idDelivery"), destino: g("destino"), ano: g("ano"), responsavel: g("responsavel"), responsavelEmail: g("responsavelEmail"),
+        enviarEmail: enviarEmail && motivos.length > 0, emailTexto: enviarEmail ? g("emailTexto") : null,
         tipoEnvio: tipoEnvio as "Dados do envio original", infoEnvio: original ? null : g("infoEnvio"),
         rastreio: original ? g("rastreio") : undefined, endereco: enderecoValidado?.data, dataEnvio: original ? g("dataEnvio") : undefined,
         motivos, motivoOutro: g("motivoOutro") || null, motivoCorreios: g("motivoCorreios") || null, coletaStatus: motivos.includes("Alteração de endereço") ? (g("coletaStatus") as "Coletado" | "Não coletado") : null, origemSolicitacao: origens.join(", "),
@@ -174,6 +181,7 @@ export function NovoChamadoForm({ listaPath }: { listaPath: "/lojinha/chamados" 
       } });
       novoNumero = c.numero;
       setCriado(c.numero);
+      setZendesk(c.zendesk);
       if (status !== "NOVO CHAMADO") {
         await addMovimentacao(c.numero, g("observacao") || null, status);
         setStatusCriado(status);
@@ -201,6 +209,7 @@ export function NovoChamadoForm({ listaPath }: { listaPath: "/lojinha/chamados" 
           <div className="font-mono text-3xl font-bold">{formatNumero(criado)}</div>
           <p className="mt-2 text-muted-foreground">Status: {statusCriado}</p>
           {erro && <p role="alert" className="mt-3 text-sm text-destructive">{erro}</p>}
+          {zendesk && <ZendeskResultado numero={criado} inicial={zendesk} />}
           <Button onClick={() => navigate({ to: listaPath })} className="mt-6">Ver chamados</Button>
         </div>
       </Shell>
@@ -281,6 +290,9 @@ export function NovoChamadoForm({ listaPath }: { listaPath: "/lojinha/chamados" 
               </div>}
             </Field>
             <Field label="Nome do responsável" name="responsavel" />
+            <label className="block text-sm font-medium">E-mail do responsável *
+              <input type="email" name="responsavelEmail" required maxLength={255} className="mt-1.5 h-10 w-full rounded-lg border border-input bg-background px-3 text-sm" />
+            </label>
           </div>
         </section>
         <section className="kithub-surface p-5 sm:p-6">
@@ -356,6 +368,13 @@ export function NovoChamadoForm({ listaPath }: { listaPath: "/lojinha/chamados" 
           {motivos.includes("Outro") && <div className="mt-4"><Field label="Descreva o motivo" name="motivoOutro" /></div>}
           {motivos.includes("Envio correios") && <div className="mt-4"><Field label="Descreva o motivo do envio por correios" name="motivoCorreios" maxLength={255} /></div>}
           {motivos.includes("Alteração de endereço") && <label className="mt-4 block text-sm font-medium">O pedido já foi coletado? *<select name="coletaStatus" required defaultValue="" className="mt-1.5 h-10 w-full rounded-lg border border-input bg-background px-3 text-sm sm:max-w-xs"><option value="" disabled>Selecione</option><option>Coletado</option><option>Não coletado</option></select></label>}
+          {motivos.length > 0 && <div className="mt-4 space-y-3">
+            <label className="flex items-center gap-2 text-sm font-medium"><input type="checkbox" checked={enviarEmail} onChange={(e) => setEnviarEmail(e.target.checked)} className="h-4 w-4 accent-primary" /> Deseja enviar e-mail?</label>
+            {enviarEmail && <label className="block text-sm font-medium">Mensagem para o solicitante *
+              <Textarea name="emailTexto" required rows={5} maxLength={5000} className="mt-1.5" />
+              <span className="mt-1 block text-xs font-normal text-muted-foreground">Somente este texto será enviado por e-mail pela Zendesk.</span>
+            </label>}
+          </div>}
         </section>
         <section className="kithub-surface p-5 sm:p-6">
           <h2 className="mb-4 font-semibold">Informações adicionais (opcional)</h2>

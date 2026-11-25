@@ -1,3 +1,4 @@
+import { ZendeskResultado } from "@/components/ZendeskStatus";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { Clock3, X } from "lucide-react";
@@ -85,7 +86,11 @@ export function ChamadoDetalhe({ chamado, onClose }: { chamado: Chamado; onClose
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-foreground/35 p-3 backdrop-blur-sm sm:p-5" onClick={onClose}>
       <div role="dialog" aria-modal="true" aria-label={`Chamado ${formatNumero(chamado.numero)}`} className="max-h-[94vh] w-full max-w-3xl overflow-y-auto rounded-xl border bg-card p-5 shadow-xl sm:p-7" onClick={(e) => e.stopPropagation()}>
         <div className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-3 border-b pb-5">
-          <div className="min-w-0"><p className="text-xs font-semibold text-primary">DETALHES DO CHAMADO</p><h2 className="mt-1 text-xl font-bold">Chamado {formatNumero(chamado.numero)}</h2></div>
+          <div className="min-w-0"><p className="text-xs font-semibold text-primary">DETALHES DO CHAMADO</p><h2 className="mt-1 text-xl font-bold">Chamado {formatNumero(chamado.numero)}</h2>
+            {chamado.responsavelEmail && <p className="mt-1 text-xs text-muted-foreground">E-mail do responsável: {chamado.responsavelEmail}</p>}
+            {chamado.zendesk && (chamado.zendesk.ticketId || chamado.responsavelEmail) && <ZendeskResultado numero={chamado.numero} inicial={chamado.zendesk.ticketId ? { ok: true, ticketId: chamado.zendesk.ticketId, ticketUrl: chamado.zendesk.ticketUrl ?? "", emailEnviado: chamado.zendesk.emailEnviado } : chamado.zendesk.erro ? { ok: false, erro: chamado.zendesk.erro } : null} />}
+            {chamado.zendesk?.emailTexto && <p className="mt-1 whitespace-pre-wrap text-xs text-muted-foreground">Texto enviado: {chamado.zendesk.emailTexto}</p>}
+          </div>
           <div className="flex items-center gap-2"><StatusBadge status={chamado.status} /><Button variant="ghost" size="icon" onClick={onClose} aria-label="Fechar"><X /></Button></div>
         </div>
         <dl className="mt-5 grid gap-4 rounded-xl bg-muted/45 p-4 text-sm sm:grid-cols-2">
