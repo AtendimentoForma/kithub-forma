@@ -66,6 +66,16 @@ export const criarChamado = createServerFn({ method: "POST" })
       observacao: c.observacao, anexos: c.anexos, anexos_arquivos: c.anexosArquivos,
     }).select("numero").single();
     if (error) throw error;
+    const detalhes = c.motivos.map((m) => {
+      if (m === "Outro" && c.motivoOutro) return `Outro: ${c.motivoOutro}`;
+      if (m === "Envio correios" && c.motivoCorreios) return `Envio correios: ${c.motivoCorreios}`;
+      if (m === "Alteração de endereço" && c.coletaStatus) return `Alteração de endereço — Coleta: ${c.coletaStatus}`;
+      return m;
+    });
+    const { error: movErro } = await context.supabase.from("chamado_movimentacoes").insert({
+      chamado_numero: data.numero, autor_id: context.userId, texto: `Motivo da solicitação: ${detalhes.join("; ")}`,
+    });
+    if (movErro) console.warn("Falha ao registrar motivo no histórico", movErro.message);
     await notificarNovoChamadoSlack({
       numero: data.numero,
       solicitante: perfil?.nome || context.claims.email || "Usuário",
