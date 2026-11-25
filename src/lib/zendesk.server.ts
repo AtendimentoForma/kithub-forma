@@ -1,4 +1,4 @@
-import { ZENDESK_CONFIG as Z, DESTINO_TAG, idsFaltando } from "./zendesk-config";
+import { ZENDESK_CONFIG as Z, DESTINO_TAG, idsFaltando, tagsDoTicket } from "./zendesk-config";
 
 const GATEWAY = "https://connector-gateway.lovable.dev/zendesk";
 
@@ -33,6 +33,7 @@ export async function criarTicketZendesk(d: DadosTicket): Promise<{ id: number; 
     group_id: Z.grupo.id, brand_id: Z.marca.id, ticket_form_id: Z.formulario.id, ...(Z.responsavel.id ? { assignee_id: Z.responsavel.id } : {}),
     requester: { email: d.responsavelEmail, name: d.responsavel || d.responsavelEmail },
     via: { channel: "email" },
+    tags: tagsDoTicket(d.enviarEmail),
     custom_fields,
     comment: d.enviarEmail ? { body: d.emailTexto, public: true } : { body: d.notaInterna, public: false },
   };

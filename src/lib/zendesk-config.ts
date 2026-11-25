@@ -9,6 +9,14 @@ export const ZENDESK_CONFIG = {
   campoDestino: { nome: "Destino", id: 360055228453 as number | null }, // valor = tag da opção do destino (ver destinoTag)
 };
 
+// Tags do ticket: "chamado_kithub" sempre; "chamado_kithub_enviado" só quando o e-mail foi marcado.
+export const TAG_CHAMADO = "chamado_kithub";
+export const TAG_ENVIADO = "chamado_kithub_enviado";
+
+export function tagsDoTicket(enviarEmail: boolean): string[] {
+  return enviarEmail ? [TAG_CHAMADO, TAG_ENVIADO] : [TAG_CHAMADO];
+}
+
 // Converte o destino do KitHub na tag da opção do campo "Destino" (se o campo for lista).
 export const DESTINO_TAG: Record<string, string> = {
   "Floripa": "floripa",
