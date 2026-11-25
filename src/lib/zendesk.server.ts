@@ -30,7 +30,7 @@ export async function criarTicketZendesk(d: DadosTicket): Promise<{ id: number; 
   const ticket = {
     subject: `CHAMADO KITHUB - ${d.paxId}`,
     status: "pending", priority: "normal",
-    group_id: Z.grupo.id, brand_id: Z.marca.id, ticket_form_id: Z.formulario.id, assignee_id: Z.responsavel.id,
+    group_id: Z.grupo.id, brand_id: Z.marca.id, ticket_form_id: Z.formulario.id, ...(Z.responsavel.id ? { assignee_id: Z.responsavel.id } : {}),
     requester: { email: d.responsavelEmail, name: d.responsavel || d.responsavelEmail },
     via: { channel: "email" },
     custom_fields,

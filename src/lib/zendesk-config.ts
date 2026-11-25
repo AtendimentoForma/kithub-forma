@@ -4,7 +4,7 @@ export const ZENDESK_CONFIG = {
   grupo: { nome: "E-mails KIT", id: 360017007833 as number | null },
   marca: { nome: "FormaTurismo", id: 360006830733 as number | null },
   formulario: { nome: "KIT", id: 360006537653 as number | null },
-  responsavel: { nome: "E-mail KIT", id: null as number | null }, // assignee (agente) — não encontrado na Zendesk
+  responsavel: { nome: "Agente (opcional)", id: null as number | null }, // opcional: o ticket fica atribuído à pasta/grupo "E-mails KIT"
   campoMotivo: { nome: "Motivo da Solicitação - KIT", id: 360054275194 as number | null, valor: null as string | null }, // valor = tag da opção
   campoDestino: { nome: "Destino", id: 360055228453 as number | null }, // valor = tag da opção do destino (ver destinoTag)
 };
@@ -33,7 +33,7 @@ export const DESTINO_TAG: Record<string, string> = {
 };
 
 export function idsFaltando(): string[] {
-  const f = Object.values(ZENDESK_CONFIG).filter((c) => c.id == null).map((c) => c.nome);
+  const f = Object.values(ZENDESK_CONFIG).filter((c) => c.id == null && c !== ZENDESK_CONFIG.responsavel).map((c) => c.nome);
   if (ZENDESK_CONFIG.campoMotivo.valor == null) f.push('opção "Chamado KitHub" do campo "Motivo da Solicitação - KIT"');
   return f;
 }
