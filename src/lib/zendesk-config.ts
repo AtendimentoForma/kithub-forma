@@ -5,7 +5,7 @@ export const ZENDESK_CONFIG = {
   marca: { nome: "FormaTurismo", id: 360006830733 as number | null },
   formulario: { nome: "KIT", id: 360006537653 as number | null },
   responsavel: { nome: "Agente (opcional)", id: null as number | null }, // opcional: o ticket fica atribuído à pasta/grupo "E-mails KIT"
-  campoMotivo: { nome: "Motivo da Solicitação - KIT", id: 360054275194 as number | null, valor: null as string | null }, // valor = tag da opção
+  campoMotivo: { nome: "Motivo da Solicitação - KIT", id: 360054275194 as number | null, valor: "chamado_kithub" as string | null }, // valor = tag da opção
   campoDestino: { nome: "Destino", id: 360055228453 as number | null }, // valor = tag da opção do destino (ver destinoTag)
 };
 

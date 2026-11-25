@@ -20,4 +20,3 @@
 - [x] Validar registro e leitura de reverso com anexos no login real — conferido na prévia com sessão de teste
 - [x] Validar correção e leitura após salvar no login real — conferido em chamado e reverso, com restauração dos valores
 - [x] Zendesk: ticket automático por chamado, e-mail opcional, reenviar
-- [ ] Zendesk: falta opção "Chamado KitHub" (aguardando usuário)
