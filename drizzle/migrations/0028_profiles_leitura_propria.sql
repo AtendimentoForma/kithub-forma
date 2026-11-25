@@ -1,0 +1,2 @@
+DROP POLICY IF EXISTS "Usuários autenticados veem perfis" ON public.profiles;
+CREATE POLICY "Usuario ve o proprio perfil ou admin" ON public.profiles FOR SELECT TO authenticated USING (auth.uid() = id OR public.has_role(auth.uid(), 'admin'));
