@@ -7,11 +7,12 @@ const mocks = vi.hoisted(() => ({ criar: vi.fn(), enviar: vi.fn(), update: vi.fn
 vi.mock("./zendesk.server", () => ({ criarTicketZendesk: mocks.criar, enviarEmailTicketExistente: mocks.enviar }));
 vi.mock("@/integrations/supabase/client.server", () => ({ supabaseAdmin: { from: () => ({ update: mocks.update }) } }));
 
-function cliente(enviarEmail: boolean, ticketId: number | null = null) {
+function cliente(enviarEmail: boolean, ticketId: number | null = null, role = "sac") {
   const registro = { numero: 19, zendesk_ticket_id: ticketId, zendesk_ticket_url: "ticket/123", zendesk_email_enviado: false,
     responsavel_email: "teste@example.com", destino: "Floripa", motivos: ["Outro"], criado_em: "2026-11-26T12:00:00Z",
     solicitante: "Agente SAC", enviar_email: enviarEmail, email_texto: "Minha mensagem", pax_id: "PAX19", anexos: [] };
-  return { from: () => ({ select: () => ({ eq: () => ({ maybeSingle: async () => ({ data: registro, error: null }) }) }) }) } as unknown as SupabaseClient<Database>;
+  return { auth: { getUser: async () => ({ data: { user: { id: "authenticated-agent" } } }) },
+    from: (table: string) => ({ select: () => ({ eq: () => table === "user_roles" ? Promise.resolve({ data: [{ role }], error: null }) : ({ maybeSingle: async () => ({ data: registro, error: null }) }) }) }) } as unknown as SupabaseClient<Database>;
 }
 
 beforeEach(() => {
@@ -26,6 +27,11 @@ beforeEach(() => {
 });
 
 describe("persistência entre criação e envio", () => {
+  it("Lojinha não envia e-mail no reenvio mesmo com indicação gravada", async () => {
+    expect(await enviarChamadoParaZendesk(cliente(true, null, "lojinha"), 19)).toMatchObject({ ok: true, emailEnviado: false });
+    expect(mocks.enviar).not.toHaveBeenCalled();
+    expect(mocks.criar).toHaveBeenCalledWith(expect.objectContaining({ enviarEmail: false, emailTexto: null }));
+  });
   it("aguarda criação e grava ID antes de enviar; marca enviado somente após sucesso", async () => {
     expect(await enviarChamadoParaZendesk(cliente(true), 19)).toMatchObject({ ok: true, ticketId: 123, emailEnviado: true });
     expect(mocks.events).toEqual(["criar", "salvar-ticket", "enviar", "salvar-email"]);

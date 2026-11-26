@@ -5,6 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { confirmarEmailDoUsuario } from "@/lib/admin-users.functions";
 import { z } from "zod";
 import { anexoReversoSchema, type AnexoReverso } from "./reversos-schema";
+import { perfilPrincipal } from "./zendesk-permissoes";
 
 /** Status exclusivo do SAC (a Lojinha não vê nem seleciona). */
 export const STATUS_LIDERANCA = "ANÁLISE LIDERANÇA" as const;
@@ -353,10 +354,7 @@ export async function getMyRole(): Promise<Perfil | null> {
   if (!aprovado) return null;
   const { data } = await supabase.from("user_roles").select("role").eq("user_id", u.user.id);
   const roles = (data ?? []).map((r) => r.role);
-  if (roles.includes("admin")) return "admin";
-  if (roles.includes("lojinha")) return "lojinha";
-  if (roles.includes("sac")) return "sac";
-  return null;
+  return perfilPrincipal(roles);
 }
 
 export async function estouAprovado(): Promise<boolean> {

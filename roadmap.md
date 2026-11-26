@@ -1,6 +1,6 @@
 # Roadmap
 
-- [ ] Garantir criação e envio Zendesk para todos os agentes SAC por perfil, mantendo Lojinha sem e-mail; testar permissões e verificar telas
+- [x] Garantir criação e envio Zendesk para todos os agentes SAC por perfil, mantendo Lojinha sem e-mail; testes e telas conferidos com conta temporária, sem envio real
 
 - [x] Busca Delivery disparada só por botão de lupa ou Enter; digitação não consulta
 - [x] Busca Delivery habilitada também no login Lojinha (mesmo formulário e mesmas permissões do SAC)

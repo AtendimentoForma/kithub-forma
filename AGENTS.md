@@ -36,3 +36,5 @@ Zendesk creation is always internal-only; persist its ID before a separate publi
 Zendesk individual ticket updates must read current tags and send their union with the email tag in the same comment PUT using safe_update/updated_stamp; additional_tags is ignored there and separate tag writes miss notification triggers.
 
 Zendesk email authorization uses a shared role policy with server-side user_roles reads; SAC creation is not gated by granular workflow permissions, existing admin authorization is preserved, and UI hides email actions in the Lojinha workspace.
+
+Resolve primary access with admin first, then SAC, then Lojinha so an additional Lojinha role cannot mask SAC access.

@@ -1,4 +1,10 @@
 /** Roles must come from user_roles for the authenticated user, never request data. */
+export function perfilPrincipal(papeis: readonly string[]): "admin" | "sac" | "lojinha" | null {
+  if (papeis.includes("admin")) return "admin";
+  if (papeis.includes("sac")) return "sac";
+  return papeis.includes("lojinha") ? "lojinha" : null;
+}
+
 export function podeEnviarEmailZendesk(papeis: readonly string[] | null | undefined): boolean {
   return papeis?.some((papel) => papel === "sac" || papel === "admin") ?? false;
 }

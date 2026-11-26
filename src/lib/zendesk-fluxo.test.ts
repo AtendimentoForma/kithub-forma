@@ -13,6 +13,12 @@ function api() {
 }
 
 describe("criação interna e atualização pública Zendesk", () => {
+  it("bloqueia outro agente quando o ticket já tem a tag de e-mail enviado", async () => {
+    const fetchMock = api();
+    fetchMock.mockResolvedValueOnce(new Response(JSON.stringify({ ticket: { tags: ["chamado_kithub", "chamado_kithub_enviado"], updated_at: "2026-11-26T19:51:53Z" } })));
+    await expect(enviarEmailTicketExistente(123, "Outra mensagem")).rejects.toThrow("já foi enviado");
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+  });
   it.each([false, true])("criação nunca envia comentário público nem tag de enviado (opção %s)", async (enviarEmail) => {
     const fetchMock = api();
     await criarTicketZendesk({ numero: 19, paxId: "PAX19", responsavelEmail: "teste@example.com", responsavel: "Teste", destino: "Floripa", notaInterna: "Todos os dados internos", enviarEmail, emailTexto: "Mensagem privada do SAC" });
