@@ -21,3 +21,4 @@
 - [x] Validar correção e leitura após salvar no login real — conferido em chamado e reverso, com restauração dos valores
 - [x] Zendesk: ticket automático por chamado, e-mail opcional, reenviar
 - [x] Zendesk: criar sempre com nota interna e enviar e-mail em atualização separada, preservando o ticket em falhas — 11 testes passaram; envio real não realizado
+- [x] Zendesk: corrigir tag no envio público com preservação das tags existentes nos dois fluxos SAC — 13 testes passaram; confirmado no histórico real que additional_tags não foi aplicado; sem reenviar tickets antigos

@@ -1,4 +1,4 @@
-import { AGENTE_ASSINATURA_ID, TAG_ENVIADO, ZENDESK_CONFIG as Z, DESTINO_TAG, idsFaltando, tagsDoTicket } from "./zendesk-config";
+import { AGENTE_ASSINATURA_ID, TAG_CHAMADO, TAG_ENVIADO, ZENDESK_CONFIG as Z, DESTINO_TAG, idsFaltando, tagsDoTicket } from "./zendesk-config";
 
 const GATEWAY = "https://connector-gateway.lovable.dev/zendesk";
 
@@ -73,8 +73,17 @@ export async function criarTicketZendesk(d: DadosTicket): Promise<{ id: number; 
 }
 
 export async function enviarEmailTicketExistente(ticketId: number, texto: string): Promise<void> {
+  // additional_tags é ignorado na atualização individual. Enviar tags com a união
+  // das existentes no MESMO PUT do comentário, para o gatilho de e-mail enxergar a tag.
+  const atual = await zd(`/api/v2/tickets/${ticketId}`);
+  const existentes: unknown = atual.ticket?.tags;
+  const updatedStamp: unknown = atual.ticket?.updated_at;
+  if (!Array.isArray(existentes) || !existentes.every((tag): tag is string => typeof tag === "string") || typeof updatedStamp !== "string") {
+    throw new Error("Não foi possível confirmar as tags atuais do ticket. Nenhum e-mail foi enviado.");
+  }
+  const tags = [...new Set([...existentes, TAG_CHAMADO, TAG_ENVIADO])];
   await zd(`/api/v2/tickets/${ticketId}`, {
     method: "PUT",
-    body: JSON.stringify({ ticket: { comment: comentarioPublico(texto), additional_tags: [TAG_ENVIADO] } }),
+    body: JSON.stringify({ ticket: { comment: comentarioPublico(texto), tags, safe_update: true, updated_stamp: updatedStamp } }),
   });
 }

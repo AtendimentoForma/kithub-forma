@@ -32,3 +32,5 @@ Delivery lookups use approved, permission-checked authenticated server functions
 Zendesk tickets for new chamados are created server-side through the Zendesk connector gateway after the insert; all Zendesk IDs live only in src/lib/zendesk-config.ts so they can be changed without touching the flow, and the stored ticket id prevents duplicate tickets/e-mails.
 
 Zendesk creation is always internal-only; persist its ID before a separate public-comment update and mark email sent only after that update succeeds, so email failures preserve the existing ticket for SAC retries.
+
+Zendesk individual ticket updates must read current tags and send their union with the email tag in the same comment PUT using safe_update/updated_stamp; additional_tags is ignored there and separate tag writes miss notification triggers.
