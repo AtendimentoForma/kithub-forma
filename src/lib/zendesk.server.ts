@@ -58,18 +58,16 @@ export async function criarTicketZendesk(d: DadosTicket): Promise<{ id: number; 
     group_id: Z.grupo.id, brand_id: Z.marca.id, ticket_form_id: Z.formulario.id, ...(Z.responsavel.id ? { assignee_id: Z.responsavel.id } : {}),
     requester: { email: d.responsavelEmail, name: d.responsavel || d.responsavelEmail },
     via: { channel: "email" },
-    tags: tagsDoTicket(d.enviarEmail),
+    tags: tagsDoTicket(false),
     custom_fields,
-    comment: d.enviarEmail ? comentarioPublico(d.emailTexto ?? "") : { body: d.notaInterna, public: false },
+    comment: { body: d.notaInterna, public: false },
   };
   const res = await zd("/api/v2/tickets", {
     method: "POST", body: JSON.stringify({ ticket }),
     headers: { "Idempotency-Key": `kithub-chamado-${d.numero}` },
   });
   const id = res.ticket.id as number;
-  if (d.enviarEmail) {
-    await zd(`/api/v2/tickets/${id}`, { method: "PUT", body: JSON.stringify({ ticket: { comment: { body: d.notaInterna, public: false } } }) });
-  }
+  if (!Number.isSafeInteger(id) || id <= 0) throw new Error("Zendesk não retornou o ID do ticket criado.");
   const url = `https://ajudaformaturismo.zendesk.com/agent/tickets/${id}`;
   return { id, url };
 }

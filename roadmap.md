@@ -20,3 +20,4 @@
 - [x] Validar registro e leitura de reverso com anexos no login real — conferido na prévia com sessão de teste
 - [x] Validar correção e leitura após salvar no login real — conferido em chamado e reverso, com restauração dos valores
 - [x] Zendesk: ticket automático por chamado, e-mail opcional, reenviar
+- [x] Zendesk: criar sempre com nota interna e enviar e-mail em atualização separada, preservando o ticket em falhas — 11 testes passaram; envio real não realizado

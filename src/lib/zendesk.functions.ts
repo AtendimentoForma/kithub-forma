@@ -32,6 +32,6 @@ export const enviarEmailChamadoZendesk = createServerFn({ method: "POST" })
     const por = perfil?.nome || context.claims.email || "SAC";
     const em = new Date().toISOString();
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    await supabaseAdmin.from("chamados").update({ zendesk_email_enviado: true, enviar_email: true, email_texto: texto, zendesk_email_enviado_em: em, zendesk_email_enviado_por: por }).eq("numero", data.numero);
+    await supabaseAdmin.from("chamados").update({ zendesk_email_enviado: true, enviar_email: true, email_texto: texto, zendesk_email_enviado_em: em, zendesk_email_enviado_por: por, zendesk_erro: null }).eq("numero", data.numero);
     return { em, por, texto };
   });

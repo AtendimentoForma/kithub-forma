@@ -1,13 +1,13 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Database } from "@/integrations/supabase/types";
-import { criarTicketZendesk } from "./zendesk.server";
+import { criarTicketZendesk, enviarEmailTicketExistente } from "./zendesk.server";
 
-export type ResultadoZendesk = { ok: true; ticketId: number; ticketUrl: string; emailEnviado: boolean; jaEnviado?: boolean } | { ok: false; erro: string };
+export type ResultadoZendesk = { ok: true; ticketId: number; ticketUrl: string; emailEnviado: boolean; emailErro?: string; jaEnviado?: boolean } | { ok: false; erro: string };
 
 export async function enviarChamadoParaZendesk(sb: SupabaseClient<Database>, numero: number): Promise<ResultadoZendesk> {
   const { data: c, error } = await sb.from("chamados").select("*").eq("numero", numero).maybeSingle();
   if (error || !c) return { ok: false, erro: "Chamado não encontrado." };
-  if (c.zendesk_ticket_id) return { ok: true, ticketId: c.zendesk_ticket_id, ticketUrl: c.zendesk_ticket_url ?? "", emailEnviado: c.zendesk_email_enviado, jaEnviado: true };
+  if (c.zendesk_ticket_id) return { ok: true, ticketId: c.zendesk_ticket_id, ticketUrl: c.zendesk_ticket_url ?? "", emailEnviado: c.zendesk_email_enviado, jaEnviado: true, ...(!c.zendesk_email_enviado && c.zendesk_erro ? { emailErro: c.zendesk_erro } : {}) };
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
   if (!c.responsavel_email || !c.destino) {
     const erro = "Chamado sem e-mail do responsável ou destino; corrija antes de enviar à Zendesk.";
@@ -35,9 +35,25 @@ export async function enviarChamadoParaZendesk(sb: SupabaseClient<Database>, num
       numero: c.numero, paxId: c.pax_id, responsavelEmail: c.responsavel_email, responsavel: c.responsavel, destino: c.destino,
       notaInterna: linhas, enviarEmail: c.enviar_email, emailTexto: c.email_texto,
     });
-    await supabaseAdmin.from("chamados").update({
-      zendesk_ticket_id: t.id, zendesk_ticket_url: t.url, zendesk_email_enviado: c.enviar_email, zendesk_erro: null, zendesk_enviado_em: new Date().toISOString(),
+    // Persistir a criação ANTES do comentário público: uma falha de e-mail nunca perde o ticket.
+    const { error: salvarErro } = await supabaseAdmin.from("chamados").update({
+      zendesk_ticket_id: t.id, zendesk_ticket_url: t.url, zendesk_email_enviado: false, zendesk_erro: null, zendesk_enviado_em: new Date().toISOString(),
     }).eq("numero", numero);
+    if (salvarErro) throw new Error(`Ticket #${t.id} criado, mas não foi possível salvar o vínculo; nenhum e-mail foi enviado. ${salvarErro.message}`);
+    if (c.enviar_email) {
+      try {
+        if (!c.email_texto?.trim()) throw new Error("Escreva o texto do e-mail.");
+        await enviarEmailTicketExistente(t.id, c.email_texto);
+      } catch (e) {
+        const emailErro = e instanceof Error ? e.message : "Falha ao enviar o e-mail na Zendesk.";
+        await supabaseAdmin.from("chamados").update({ zendesk_erro: emailErro }).eq("numero", numero);
+        return { ok: true, ticketId: t.id, ticketUrl: t.url, emailEnviado: false, emailErro };
+      }
+      const { error: emailSalvarErro } = await supabaseAdmin.from("chamados").update({
+        zendesk_email_enviado: true, zendesk_email_enviado_em: new Date().toISOString(), zendesk_email_enviado_por: c.solicitante, zendesk_erro: null,
+      }).eq("numero", numero);
+      if (emailSalvarErro) return { ok: true, ticketId: t.id, ticketUrl: t.url, emailEnviado: true, emailErro: "E-mail enviado, mas não foi possível salvar a confirmação. Não repita o envio; confira o ticket na Zendesk." };
+    }
     return { ok: true, ticketId: t.id, ticketUrl: t.url, emailEnviado: c.enviar_email };
   } catch (e) {
     const erro = e instanceof Error ? e.message : "Falha ao criar o ticket na Zendesk.";

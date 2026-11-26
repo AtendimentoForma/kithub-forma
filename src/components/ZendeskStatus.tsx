@@ -3,7 +3,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { Button } from "@/components/ui/button";
 import { reenviarChamadoZendesk } from "@/lib/zendesk.functions";
 
-export type ResultadoZd = { ok: true; ticketId: number; ticketUrl: string; emailEnviado: boolean; jaEnviado?: boolean } | { ok: false; erro: string };
+export type ResultadoZd = { ok: true; ticketId: number; ticketUrl: string; emailEnviado: boolean; emailErro?: string; jaEnviado?: boolean } | { ok: false; erro: string };
 
 export function ZendeskResultado({ numero, inicial }: { numero: number; inicial: ResultadoZd | null }) {
   const [r, setR] = useState<ResultadoZd | null>(inicial);
@@ -20,6 +20,7 @@ export function ZendeskResultado({ numero, inicial }: { numero: number; inicial:
       <p className="font-medium">Chamado enviado para a Zendesk (ticket{" "}
         {r.ticketUrl ? <a href={r.ticketUrl} target="_blank" rel="noreferrer" className="underline">#{r.ticketId}</a> : `#${r.ticketId}`})</p>
       <p className="text-muted-foreground">E-mail enviado: {r.emailEnviado ? "Sim" : "Não"}</p>
+      {r.emailErro && <p role="alert" className="text-destructive">{r.emailErro}{!r.emailEnviado && " Abra o chamado e use Enviar e-mail para tentar novamente no mesmo ticket."}</p>}
     </div>
   );
   return (

@@ -30,3 +30,5 @@ Password recovery uses Cloud Auth email links with a same-origin public reset-pa
 Delivery lookups use approved, permission-checked authenticated server functions with strict output mapping and server-only credentials; the SAC form uses a cancellable lookup hook and keeps address fields mounted to preserve manual values across shipment choices.
 
 Zendesk tickets for new chamados are created server-side through the Zendesk connector gateway after the insert; all Zendesk IDs live only in src/lib/zendesk-config.ts so they can be changed without touching the flow, and the stored ticket id prevents duplicate tickets/e-mails.
+
+Zendesk creation is always internal-only; persist its ID before a separate public-comment update and mark email sent only after that update succeeds, so email failures preserve the existing ticket for SAC retries.
