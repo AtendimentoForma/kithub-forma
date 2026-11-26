@@ -15,10 +15,11 @@ export function EnviarEmailZendesk({ numero, podeEnviar, inicial }: { numero: nu
   const [texto, setTexto] = useState("");
   const [erro, setErro] = useState("");
   const [enviando, setEnviando] = useState(false);
-  if (enviado) return (
+  const confirmado = enviado ?? inicial;
+  if (confirmado) return (
     <div className="mt-3 rounded-lg border bg-muted/30 p-3 text-sm">
-      <p className="font-medium">E-mail enviado em {new Date(enviado.em).toLocaleString("pt-BR")} por {enviado.por}</p>
-      <p className="mt-1 whitespace-pre-wrap text-muted-foreground">{enviado.texto}</p>
+      <p className="font-medium">E-mail enviado em {new Date(confirmado.em).toLocaleString("pt-BR")} por {confirmado.por}</p>
+      <p className="mt-1 whitespace-pre-wrap text-muted-foreground">{confirmado.texto}</p>
     </div>
   );
   if (!podeEnviar) return null;

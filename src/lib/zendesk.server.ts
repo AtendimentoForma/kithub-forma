@@ -82,6 +82,7 @@ export async function enviarEmailTicketExistente(ticketId: number, texto: string
     throw new Error("Não foi possível confirmar as tags atuais do ticket. Nenhum e-mail foi enviado.");
   }
   const tags = [...new Set([...existentes, TAG_CHAMADO, TAG_ENVIADO])];
+  if (existentes.includes(TAG_ENVIADO)) throw new Error("O e-mail deste chamado já foi enviado.");
   await zd(`/api/v2/tickets/${ticketId}`, {
     method: "PUT",
     body: JSON.stringify({ ticket: { comment: comentarioPublico(texto), tags, safe_update: true, updated_stamp: updatedStamp } }),

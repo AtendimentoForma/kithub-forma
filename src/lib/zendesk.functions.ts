@@ -2,6 +2,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { enviarChamadoParaZendesk } from "./zendesk-chamado.server";
+import { podeEnviarEmailZendesk } from "./zendesk-permissoes";
 
 export const reenviarChamadoZendesk = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
@@ -18,8 +19,8 @@ export const enviarEmailChamadoZendesk = createServerFn({ method: "POST" })
   .handler(async ({ context, data }) => {
     const { data: aprovado } = await context.supabase.rpc("meu_status_aprovacao");
     if (!aprovado) throw new Error("Seu acesso não está aprovado.");
-    const { data: papeis } = await context.supabase.from("user_roles").select("role").eq("user_id", context.userId);
-    if (!papeis?.some((p) => p.role === "sac" || p.role === "admin")) throw new Error("Somente o SAC pode enviar e-mail pelo chamado.");
+    const { data: papeis, error: papeisErro } = await context.supabase.from("user_roles").select("role").eq("user_id", context.userId);
+    if (papeisErro || !podeEnviarEmailZendesk(papeis?.map((p) => p.role))) throw new Error("Somente o SAC pode enviar e-mail pelo chamado.");
     const { data: c } = await context.supabase.from("chamados").select("numero, zendesk_ticket_id, zendesk_email_enviado").eq("numero", data.numero).maybeSingle();
     if (!c) throw new Error("Chamado não encontrado.");
     if (c.zendesk_email_enviado) throw new Error("O e-mail deste chamado já foi enviado.");
@@ -32,6 +33,7 @@ export const enviarEmailChamadoZendesk = createServerFn({ method: "POST" })
     const por = perfil?.nome || context.claims.email || "SAC";
     const em = new Date().toISOString();
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    await supabaseAdmin.from("chamados").update({ zendesk_email_enviado: true, enviar_email: true, email_texto: texto, zendesk_email_enviado_em: em, zendesk_email_enviado_por: por, zendesk_erro: null }).eq("numero", data.numero);
+    const { error: salvarErro } = await supabaseAdmin.from("chamados").update({ zendesk_email_enviado: true, enviar_email: true, email_texto: texto, zendesk_email_enviado_em: em, zendesk_email_enviado_por: por, zendesk_erro: null }).eq("numero", data.numero);
+    if (salvarErro) throw new Error("E-mail enviado, mas não foi possível salvar a confirmação. Não repita o envio; confira o ticket na Zendesk.");
     return { em, por, texto };
   });

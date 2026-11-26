@@ -18,9 +18,12 @@ import { editarRegistro } from "@/lib/editar-registro.functions";
 import { DESTINOS } from "@/lib/chamados";
 import { ORIGENS_REVERSO } from "@/lib/reversos-schema";
 import type { AnexoReverso } from "@/lib/reversos-schema";
+import { useLocation } from "@tanstack/react-router";
+import { podeEnviarEmailZendesk } from "@/lib/zendesk-permissoes";
 
 export function ChamadoDetalhe({ chamado, onClose }: { chamado: Chamado; onClose: () => void }) {
   const qc = useQueryClient();
+  const noPainelSac = useLocation({ select: (l) => l.pathname.startsWith("/sac") });
   const { data: movs = [] } = useQuery(movimentacoesQuery(chamado.numero));
   const { data: ultimas } = useQuery(ultimasMovimentacoesQuery);
   const { data: leituras } = useQuery(leiturasQuery);
@@ -91,7 +94,7 @@ export function ChamadoDetalhe({ chamado, onClose }: { chamado: Chamado; onClose
             {chamado.responsavelEmail && <p className="mt-1 text-xs text-muted-foreground">E-mail do responsável: {chamado.responsavelEmail}</p>}
             {chamado.zendesk && (chamado.zendesk.ticketId || chamado.responsavelEmail) && <ZendeskResultado numero={chamado.numero} inicial={chamado.zendesk.ticketId ? { ok: true, ticketId: chamado.zendesk.ticketId, ticketUrl: chamado.zendesk.ticketUrl ?? "", emailEnviado: chamado.zendesk.emailEnviado, ...(!chamado.zendesk.emailEnviado && chamado.zendesk.erro ? { emailErro: chamado.zendesk.erro } : {}) } : chamado.zendesk.erro ? { ok: false, erro: chamado.zendesk.erro } : null} />}
             {chamado.zendesk?.emailEnviadoEm ? null : chamado.zendesk?.emailTexto && <p className="mt-1 whitespace-pre-wrap text-xs text-muted-foreground">{chamado.zendesk.emailEnviado ? "Texto enviado" : "Mensagem registrada (ainda não enviada)"}: {chamado.zendesk.emailTexto}</p>}
-            {chamado.zendesk?.ticketId && <EnviarEmailZendesk numero={chamado.numero} podeEnviar={(perfil === "sac" || perfil === "admin") && !chamado.zendesk.emailEnviado} inicial={chamado.zendesk.emailEnviadoEm ? { em: chamado.zendesk.emailEnviadoEm, por: chamado.zendesk.emailEnviadoPor ?? "SAC", texto: chamado.zendesk.emailTexto ?? "" } : null} />}
+            {chamado.zendesk?.ticketId && <EnviarEmailZendesk numero={chamado.numero} podeEnviar={noPainelSac && podeEnviarEmailZendesk(perfil ? [perfil] : []) && !chamado.zendesk.emailEnviado} inicial={chamado.zendesk.emailEnviadoEm ? { em: chamado.zendesk.emailEnviadoEm, por: chamado.zendesk.emailEnviadoPor ?? "SAC", texto: chamado.zendesk.emailTexto ?? "" } : null} />}
           </div>
           <div className="flex items-center gap-2"><StatusBadge status={chamado.status} /><Button variant="ghost" size="icon" onClick={onClose} aria-label="Fechar"><X /></Button></div>
         </div>

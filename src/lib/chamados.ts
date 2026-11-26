@@ -200,6 +200,7 @@ export async function excluirChamado(numero: number) {
 
 export const chamadosQuery = queryOptions({
   queryKey: ["chamados"],
+  refetchInterval: 15000,
   queryFn: async () => {
     const { data, error } = await supabase.from("chamados").select("*").order("numero", { ascending: false });
     if (error) throw error;

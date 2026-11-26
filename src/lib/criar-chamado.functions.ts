@@ -5,6 +5,7 @@ import { enderecoSchema, formatarEndereco } from "@/lib/endereco";
 import { notificarNovoChamadoSlack } from "./slack.server";
 import { enviarChamadoParaZendesk } from "./zendesk-chamado.server";
 import { anexoReversoSchema, validarArquivoReverso } from "./reversos-schema";
+import { podeEnviarEmailZendesk, opcaoEmailZendesk } from "./zendesk-permissoes";
 
 const texto = (max: number) => z.string().trim().min(1).max(max);
 const opcional = (max: number) => z.string().trim().max(max).nullable();
@@ -26,7 +27,7 @@ const chamadoSchema = z.object({
   origemSolicitacao: texto(255), observacao: opcional(1000),
   anexos: z.array(texto(255)).max(20), endereco: enderecoSchema.optional(),
   anexosArquivos: z.array(anexoReversoSchema).max(20).default([]),
-}).refine((c) => !c.enviarEmail || !!c.emailTexto?.trim(), { message: "Escreva a mensagem do e-mail." })
+})
   .refine((c) => c.cpf.replace(/\D/g, "").length === 11, { message: "CPF deve ter 11 dígitos." })
   .refine((c) => c.tipoEnvio !== "Dados do envio original" || (!!c.rastreio && /^\d{4}-\d{2}-\d{2}$/.test(c.dataEnvio ?? "") && !!c.endereco), { message: "Preencha os dados do envio original." })
   .refine((c) => c.tipoEnvio === "Dados do envio original" || !!c.infoEnvio?.trim(), { message: "Preencha a observação das informações de envio." })
@@ -44,13 +45,12 @@ export const criarChamado = createServerFn({ method: "POST" })
       context.supabase.from("user_permissoes").select("permissao").eq("user_id", context.userId),
     ]);
     if (papeisErro || permissoesErro || !papeis?.some((p) => ["admin", "lojinha", "sac"].includes(p.role)) ||
-      (!papeis.some((p) => p.role === "admin") && !permissoes?.some((p) => p.permissao === "chamados" || p.permissao === "reenvios"))) {
+      (!podeEnviarEmailZendesk(papeis.map((p) => p.role)) && !permissoes?.some((p) => p.permissao === "chamados" || p.permissao === "reenvios"))) {
       throw new Error("Você não tem permissão para abrir chamados.");
     }
 
     // Só SAC (ou admin) pode enviar e-mail; Lojinha ou perfil desconhecido = apenas nota interna.
-    const podeEnviarEmail = papeis.some((p) => p.role === "sac" || p.role === "admin");
-    if (!podeEnviarEmail) { c.enviarEmail = false; c.emailTexto = null; }
+    Object.assign(c, opcaoEmailZendesk(papeis.map((p) => p.role), c.enviarEmail, c.emailTexto));
     if (c.enviarEmail && c.emailTexto) { const { prepararTextoEmail } = await import("./zendesk.server"); c.emailTexto = await prepararTextoEmail(c.emailTexto); }
     const original = c.tipoEnvio === "Dados do envio original";
     if (original && (!c.endereco || !c.rastreio || !c.dataEnvio)) throw new Error("Preencha os dados do envio original.");
