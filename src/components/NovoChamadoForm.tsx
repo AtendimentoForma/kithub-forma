@@ -142,7 +142,7 @@ export function NovoChamadoForm({ listaPath }: { listaPath: "/lojinha/chamados" 
     if (motivos.includes("Alteração de endereço") && !g("coletaStatus")) return setErro("Informe se o pedido já foi coletado ou não coletado.");
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(g("responsavelEmail"))) return setErro("Informe um e-mail do responsável válido.");
     if (!g("destino")) return setErro("Selecione o destino.");
-    if (enviarEmail && !g("emailTexto")) return setErro("Escreva a mensagem do e-mail ao solicitante.");
+    if (listaPath === "/sac/chamados" && enviarEmail && !g("emailTexto")) return setErro("Escreva a mensagem do e-mail ao solicitante.");
     if (motivos.includes("Envio correios") && !g("motivoCorreios")) return setErro("Descreva o motivo do envio por correios.");
     if (["CONCLUÍDO", "REENVIO AUTORIZADO", "AGUARDANDO CLIENTE", "ANÁLISE LIDERANÇA", "ANÁLISE LIDERANÇA CONCLUÍDA"].includes(status) && !g("observacao")) return setErro(`Para enviar como "${status}", preencha a observação.`);
     const nomesAnexos = anexos.map((x) => x.name);
@@ -173,7 +173,7 @@ export function NovoChamadoForm({ listaPath }: { listaPath: "/lojinha/chamados" 
       const c = await criarChamado({ data: {
         statusInicial: status,
         paxNome: g("paxNome"), cpf: g("cpf"), paxId: g("paxId"), idDelivery: g("idDelivery"), destino: g("destino"), ano: g("ano"), responsavel: g("responsavel"), responsavelEmail: g("responsavelEmail"),
-        enviarEmail: enviarEmail && motivos.length > 0, emailTexto: enviarEmail ? g("emailTexto") : null,
+        enviarEmail: listaPath === "/sac/chamados" && enviarEmail && motivos.length > 0, emailTexto: listaPath === "/sac/chamados" && enviarEmail ? g("emailTexto") : null,
         tipoEnvio: tipoEnvio as "Dados do envio original", infoEnvio: original ? null : g("infoEnvio"),
         rastreio: original ? g("rastreio") : undefined, endereco: enderecoValidado?.data, dataEnvio: original ? g("dataEnvio") : undefined,
         motivos, motivoOutro: g("motivoOutro") || null, motivoCorreios: g("motivoCorreios") || null, coletaStatus: motivos.includes("Alteração de endereço") ? (g("coletaStatus") as "Coletado" | "Não coletado") : null, origemSolicitacao: origens.join(", "),
@@ -368,7 +368,7 @@ export function NovoChamadoForm({ listaPath }: { listaPath: "/lojinha/chamados" 
           {motivos.includes("Outro") && <div className="mt-4"><Field label="Descreva o motivo" name="motivoOutro" /></div>}
           {motivos.includes("Envio correios") && <div className="mt-4"><Field label="Descreva o motivo do envio por correios" name="motivoCorreios" maxLength={255} /></div>}
           {motivos.includes("Alteração de endereço") && <label className="mt-4 block text-sm font-medium">O pedido já foi coletado? *<select name="coletaStatus" required defaultValue="" className="mt-1.5 h-10 w-full rounded-lg border border-input bg-background px-3 text-sm sm:max-w-xs"><option value="" disabled>Selecione</option><option>Coletado</option><option>Não coletado</option></select></label>}
-          {motivos.length > 0 && <div className="mt-4 space-y-3">
+          {motivos.length > 0 && listaPath === "/sac/chamados" && <div className="mt-4 space-y-3">
             <label className="flex items-center gap-2 text-sm font-medium"><input type="checkbox" checked={enviarEmail} onChange={(e) => setEnviarEmail(e.target.checked)} className="h-4 w-4 accent-primary" /> Deseja enviar e-mail?</label>
             {enviarEmail && <label className="block text-sm font-medium">Mensagem para o solicitante *
               <Textarea name="emailTexto" required rows={5} maxLength={5000} className="mt-1.5" />

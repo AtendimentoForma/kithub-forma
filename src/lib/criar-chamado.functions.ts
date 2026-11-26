@@ -48,6 +48,9 @@ export const criarChamado = createServerFn({ method: "POST" })
       throw new Error("Você não tem permissão para abrir chamados.");
     }
 
+    // Só SAC (ou admin) pode enviar e-mail; Lojinha ou perfil desconhecido = apenas nota interna.
+    const podeEnviarEmail = papeis.some((p) => p.role === "sac" || p.role === "admin");
+    if (!podeEnviarEmail) { c.enviarEmail = false; c.emailTexto = null; }
     const original = c.tipoEnvio === "Dados do envio original";
     if (original && (!c.endereco || !c.rastreio || !c.dataEnvio)) throw new Error("Preencha os dados do envio original.");
     for (const anexo of c.anexosArquivos) {
