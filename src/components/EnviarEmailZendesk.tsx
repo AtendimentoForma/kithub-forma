@@ -33,7 +33,7 @@ export function EnviarEmailZendesk({ numero, podeEnviar, inicial }: { numero: nu
   return (
     <div className="mt-3 space-y-2 text-sm">
       {!aberto ? <Button variant="outline" size="sm" onClick={() => setAberto(true)}>Enviar e-mail</Button> : <>
-        <Textarea value={texto} onChange={(e) => setTexto(e.target.value)} rows={4} placeholder="Texto que será enviado ao solicitante (a assinatura é incluída automaticamente)" />
+        <Textarea value={texto} onChange={(e) => setTexto(e.target.value)} rows={4} placeholder="Texto que será enviado ao solicitante (a assinatura é adicionada pela Zendesk)" />
         <div className="flex gap-2"><Button size="sm" disabled={enviando} onClick={enviar}>{enviando ? "Enviando..." : "Enviar e-mail"}</Button><Button size="sm" variant="ghost" disabled={enviando} onClick={() => setAberto(false)}>Cancelar</Button></div>
       </>}
       {erro && <p role="alert" className="text-destructive">{erro}</p>}

@@ -19,15 +19,26 @@ function textoParaHtml(t: string) {
   return t.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/\r?\n/g, "<br>");
 }
 
-async function assinaturaDaMarca(): Promise<string> {
+// A Zendesk já adiciona a assinatura da marca ao e-mail; o KitHub nunca a inclui.
+// Proteção: se o texto digitado já terminar com a assinatura da marca, remove esse bloco final.
+async function semAssinaturaFinal(texto: string): Promise<string> {
   try {
     const r = await zd(`/api/v2/brands/${Z.marca.id}`);
-    const t: string = r.brand?.signature_template ?? "";
-    if (!t.trim()) return "";
-    const esc = textoParaHtml(t.replace(/\{\{[^}]*\}\}/g, "").trim());
-    return esc.replace(/!\[([^\]]*)\]\((https:\/\/[^)\s]+)\)/g, '<img src="$2" alt="$1">');
-  } catch (e) { console.error("Assinatura da marca indisponível:", e); return ""; }
+    const sig = String(r.brand?.signature_template ?? "").replace(/\{\{[^}]*\}\}/g, "").replace(/!\[[^\]]*\]\([^)]*\)/g, "").trim();
+    const norm = (t: string) => t.replace(/\s+/g, " ").trim();
+    if (sig && norm(texto).endsWith(norm(sig))) {
+      const linhas = texto.trimEnd().split(/\r?\n/);
+      for (let i = linhas.length - 1; i >= 0; i--) if (norm(linhas.slice(i).join("\n")) === norm(sig)) return linhas.slice(0, i).join("\n").trimEnd();
+    }
+  } catch (e) { console.error("Não foi possível conferir a assinatura da marca:", e); }
+  return texto;
 }
+
+export function comentarioPublico(texto: string) {
+  return { html_body: textoParaHtml(texto), public: true, ...(AGENTE_ASSINATURA_ID ? { author_id: AGENTE_ASSINATURA_ID } : {}) };
+}
+
+export async function prepararTextoEmail(texto: string): Promise<string> { return semAssinaturaFinal(texto.trim()); }
 
 export type DadosTicket = {
   numero: number; paxId: string; responsavelEmail: string; responsavel: string; destino: string;
@@ -41,7 +52,6 @@ export async function criarTicketZendesk(d: DadosTicket): Promise<{ id: number; 
     { id: Z.campoMotivo.id, value: Z.campoMotivo.valor },
     { id: Z.campoDestino.id, value: DESTINO_TAG[d.destino] ?? d.destino },
   ];
-  const assinatura = d.enviarEmail ? await assinaturaDaMarca() : "";
   const ticket = {
     subject: `CHAMADO KITHUB - ${d.paxId}`,
     status: "pending", priority: "normal",
@@ -50,7 +60,7 @@ export async function criarTicketZendesk(d: DadosTicket): Promise<{ id: number; 
     via: { channel: "email" },
     tags: tagsDoTicket(d.enviarEmail),
     custom_fields,
-    comment: d.enviarEmail ? { html_body: textoParaHtml(d.emailTexto ?? "") + (assinatura ? `<br><br>${assinatura}` : ""), public: true, ...(AGENTE_ASSINATURA_ID ? { author_id: AGENTE_ASSINATURA_ID } : {}) } : { body: d.notaInterna, public: false },
+    comment: d.enviarEmail ? comentarioPublico(d.emailTexto ?? "") : { body: d.notaInterna, public: false },
   };
   const res = await zd("/api/v2/tickets", {
     method: "POST", body: JSON.stringify({ ticket }),
@@ -65,12 +75,8 @@ export async function criarTicketZendesk(d: DadosTicket): Promise<{ id: number; 
 }
 
 export async function enviarEmailTicketExistente(ticketId: number, texto: string): Promise<void> {
-  const assinatura = await assinaturaDaMarca();
   await zd(`/api/v2/tickets/${ticketId}`, {
     method: "PUT",
-    body: JSON.stringify({ ticket: {
-      comment: { html_body: textoParaHtml(texto) + (assinatura ? `<br><br>${assinatura}` : ""), public: true, ...(AGENTE_ASSINATURA_ID ? { author_id: AGENTE_ASSINATURA_ID } : {}) },
-      additional_tags: [TAG_ENVIADO],
-    } }),
+    body: JSON.stringify({ ticket: { comment: comentarioPublico(texto), additional_tags: [TAG_ENVIADO] } }),
   });
 }

@@ -51,6 +51,7 @@ export const criarChamado = createServerFn({ method: "POST" })
     // Só SAC (ou admin) pode enviar e-mail; Lojinha ou perfil desconhecido = apenas nota interna.
     const podeEnviarEmail = papeis.some((p) => p.role === "sac" || p.role === "admin");
     if (!podeEnviarEmail) { c.enviarEmail = false; c.emailTexto = null; }
+    if (c.enviarEmail && c.emailTexto) { const { prepararTextoEmail } = await import("./zendesk.server"); c.emailTexto = await prepararTextoEmail(c.emailTexto); }
     const original = c.tipoEnvio === "Dados do envio original";
     if (original && (!c.endereco || !c.rastreio || !c.dataEnvio)) throw new Error("Preencha os dados do envio original.");
     for (const anexo of c.anexosArquivos) {
