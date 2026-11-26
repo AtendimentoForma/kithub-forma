@@ -1,0 +1,1 @@
+ALTER TABLE public.chamados ADD COLUMN IF NOT EXISTS zendesk_email_enviado_em timestamptz, ADD COLUMN IF NOT EXISTS zendesk_email_enviado_por text;

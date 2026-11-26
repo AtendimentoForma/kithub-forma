@@ -130,6 +130,8 @@ export type Database = {
           status_pagamento: string | null
           valor_frete: number | null
           zendesk_email_enviado: boolean
+          zendesk_email_enviado_em: string | null
+          zendesk_email_enviado_por: string | null
           zendesk_enviado_em: string | null
           zendesk_erro: string | null
           zendesk_ticket_id: number | null
@@ -173,6 +175,8 @@ export type Database = {
           status_pagamento?: string | null
           valor_frete?: number | null
           zendesk_email_enviado?: boolean
+          zendesk_email_enviado_em?: string | null
+          zendesk_email_enviado_por?: string | null
           zendesk_enviado_em?: string | null
           zendesk_erro?: string | null
           zendesk_ticket_id?: number | null
@@ -216,6 +220,8 @@ export type Database = {
           status_pagamento?: string | null
           valor_frete?: number | null
           zendesk_email_enviado?: boolean
+          zendesk_email_enviado_em?: string | null
+          zendesk_email_enviado_por?: string | null
           zendesk_enviado_em?: string | null
           zendesk_erro?: string | null
           zendesk_ticket_id?: number | null

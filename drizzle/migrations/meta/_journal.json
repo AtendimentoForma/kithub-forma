@@ -211,6 +211,13 @@
       "when": 1795635666376,
       "tag": "0029_chamados_zendesk",
       "breakpoints": true
+    },
+    {
+      "idx": 30,
+      "version": "7",
+      "when": 1795701765667,
+      "tag": "0030_chamados_email_posterior",
+      "breakpoints": true
     }
   ]
 }

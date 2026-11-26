@@ -1,4 +1,4 @@
-import { AGENTE_ASSINATURA_ID, ZENDESK_CONFIG as Z, DESTINO_TAG, idsFaltando, tagsDoTicket } from "./zendesk-config";
+import { AGENTE_ASSINATURA_ID, TAG_ENVIADO, ZENDESK_CONFIG as Z, DESTINO_TAG, idsFaltando, tagsDoTicket } from "./zendesk-config";
 
 const GATEWAY = "https://connector-gateway.lovable.dev/zendesk";
 
@@ -62,4 +62,15 @@ export async function criarTicketZendesk(d: DadosTicket): Promise<{ id: number; 
   }
   const url = `https://ajudaformaturismo.zendesk.com/agent/tickets/${id}`;
   return { id, url };
+}
+
+export async function enviarEmailTicketExistente(ticketId: number, texto: string): Promise<void> {
+  const assinatura = await assinaturaDaMarca();
+  await zd(`/api/v2/tickets/${ticketId}`, {
+    method: "PUT",
+    body: JSON.stringify({ ticket: {
+      comment: { html_body: textoParaHtml(texto) + (assinatura ? `<br><br>${assinatura}` : ""), public: true, ...(AGENTE_ASSINATURA_ID ? { author_id: AGENTE_ASSINATURA_ID } : {}) },
+      additional_tags: [TAG_ENVIADO],
+    } }),
+  });
 }
