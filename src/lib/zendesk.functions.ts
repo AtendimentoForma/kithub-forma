@@ -28,7 +28,9 @@ export const enviarEmailChamadoZendesk = createServerFn({ method: "POST" })
     const { enviarEmailTicketExistente, prepararTextoEmail } = await import("./zendesk.server");
     const texto = await prepararTextoEmail(data.texto);
     if (!texto) throw new Error("Escreva o texto do e-mail.");
-    await enviarEmailTicketExistente(c.zendesk_ticket_id, texto);
+    const { data: identidade, error: identidadeErro } = await context.supabase.auth.getUser();
+    if (identidadeErro || identidade.user?.id !== context.userId || !identidade.user.email) throw new Error("Não foi possível identificar o agente SAC. Nenhum e-mail foi enviado.");
+    await enviarEmailTicketExistente(c.zendesk_ticket_id, texto, identidade.user.email);
     const { data: perfil } = await context.supabase.from("profiles").select("nome").eq("id", context.userId).maybeSingle();
     const por = perfil?.nome || context.claims.email || "SAC";
     const em = new Date().toISOString();

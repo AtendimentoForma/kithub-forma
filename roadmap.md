@@ -1,5 +1,7 @@
 # Roadmap
 
+- [x] Identificar o autor do e-mail na Zendesk pelo agente SAC autenticado nos dois fluxos, sem Julia como padrão — 37 testes passaram e agente real conferido; sem envio de e-mail real
+
 - [x] Garantir criação e envio Zendesk para todos os agentes SAC por perfil, mantendo Lojinha sem e-mail; testes e telas conferidos com conta temporária, sem envio real
 
 - [x] Busca Delivery disparada só por botão de lupa ou Enter; digitação não consulta

@@ -11,7 +11,7 @@ function cliente(enviarEmail: boolean, ticketId: number | null = null, role = "s
   const registro = { numero: 19, zendesk_ticket_id: ticketId, zendesk_ticket_url: "ticket/123", zendesk_email_enviado: false,
     responsavel_email: "teste@example.com", destino: "Floripa", motivos: ["Outro"], criado_em: "2026-11-26T12:00:00Z",
     solicitante: "Agente SAC", enviar_email: enviarEmail, email_texto: "Minha mensagem", pax_id: "PAX19", anexos: [] };
-  return { auth: { getUser: async () => ({ data: { user: { id: "authenticated-agent" } } }) },
+  return { auth: { getUser: async () => ({ data: { user: { id: "authenticated-agent", email: "karinna.paixao@formaturismo.com.br" } } }) },
     from: (table: string) => ({ select: () => ({ eq: () => table === "user_roles" ? Promise.resolve({ data: [{ role }], error: null }) : ({ maybeSingle: async () => ({ data: registro, error: null }) }) }) }) } as unknown as SupabaseClient<Database>;
 }
 
@@ -35,7 +35,7 @@ describe("persistência entre criação e envio", () => {
   it("aguarda criação e grava ID antes de enviar; marca enviado somente após sucesso", async () => {
     expect(await enviarChamadoParaZendesk(cliente(true), 19)).toMatchObject({ ok: true, ticketId: 123, emailEnviado: true });
     expect(mocks.events).toEqual(["criar", "salvar-ticket", "enviar", "salvar-email"]);
-    expect(mocks.enviar).toHaveBeenCalledWith(123, "Minha mensagem");
+    expect(mocks.enviar).toHaveBeenCalledWith(123, "Minha mensagem", "karinna.paixao@formaturismo.com.br");
   });
   it("opção desmarcada para após salvar o ticket interno", async () => {
     expect(await enviarChamadoParaZendesk(cliente(false), 19)).toMatchObject({ ok: true, emailEnviado: false });

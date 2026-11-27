@@ -50,14 +50,14 @@ export async function enviarChamadoParaZendesk(sb: SupabaseClient<Database>, num
     if (enviarEmail) {
       try {
         if (!c.email_texto?.trim()) throw new Error("Escreva o texto do e-mail.");
-        await enviarEmailTicketExistente(t.id, c.email_texto);
+        await enviarEmailTicketExistente(t.id, c.email_texto, identidade.user?.email ?? "");
       } catch (e) {
         const emailErro = e instanceof Error ? e.message : "Falha ao enviar o e-mail na Zendesk.";
         await supabaseAdmin.from("chamados").update({ zendesk_erro: emailErro }).eq("numero", numero);
         return { ok: true, ticketId: t.id, ticketUrl: t.url, emailEnviado: false, emailErro };
       }
       const { error: emailSalvarErro } = await supabaseAdmin.from("chamados").update({
-        zendesk_email_enviado: true, zendesk_email_enviado_em: new Date().toISOString(), zendesk_email_enviado_por: c.solicitante, zendesk_erro: null,
+        zendesk_email_enviado: true, zendesk_email_enviado_em: new Date().toISOString(), zendesk_email_enviado_por: identidade.user?.email ?? "SAC", zendesk_erro: null,
       }).eq("numero", numero);
       if (emailSalvarErro) return { ok: true, ticketId: t.id, ticketUrl: t.url, emailEnviado: true, emailErro: "E-mail enviado, mas não foi possível salvar a confirmação. Não repita o envio; confira o ticket na Zendesk." };
     }

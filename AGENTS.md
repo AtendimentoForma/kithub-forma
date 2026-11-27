@@ -38,3 +38,5 @@ Zendesk individual ticket updates must read current tags and send their union wi
 Zendesk email authorization uses a shared role policy with server-side user_roles reads; SAC creation is not gated by granular workflow permissions, existing admin authorization is preserved, and UI hides email actions in the Lojinha workspace.
 
 Resolve primary access with admin first, then SAC, then Lojinha so an additional Lojinha role cannot mask SAC access.
+
+Resolve Zendesk public-comment authors server-side from the authenticated caller's email and an exact active agent match; never fall back to the connector account, so creation and later sends identify the acting agent without changing ticket assignment.

@@ -1,4 +1,4 @@
-import { AGENTE_ASSINATURA_ID, TAG_CHAMADO, TAG_ENVIADO, ZENDESK_CONFIG as Z, DESTINO_TAG, idsFaltando, tagsDoTicket } from "./zendesk-config";
+import { TAG_CHAMADO, TAG_ENVIADO, ZENDESK_CONFIG as Z, DESTINO_TAG, idsFaltando, tagsDoTicket } from "./zendesk-config";
 
 const GATEWAY = "https://connector-gateway.lovable.dev/zendesk";
 
@@ -34,8 +34,31 @@ async function semAssinaturaFinal(texto: string): Promise<string> {
   return texto;
 }
 
-export function comentarioPublico(texto: string) {
-  return { html_body: textoParaHtml(texto), public: true, ...(AGENTE_ASSINATURA_ID ? { author_id: AGENTE_ASSINATURA_ID } : {}) };
+export async function agenteZendeskPorEmail(email: string): Promise<number> {
+  const normalizado = email.trim().toLowerCase();
+  if (!normalizado) throw new Error("Não foi possível identificar o e-mail do agente SAC. Nenhum e-mail foi enviado.");
+  let pagina = 1;
+  const encontrados = new Set<number>();
+  for (;;) {
+    const resultado = await zd(`/api/v2/users/search?query=${encodeURIComponent(normalizado)}&page=${pagina}`);
+    const usuarios: unknown = resultado.users;
+    if (!Array.isArray(usuarios)) throw new Error("Não foi possível consultar os agentes da Zendesk. Nenhum e-mail foi enviado.");
+    for (const usuario of usuarios) {
+      if (usuario && typeof usuario === "object" && typeof usuario.email === "string"
+        && usuario.email.trim().toLowerCase() === normalizado
+        && (usuario.role === "agent" || usuario.role === "admin") && usuario.active === true && usuario.suspended !== true
+        && Number.isSafeInteger(usuario.id) && usuario.id > 0) encontrados.add(usuario.id);
+    }
+    if (!resultado.next_page) break;
+    pagina += 1; // Nunca usar next_page: é uma URL que ignora a conexão segura.
+  }
+  const [id] = [...encontrados];
+  if (encontrados.size !== 1 || id === undefined) throw new Error("Seu e-mail de login precisa corresponder a um único agente ativo na Zendesk. Nenhum e-mail foi enviado.");
+  return id;
+}
+
+export function comentarioPublico(texto: string, agenteId: number) {
+  return { html_body: textoParaHtml(texto), public: true, author_id: agenteId };
 }
 
 export async function prepararTextoEmail(texto: string): Promise<string> { return semAssinaturaFinal(texto.trim()); }
@@ -72,7 +95,7 @@ export async function criarTicketZendesk(d: DadosTicket): Promise<{ id: number; 
   return { id, url };
 }
 
-export async function enviarEmailTicketExistente(ticketId: number, texto: string): Promise<void> {
+export async function enviarEmailTicketExistente(ticketId: number, texto: string, emailAgente: string): Promise<void> {
   // additional_tags é ignorado na atualização individual. Enviar tags com a união
   // das existentes no MESMO PUT do comentário, para o gatilho de e-mail enxergar a tag.
   const atual = await zd(`/api/v2/tickets/${ticketId}`);
@@ -83,8 +106,9 @@ export async function enviarEmailTicketExistente(ticketId: number, texto: string
   }
   const tags = [...new Set([...existentes, TAG_CHAMADO, TAG_ENVIADO])];
   if (existentes.includes(TAG_ENVIADO)) throw new Error("O e-mail deste chamado já foi enviado.");
+  const agenteId = await agenteZendeskPorEmail(emailAgente);
   await zd(`/api/v2/tickets/${ticketId}`, {
     method: "PUT",
-    body: JSON.stringify({ ticket: { comment: comentarioPublico(texto), tags, safe_update: true, updated_stamp: updatedStamp } }),
+    body: JSON.stringify({ ticket: { comment: comentarioPublico(texto, agenteId), tags, safe_update: true, updated_stamp: updatedStamp } }),
   });
 }
